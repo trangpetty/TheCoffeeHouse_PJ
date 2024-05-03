@@ -25,16 +25,14 @@ public class Voucher {
 
     @Column(name = "name")
     private String name;
-    @Column(name = "size", length = 1)
-    private String size;
     @Column(name = "image")
     private String image;
     @Column(name = "value")
     private double value;
-    @Column(name = "status")
+    @Column(name = "status", columnDefinition = "INT DEFAULT 0")
     private int status;
     @Column(name = "apply_from", nullable = false)
-    private LocalDateTime applyForm;
+    private LocalDateTime applyFrom;
     @Column(name = "apply_to", nullable = false)
     private LocalDateTime applyTo;
 

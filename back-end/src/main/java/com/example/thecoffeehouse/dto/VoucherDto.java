@@ -12,11 +12,10 @@ import java.time.LocalDateTime;
 public class VoucherDto {
     private Long id;
     private String name;
-    private String size;
     private String image;
     private double value;
     private int status;
-    private LocalDateTime applyForm;
+    private LocalDateTime applyFrom;
     private LocalDateTime applyTo;
     private LocalDateTime createTime;
     private LocalDateTime modifyTime;
