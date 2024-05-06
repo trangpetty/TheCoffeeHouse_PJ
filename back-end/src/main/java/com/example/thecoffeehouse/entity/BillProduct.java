@@ -30,13 +30,4 @@ public class BillProduct {
     private int quantity;
     @Column(name = "price")
     private double price;
-
-    @CreationTimestamp
-    @Column(name = "create_time", nullable = false, updatable = false)
-    private Date createTime;
-
-    @UpdateTimestamp
-    @Column(name = "modify_time")
-    private Date modifyTime;
-
 }

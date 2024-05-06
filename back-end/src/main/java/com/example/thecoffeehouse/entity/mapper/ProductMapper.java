@@ -9,10 +9,11 @@ public class ProductMapper {
             productDto.getId(),
             productDto.getTypeID(),
             productDto.getName(),
+            productDto.getImage(),
             productDto.getSize(),
             productDto.getPrice(),
             productDto.getCreateTime(),
-            productDto.getModifyTime() 
+            productDto.getModifyTime()
         );
 
         return product;
@@ -23,6 +24,7 @@ public class ProductMapper {
             product.getId(),
             product.getTypeID(),
             product.getName(),
+            product.getImage(),
             product.getSize(),
             product.getPrice(),
             product.getCreateTime(),

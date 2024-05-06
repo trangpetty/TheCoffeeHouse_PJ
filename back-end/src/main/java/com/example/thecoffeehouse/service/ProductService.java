@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 
 import com.example.thecoffeehouse.dto.ProductDto;
 
+import java.util.List;
+
 public interface ProductService {
     ProductDto createProduct(ProductDto productDto);
 
@@ -16,4 +18,6 @@ public interface ProductService {
     Page<ProductDto> getAllProducts(String name, Long typeID, Pageable pageable);
 
     ProductDto updateProduct(Long id, ProductDto productDto);
+
+    List<ProductDto> getProductsByTypeID(Long typeID);
 }

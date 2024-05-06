@@ -26,6 +26,8 @@ public class Product {
     private Long TypeID;
     @Column(name = "name")
     private String name;
+    @Column(name = "image")
+    private String image;
     @Column(name = "size", length = 1)
     private String size;
     @Column(name = "price")

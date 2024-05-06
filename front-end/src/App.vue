@@ -6,6 +6,8 @@
 :root {
   --brown: #724E2C;
   --white: #fff;
+  --orange-1: rgba(232, 130, 21, .7);
+  --radial-gradient-orange-1: radial-gradient(100% 501.4% at 0% 100%, #ffb141 0%, #fb8d17 100%);
 }
 
 #app {
@@ -14,48 +16,27 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.text-brown {
-  color: var(--brown);
+.bg-header {
+  background: var(--radial-gradient-orange-1)!important;
 }
 
-a { 
-  text-decoration: none!important;
+.header-delivery--bg {
+    background-color: var(--orange-1);
 }
 
-.bg-brown {
-  background-color: var(--brown)!important;
-  border-color: var(--brown)!important;
+.header-delivery {
+  border-radius: 50px;
+  cursor: pointer;
+  height: 3.25rem;
+  width: 16rem;
+  padding: 0.5rem;
 }
 
-.btn-outline-brown {
-  --bs-btn-color: var(--brown) !important;
-  --bs-btn-border-color: var(--brown) !important;
-  --bs-btn-hover-color: #fff!important;
-  --bs-btn-hover-bg: var(--brown)!important;
-  --bs-btn-hover-border-color: var(--brown)!important;
-  --bs-btn-focus-shadow-rgb: 25, 135, 84!important;
-  --bs-btn-active-color: #fff!important;
-  --bs-btn-active-bg: var(--brown) !important;
-  --bs-btn-active-border-color: var(--brown) !important;
-  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125)!important;
-  --bs-btn-disabled-color: var(--brown)!important;
-  --bs-btn-disabled-bg: transparent!important;
-  --bs-btn-disabled-border-color: var(--brown)!important;
-  --bs-gradient: none;
+.header-delivery .icon-delivery {
+    border-radius: 50%;
+    flex-shrink: 0;
+    height: 2.5rem;
+    width: 2.5rem;
 }
 
-nav a button.btn{
-  font-weight: bold;
-  color: var(--white);
-}
-
-nav a button.btn:hover,
-nav a.router-link-exact-active button.btn {
-  background-color: var(--white);
-  color: var(--brown);
-}
-
-nav a button.btn:hover {
-  opacity: 0.7;
-}
 </style>

@@ -11,6 +11,7 @@ import com.example.thecoffeehouse.dto.ProductDto;
 import com.example.thecoffeehouse.service.ProductService;
 
 import javax.swing.text.html.parser.Entity;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -48,5 +49,11 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.ok("success");
+    }
+
+    @GetMapping("/type/{typeID}")
+    public ResponseEntity<List<ProductDto>> getProductsByTypeID(@PathVariable Long typeID) {
+        List<ProductDto> productDtos = productService.getProductsByTypeID(typeID);
+        return ResponseEntity.ok(productDtos);
     }
 }

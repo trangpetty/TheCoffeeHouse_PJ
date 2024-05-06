@@ -1,6 +1,7 @@
 package com.example.thecoffeehouse.service.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -56,6 +57,14 @@ public class ProductServiceImpl implements ProductService {
 
         Product updatedProduct = productRepository.save(product);
         return ProductMapper.mapToProductDto(updatedProduct);
+    }
+
+    @Override
+    public List<ProductDto> getProductsByTypeID(Long typeID) {
+        List<Product> products = productRepository.getProductsByTypeID(typeID);
+        return products.stream()
+                .map(ProductMapper::mapToProductDto)
+                .collect(Collectors.toList());
     }
 
 

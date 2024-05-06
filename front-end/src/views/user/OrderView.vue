@@ -1,70 +1,10 @@
 <template>
-  <div>
-    <div class="container">
-      <div class="d-flex justify-content-center py-2">
-        <div class="px-5">
-          <a href="#" class="text-brown">
-            <font-awesome-icon icon="fa-solid fa-location-dot" class="me-1"/>
-            <span>Cua hang khap ca nuoc</span>
-          </a>
-        </div>
-        <div>
-          <a href="#" class="text-brown">
-            <font-awesome-icon icon="fa-solid fa-phone" class="me-1"/>
-            <span>Dat hang: 1800.0000</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-  <header>
-    <div class="container">
-      <nav class="navbar navbar-expand-lg justify-content-center">
-      <div class="container">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-          <ul class="navbar-nav fw-bold">
-            <li class="nav-item px-3">
-              <a class="navbar-brand fw-bolder" href="#">THE COFFEE HOUSE</a>  
-            </li>
-            <li class="nav-item px-3">
-              <a class="nav-link" href="#">Coffee</a>
-            </li>
-            <li class="nav-item px-3">
-              <a class="nav-link" href="#">Tea</a>
-            </li>
-            <li class="nav-item px-3 dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Menu
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="#">Action</a>
-                <a class="dropdown-item" href="#">Another action</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#">Something else here</a>
-              </div>
-            </li>
-            <li class="nav-item px-3 dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Menu
-              </a>
-              <ul>
-                
-              </ul>
-            </li>
-            <li class="nav-item px-3">
-              <a class="nav-link" href="#">Coffee</a>
-            </li>
-            <li class="nav-item px-3">
-              <a class="nav-link" href="#">Coffee</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-
+  <header class="bg-header d-flex align-items-center">
+    <div class="container-fluid container-lg d-flex align-items-center">
+      <a class="navbar-brand fw-bolder" href="#">THE COFFEE HOUSE</a> 
+      <div class="header-delivery header-delivery--bg">
+        <img src="/src/assets/images/Delivery2.png" alt="" class="icon-delivery">
+      </div> 
     </div>
   </header>
   <main>

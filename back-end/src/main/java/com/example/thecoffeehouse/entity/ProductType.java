@@ -1,6 +1,6 @@
 package com.example.thecoffeehouse.entity;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -24,13 +24,16 @@ public class ProductType {
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "image")
+    private String image;
     
     @CreationTimestamp
     @Column(name = "create_time", nullable = false, updatable = false)
-    private Date createTime;
+    private LocalDateTime createTime;
 
     @UpdateTimestamp
     @Column(name = "modify_time")
-    private Date modifyTime;
+    private LocalDateTime modifyTime;
 
 }
