@@ -29,13 +29,13 @@ public class ProductTypeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductType> updateProductType(@PathVariable Long id, @RequestBody ProductType updateProductType) {
+    public ResponseEntity<ProductType> updateProductType(@PathVariable String id, @RequestBody ProductType updateProductType) {
         ProductType productType = productTypeService.updateProductType(id, updateProductType);
         return ResponseEntity.ok(productType);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProductType (@PathVariable Long id) {
+    public ResponseEntity<String> deleteProductType (@PathVariable String id) {
         productTypeService.deleteProductType(id);
         return ResponseEntity.ok("success");
     }

@@ -10,9 +10,9 @@ import java.util.Date;
 public interface VoucherService {
     VoucherDto createVoucher(VoucherDto voucherDto);
 
-    void deleteVoucher(Long id);
+    void deleteVoucher(String id);
 
     Page<VoucherDto> getAllVouchers(String name, int status, Date from, Date to, Pageable pageable);
 
-    VoucherDto updateVoucher(Long id, VoucherDto voucherDto);
+    VoucherDto updateVoucher(String id, VoucherDto voucherDto);
 }

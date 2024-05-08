@@ -11,13 +11,13 @@ import java.util.List;
 public interface ProductService {
     ProductDto createProduct(ProductDto productDto);
 
-    ProductDto getProductById(Long id);
+    ProductDto getProductById(String id);
 
-    void deleteProduct(Long id);
+    void deleteProduct(String id);
 
-    Page<ProductDto> getAllProducts(String name, Long typeID, Pageable pageable);
+    Page<ProductDto> getAllProducts(String name, String typeID, Pageable pageable);
 
-    ProductDto updateProduct(Long id, ProductDto productDto);
+    ProductDto updateProduct(String id, ProductDto productDto);
 
-    List<ProductDto> getProductsByTypeID(Long typeID);
+    List<ProductDto> getProductsByTypeID(String typeID);
 }

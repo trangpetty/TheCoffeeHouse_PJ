@@ -1,15 +1,13 @@
 package com.example.thecoffeehouse.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.example.thecoffeehouse.entity.BillProduct;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface BillProductRepository extends JpaRepository<BillProduct, Long>{
-    @Query("select bp from BillProduct bp " +
-            "where bp.billID = :id")
-    List<BillProduct> getBillProductByBillID(@Param("id") Long id);
+public interface BillProductRepository extends MongoRepository<BillProduct, String> {
+    @Query("{ 'billID' : ?0 }")
+    List<BillProduct> getBillProductByBillID(String id);
 }

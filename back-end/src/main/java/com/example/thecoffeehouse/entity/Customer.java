@@ -2,40 +2,31 @@ package com.example.thecoffeehouse.entity;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "customer")
+@Document(collection = "customer")
 public class Customer {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "name")
+    private String id;
     private String name;
-    @Column(name = "address")
     private String address;
-    @Column(name = "phone_number", length = 10)
     private String phoneNumber;
-    @Column(name = "point")
     private int point;
 
-    @CreationTimestamp
-    @Column(name = "create_time", nullable = false, updatable = false)
+    @CreatedDate
     private LocalDateTime createTime;
 
-    @UpdateTimestamp
-    @Column(name = "modify_time")
+    @LastModifiedDate
     private LocalDateTime modifyTime;
 }

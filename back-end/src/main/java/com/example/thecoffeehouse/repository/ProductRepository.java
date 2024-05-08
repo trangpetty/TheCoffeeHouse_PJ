@@ -2,18 +2,18 @@ package com.example.thecoffeehouse.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.thecoffeehouse.entity.Product;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ProductRepository extends JpaRepository<Product, Long>{
-    @Query("SELECT p FROM Product p WHERE p.name LIKE %:name% AND p.TypeID = :typeID")
-    Page<Product> getAllProducts(@Param("name") String name, @Param("typeID") Long typeID, Pageable pageable);
+public interface ProductRepository extends MongoRepository<Product, String> {
+    @Query("{ 'name' : { $regex: ?0, $options: 'i' }, 'TypeID' : ?1 }")
+    Page<Product> getAllProducts(String name, String typeID, Pageable pageable);
 
-    @Query("SELECT p FROM Product p WHERE p.TypeID = :typeID")
-    List<Product> getProductsByTypeID(@Param("typeID") Long typeID);
+    @Query("{ 'typeID' : ?0 }")
+    List<Product> getProductsByTypeID(String typeID);
 }

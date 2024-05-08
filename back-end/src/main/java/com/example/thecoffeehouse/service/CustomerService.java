@@ -7,11 +7,11 @@ import org.springframework.data.domain.Pageable;
 public interface CustomerService {
     CustomerDto createCustomer(CustomerDto customerDto);
 
-    CustomerDto updateCustomer(Long id, CustomerDto customerDto);
+    CustomerDto updateCustomer(String id, CustomerDto customerDto);
 
     Page<CustomerDto> getAllCustomers(String name, String phoneNumber, Pageable pageable);
 
-    CustomerDto getCustomerById(Long id);
+    CustomerDto getCustomerById(String id);
 
-    void deleteCustomer(Long id);
+    void deleteCustomer(String id);
 }

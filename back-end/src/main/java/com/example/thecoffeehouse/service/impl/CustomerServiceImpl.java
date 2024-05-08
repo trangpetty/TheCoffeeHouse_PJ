@@ -27,7 +27,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerDto updateCustomer(Long id, CustomerDto customerDto) {
+    public CustomerDto updateCustomer(String id, CustomerDto customerDto) {
         Customer customer = customerRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer does not exists"));
@@ -46,7 +46,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerDto getCustomerById(Long id) {
+    public CustomerDto getCustomerById(String id) {
         Customer customer = customerRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer does not exists"));
@@ -54,7 +54,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void deleteCustomer(Long id) {
+    public void deleteCustomer(String id) {
         Customer customer = customerRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer does not exists"));

@@ -13,6 +13,6 @@ public interface BillService {
 
     BillDto createBill(BillDto billDto);
 
-    BillDto updateBill(Long id, BillDto billDto);
+    BillDto updateBill(String id, BillDto billDto);
 
 }

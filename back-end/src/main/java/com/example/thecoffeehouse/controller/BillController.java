@@ -36,7 +36,7 @@ public class BillController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BillDto> updateBill(@PathVariable("id") long id, @RequestBody BillDto updateBillDto) {
+    public ResponseEntity<BillDto> updateBill(@PathVariable("id") String id, @RequestBody BillDto updateBillDto) {
         BillDto billDto = billService.updateBill(id, updateBillDto);
         return ResponseEntity.ok(billDto);
     }

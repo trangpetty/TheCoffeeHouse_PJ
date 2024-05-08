@@ -33,7 +33,7 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     @Override
-    public void deleteVoucher(Long id) {
+    public void deleteVoucher(String id) {
         Voucher voucher = voucherRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Voucher not found"));
@@ -57,15 +57,17 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     @Override
-    public VoucherDto updateVoucher(Long id, VoucherDto voucherDto) {
+    public VoucherDto updateVoucher(String id, VoucherDto voucherDto) {
         Voucher voucher = voucherRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Voucher not found"));
 
-        voucher.setName(voucherDto.getName());
+        voucher.setTitle(voucherDto.getTitle());
         voucher.setValue(voucherDto.getValue());
         voucher.setStatus(voucherDto.getStatus());
         voucher.setImage(voucherDto.getImage());
+        voucher.setDescription(voucherDto.getDescription());
+        voucher.setCode(voucherDto.getCode());
         voucher.setApplyFrom(voucherDto.getApplyFrom());
         voucher.setApplyTo(voucherDto.getApplyTo());
 

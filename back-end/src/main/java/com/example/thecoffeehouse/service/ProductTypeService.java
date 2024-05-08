@@ -9,7 +9,7 @@ public interface ProductTypeService {
 
     ProductType createProductType(ProductType productType);
 
-    ProductType updateProductType(Long id, ProductType productType);
+    ProductType updateProductType(String id, ProductType productType);
 
-    void deleteProductType(Long id);
+    void deleteProductType(String id);
 }

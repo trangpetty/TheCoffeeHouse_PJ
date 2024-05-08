@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerDto {
-    private Long id;
+    private String id;
     private String name;
     private String address;
     private String phoneNumber;

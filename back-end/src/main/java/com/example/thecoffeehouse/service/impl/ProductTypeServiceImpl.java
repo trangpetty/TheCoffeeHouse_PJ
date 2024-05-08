@@ -28,7 +28,7 @@ public class ProductTypeServiceImpl implements ProductTypeService {
     }
 
     @Override
-    public ProductType updateProductType(Long id, ProductType savedProductType) {
+    public ProductType updateProductType(String id, ProductType savedProductType) {
         ProductType productType = productTypeRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("ProductType does not exists"));
@@ -40,7 +40,7 @@ public class ProductTypeServiceImpl implements ProductTypeService {
     }
 
     @Override
-    public void deleteProductType(Long id) {
+    public void deleteProductType(String id) {
         ProductType productType = productTypeRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("ProductType does not exists"));

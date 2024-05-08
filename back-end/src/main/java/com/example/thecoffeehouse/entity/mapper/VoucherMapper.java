@@ -7,8 +7,10 @@ public class VoucherMapper {
     public static Voucher mapToVoucher(VoucherDto voucherDto) {
         Voucher voucher = new Voucher(
                 voucherDto.getId(),
-                voucherDto.getName(),
+                voucherDto.getTitle(),
                 voucherDto.getImage(),
+                voucherDto.getCode(),
+                voucherDto.getDescription(),
                 voucherDto.getValue(),
                 voucherDto.getStatus(),
                 voucherDto.getApplyFrom(),
@@ -23,8 +25,10 @@ public class VoucherMapper {
     public static VoucherDto mapToVoucherDto(Voucher voucher) {
         VoucherDto voucherDto = new VoucherDto(
                 voucher.getId(),
-                voucher.getName(),
+                voucher.getTitle(),
                 voucher.getImage(),
+                voucher.getCode(),
+                voucher.getDescription(),
                 voucher.getValue(),
                 voucher.getStatus(),
                 voucher.getApplyFrom(),

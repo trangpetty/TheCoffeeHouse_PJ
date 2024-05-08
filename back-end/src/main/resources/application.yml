@@ -1,0 +1,5 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://admin:Trang_22072001@thecoffeehouse.xw031dj.mongodb.net/?retryWrites=true&w=majority&appName=thecoffeehouse
+      database: thecoffeehouse

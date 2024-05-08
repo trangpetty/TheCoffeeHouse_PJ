@@ -10,9 +10,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VoucherDto {
-    private Long id;
-    private String name;
+    private String id;
+    private String title;
     private String image;
+    private String code;
+    private String description;
     private double value;
     private int status;
     private LocalDateTime applyFrom;

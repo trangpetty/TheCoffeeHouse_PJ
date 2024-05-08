@@ -1,9 +1,8 @@
 package com.example.thecoffeehouse.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.example.thecoffeehouse.entity.Role;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface RoleRepository extends JpaRepository<Role, Long>{
+public interface RoleRepository extends MongoRepository<Role, String> {
 
 }

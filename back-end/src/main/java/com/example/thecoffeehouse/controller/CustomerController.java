@@ -26,7 +26,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerDto> getCustomerById(@PathVariable Long id) {
+    public ResponseEntity<CustomerDto> getCustomerById(@PathVariable String id) {
         CustomerDto customerDto = customerService.getCustomerById(id);
         return ResponseEntity.ok(customerDto);
     }
@@ -38,13 +38,13 @@ public class CustomerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CustomerDto> updateCustomer(@PathVariable("id") Long id, @RequestBody CustomerDto updateCustomerDto) {
+    public ResponseEntity<CustomerDto> updateCustomer(@PathVariable("id") String id, @RequestBody CustomerDto updateCustomerDto) {
         CustomerDto customerDto = customerService.updateCustomer(id, updateCustomerDto);
         return ResponseEntity.ok(customerDto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteCustomer(@PathVariable Long id) {
+    public ResponseEntity<String> deleteCustomer(@PathVariable String id) {
         customerService.deleteCustomer(id);
         return ResponseEntity.ok("success");
     }

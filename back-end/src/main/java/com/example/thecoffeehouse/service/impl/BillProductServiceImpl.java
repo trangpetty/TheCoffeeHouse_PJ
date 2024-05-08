@@ -21,7 +21,7 @@ public class BillProductServiceImpl implements BillProductService {
     }
 
     @Override
-    public List<BillProduct> getBillProductByBillID(Long id) {
+    public List<BillProduct> getBillProductByBillID(String id) {
         Bill bill = billRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Bill not found"));

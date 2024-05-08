@@ -1,9 +1,8 @@
 package com.example.thecoffeehouse.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.example.thecoffeehouse.entity.Blog;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface BlogRepository extends JpaRepository<Blog, Long>{
+public interface BlogRepository extends MongoRepository<Blog, String> {
 
 }

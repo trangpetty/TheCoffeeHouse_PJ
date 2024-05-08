@@ -17,6 +17,7 @@ public class BillMapper {
                 billDto.getPoint(),
                 billDto.getStatus(),
                 billDto.getAddress(),
+                billDto.getNote(),
                 billDto.getCreateTime(),
                 billDto.getModifyTime()
         );
@@ -37,6 +38,7 @@ public class BillMapper {
                 bill.getPoint(),
                 bill.getStatus(),
                 bill.getAddress(),
+                bill.getNote(),
                 bill.getCreateTime(),
                 bill.getModifyTime()
         );

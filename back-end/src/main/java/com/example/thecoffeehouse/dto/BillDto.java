@@ -10,9 +10,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BillDto {
-    private Long id;
-    private Long customerID;
-    private Long voucherID;
+    private String id;
+    private String customerID;
+    private String voucherID;
     private double value;
     private double ValueOfVoucher;
     private double ValueOfCustomerPoint;
@@ -21,6 +21,7 @@ public class BillDto {
     private int point;
     private int status;
     private String address;
+    private String note;
     private LocalDateTime createTime;
     private LocalDateTime modifyTime;
 }

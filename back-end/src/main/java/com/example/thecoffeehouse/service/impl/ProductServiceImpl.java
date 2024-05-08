@@ -31,7 +31,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDto getProductById(Long id) {
+    public ProductDto getProductById(String id) {
         Product product = productRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Product does not exists"));
@@ -39,13 +39,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductDto> getAllProducts(String name, Long typeID, Pageable pageable) {
+    public Page<ProductDto> getAllProducts(String name, String typeID, Pageable pageable) {
         Page<Product> products = productRepository.getAllProducts(name, typeID, pageable);
         return products.map(ProductMapper::mapToProductDto);
     }
 
     @Override
-    public ProductDto updateProduct(Long id, ProductDto productDto) {
+    public ProductDto updateProduct(String id, ProductDto productDto) {
         Product product = productRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Product does not exists")
         );
@@ -60,7 +60,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDto> getProductsByTypeID(Long typeID) {
+    public List<ProductDto> getProductsByTypeID(String typeID) {
         List<Product> products = productRepository.getProductsByTypeID(typeID);
         return products.stream()
                 .map(ProductMapper::mapToProductDto)
@@ -69,7 +69,7 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public void deleteProduct(Long id) {
+    public void deleteProduct(String id) {
         Product product = productRepository
         .findById(id)
         .orElseThrow(() -> new RuntimeException("Product does not exists"));

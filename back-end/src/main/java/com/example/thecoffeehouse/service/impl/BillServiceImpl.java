@@ -52,7 +52,7 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public BillDto updateBill(Long id, BillDto billDto) {
+    public BillDto updateBill(String id, BillDto billDto) {
         Bill bill = billRepository.
                 findById(id)
                 .orElseThrow(() -> new RuntimeException("Bill not found"));

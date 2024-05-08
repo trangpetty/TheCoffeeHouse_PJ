@@ -22,12 +22,12 @@ public class VoucherController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<VoucherDto>> getAllVouchers(@RequestParam("name") String name, @RequestParam(value = "status",  required = false) int status,
+    public ResponseEntity<Page<VoucherDto>> getAllVouchers(@RequestParam("code") String code, @RequestParam(value = "status",  required = false) int status,
                                                            @RequestParam(value = "applyFrom", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date applyFrom,
                                                            @RequestParam(value = "applyTo", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date applyTo,
                                                            @RequestParam("pageNo") int pageNo, @RequestParam(defaultValue = "10") int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        return ResponseEntity.ok(voucherService.getAllVouchers(name, status, applyFrom, applyTo, pageable));
+        return ResponseEntity.ok(voucherService.getAllVouchers(code, status, applyFrom, applyTo, pageable));
     }
 
     @PostMapping
@@ -36,13 +36,13 @@ public class VoucherController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VoucherDto> updateVoucher(@PathVariable("id") Long id, @RequestBody VoucherDto updateVoucherDto) {
+    public ResponseEntity<VoucherDto> updateVoucher(@PathVariable("id") String id, @RequestBody VoucherDto updateVoucherDto) {
         VoucherDto voucherDto = voucherService.updateVoucher(id, updateVoucherDto);
         return ResponseEntity.ok(voucherDto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteVoucher(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deleteVoucher(@PathVariable("id") String id) {
         voucherService.deleteVoucher(id);
         return ResponseEntity.ok("success");
     }
