@@ -8,6 +8,7 @@ import com.example.thecoffeehouse.service.BillProductService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class BillProductServiceImpl implements BillProductService {
@@ -34,6 +35,7 @@ public class BillProductServiceImpl implements BillProductService {
 
     @Override
     public BillProduct createBillProduct(BillProduct billProduct) {
+        billProduct.setBillID(UUID.randomUUID().toString().split("-")[0]);
         BillProduct savedBillProduct = billProductRepository.save(billProduct);
         return savedBillProduct;
     }

@@ -1,6 +1,7 @@
 package com.example.thecoffeehouse.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDto createProduct(ProductDto productDto) {
+        productDto.setId(UUID.randomUUID().toString().split("-")[0]);
         Product product = ProductMapper.mapToProduct(productDto);
         Product savedProduct = productRepository.save(product);
         return ProductMapper.mapToProductDto(savedProduct);

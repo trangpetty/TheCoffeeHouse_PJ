@@ -6,6 +6,7 @@ import com.example.thecoffeehouse.service.ProductTypeService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ProductTypeServiceImpl implements ProductTypeService {
@@ -23,6 +24,7 @@ public class ProductTypeServiceImpl implements ProductTypeService {
 
     @Override
     public ProductType createProductType(ProductType productType) {
+        productType.setId(UUID.randomUUID().toString().split("-")[0]);
         ProductType savedProductType = productTypeRepository.save(productType);
         return savedProductType;
     }

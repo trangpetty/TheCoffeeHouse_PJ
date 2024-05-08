@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class BillServiceImpl implements BillService {
@@ -46,6 +47,7 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public BillDto createBill(BillDto billDto) {
+        billDto.setId(UUID.randomUUID().toString().split("-")[0]);
         Bill bill = BillMapper.mapToBill(billDto);
         Bill savedBill = billRepository.save(bill);
         return BillMapper.mapToBillDto(savedBill);

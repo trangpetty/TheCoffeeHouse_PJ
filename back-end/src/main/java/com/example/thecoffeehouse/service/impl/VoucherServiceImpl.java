@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 public class VoucherServiceImpl implements VoucherService {
@@ -27,6 +28,7 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     public VoucherDto createVoucher(VoucherDto voucherDto) {
+        voucherDto.setId(UUID.randomUUID().toString().split("-")[0]);
         Voucher voucher = VoucherMapper.mapToVoucher(voucherDto);
         Voucher savedVoucher = voucherRepository.save(voucher);
         return VoucherMapper.mapToVoucherDto(savedVoucher);
