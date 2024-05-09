@@ -11,6 +11,7 @@ import com.example.thecoffeehouse.dto.ProductDto;
 import com.example.thecoffeehouse.service.ProductService;
 
 import javax.swing.text.html.parser.Entity;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -22,8 +23,8 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @PostMapping
-    public ResponseEntity<ProductDto> addProduct(@RequestBody ProductDto productDto) {
+    @PostMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<ProductDto> addProduct(@ModelAttribute ProductDto productDto) throws IOException {
         return new ResponseEntity<>(productService.createProduct(productDto), HttpStatus.CREATED);
     }
 

@@ -6,10 +6,11 @@ import org.springframework.data.domain.Pageable;
 
 import com.example.thecoffeehouse.dto.ProductDto;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ProductService {
-    ProductDto createProduct(ProductDto productDto);
+    ProductDto createProduct(ProductDto productDto) throws IOException;
 
     ProductDto getProductById(Long id);
 

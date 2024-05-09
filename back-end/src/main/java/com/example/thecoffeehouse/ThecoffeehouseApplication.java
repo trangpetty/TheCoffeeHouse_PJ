@@ -8,24 +8,26 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 @SpringBootApplication
 public class ThecoffeehouseApplication {
 
 	public static void main(String[] args) throws IOException {
+		initializeFirebaseApp();
+		SpringApplication.run(ThecoffeehouseApplication.class, args);
+	}
 
-		ClassLoader classLoader = ThecoffeehouseApplication.class.getClassLoader();
-		File file = new File(classLoader.getResource("serviceAccountKey.json").getFile());
-		FileInputStream serviceAccountKey = new FileInputStream(file.getAbsolutePath());
+	private static void initializeFirebaseApp() throws IOException {
+		FileInputStream serviceAccount = new FileInputStream("src/main/resources/serviceAccountKey.json");
 
 		FirebaseOptions options = new FirebaseOptions.Builder()
-				.setCredentials(GoogleCredentials.fromStream(serviceAccountKey))
+				.setCredentials(GoogleCredentials.fromStream(serviceAccount))
+				.setStorageBucket("thecoffeehouse-197d2.appspot.com")
 				.build();
 
 		FirebaseApp.initializeApp(options);
-
-		SpringApplication.run(ThecoffeehouseApplication.class, args);
 	}
 
 }

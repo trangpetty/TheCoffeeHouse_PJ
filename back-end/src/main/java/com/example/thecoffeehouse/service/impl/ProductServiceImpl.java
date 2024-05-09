@@ -1,8 +1,12 @@
 package com.example.thecoffeehouse.service.impl;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.thecoffeehouse.service.FirebaseStorageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,16 +20,21 @@ import com.example.thecoffeehouse.service.ProductService;
 @Service
 public class ProductServiceImpl implements ProductService {
 
+    private static final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
     private final ProductRepository productRepository;
+    private final FirebaseStorageService firebaseStorageService;
 
-
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, FirebaseStorageService firebaseStorageService) {
         this.productRepository = productRepository;
+        this.firebaseStorageService = firebaseStorageService;
     }
 
     @Override
-    public ProductDto createProduct(ProductDto productDto) {
+    public ProductDto createProduct(ProductDto productDto) throws IOException {
+        String url = firebaseStorageService.uploadFile(productDto.getImage(), "products");
+//        productDto.setImageUrl(url);
         Product product = ProductMapper.mapToProduct(productDto);
+        product.setImage(url);
         Product savedProduct = productRepository.save(product);
         return ProductMapper.mapToProductDto(savedProduct);
     }
