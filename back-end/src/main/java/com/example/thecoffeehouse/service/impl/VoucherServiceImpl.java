@@ -6,6 +6,8 @@ import com.example.thecoffeehouse.entity.Voucher;
 import com.example.thecoffeehouse.entity.mapper.VoucherMapper;
 import com.example.thecoffeehouse.repository.VoucherRepository;
 import com.example.thecoffeehouse.service.VoucherService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
@@ -17,6 +19,7 @@ import java.util.Date;
 
 @Service
 public class VoucherServiceImpl implements VoucherService {
+    private static final Logger log = LoggerFactory.getLogger(VoucherServiceImpl.class);
     private final VoucherRepository voucherRepository;
     private final DateTimeConverter dateTimeConverter;
 
@@ -52,6 +55,7 @@ public class VoucherServiceImpl implements VoucherService {
         LocalDateTime applyToConverted = applyTo != null ?
                 dateTimeConverter.convertToDateViaInstant(applyTo) : lastDayOfMonth;
 
+        log.info("applyfrom: {}, applyto: {}", applyFromConverted, applyToConverted);
         Page<Voucher> vouchers = voucherRepository.getAllVouchers(name, status, applyFromConverted, applyToConverted, pageable);
         return vouchers.map(VoucherMapper::mapToVoucherDto);
     }

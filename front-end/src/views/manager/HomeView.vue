@@ -1,25 +1,47 @@
 <template>
-  <el-row>
-    <el-col span="12">
-      <img src="../../assets/images/logo.jpg" alt="" class="img-logo">
-      <span class="text-logo">Management</span>
-    </el-col>
-    <el-col span="12">
-    
-    </el-col>
-  </el-row>
+  <div>
+    <div class="d-flex">
+      <div class="box-shadow">
+          <img src="../../assets/images/logo.jpg" alt="" class="img-logo">
+          <Sidebar @changeTab="changeTab" class="h-100"/>
+      </div>
+      <div class="container-fluid">
+          <div class="p-3">
+            <Component :is="selectedComponent" />
+          </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-export default {
+import Sidebar from '@/views/manager/Sidebar.vue'; // Assuming the path is correct
+import Product from '@/views/manager/product/index.vue';
+import Voucher from '@/views/manager/voucher/index.vue';
 
-}
+export default {
+  components: {
+    Sidebar,
+    Product,
+    Voucher
+  },
+  data() {
+    return {
+      selectedComponent: 'Product' // Default selected component
+    };
+  },
+  methods: {
+    changeTab(component) {
+      this.selectedComponent = this.$options.components[component];
+    }
+  }
+};
 </script>
 
 <style>
 .img-logo {
-  width: 160px;
-  padding: 0 30px 0 50px;
+  width: 200px;
+  padding: 0 30px;
 }
 
 .text-logo {

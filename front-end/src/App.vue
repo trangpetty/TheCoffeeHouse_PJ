@@ -39,4 +39,19 @@
     width: 2.5rem;
 }
 
+.box-shadow {
+  box-shadow: 0px 12px 32px 4px rgba(0, 0, 0, .04), 0px 8px 20px rgba(0, 0, 0, .08);
+}
+
+.box {
+  display: block;
+  background-color: #fff;
+  padding: 1rem 1.5rem;
+}
+
+.pagination {
+  margin-top: 1rem;
+  justify-content: center;
+}
+
 </style>

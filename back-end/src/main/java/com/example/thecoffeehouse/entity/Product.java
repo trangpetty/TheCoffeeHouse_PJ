@@ -1,6 +1,7 @@
 package com.example.thecoffeehouse.entity;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -28,8 +29,8 @@ public class Product {
     private String name;
     @Column(name = "image")
     private String image;
-    @Column(name = "size", length = 1)
-    private String size;
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
     @Column(name = "price")
     private double price;
 

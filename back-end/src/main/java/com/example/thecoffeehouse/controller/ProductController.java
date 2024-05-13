@@ -1,14 +1,17 @@
 package com.example.thecoffeehouse.controller;
 
+import com.example.thecoffeehouse.dto.ProductDetailDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.thecoffeehouse.dto.ProductDto;
 import com.example.thecoffeehouse.service.ProductService;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
@@ -23,8 +26,8 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @PostMapping(consumes = {"multipart/form-data"})
-    public ResponseEntity<ProductDto> addProduct(@ModelAttribute ProductDto productDto) throws IOException {
+    @PostMapping
+    public ResponseEntity<ProductDto> addProduct(@RequestBody ProductDto productDto) {
         return new ResponseEntity<>(productService.createProduct(productDto), HttpStatus.CREATED);
     }
 
@@ -36,12 +39,15 @@ public class ProductController {
     
     @GetMapping
     public ResponseEntity<Page<ProductDto>> getAllProducts(@RequestParam("name") String name,@RequestParam("typeID") Long typeID, @RequestParam("pageNo") int pageNo, @RequestParam(defaultValue = "10") int size) {
+        if (pageNo > 0) {
+            pageNo = pageNo - 1;
+        }
         Pageable pageable = PageRequest.of(pageNo, size);
         return ResponseEntity.ok(productService.getAllProducts(name, typeID, pageable));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ProductDto> updateProduct(@PathVariable("id") Long id, @RequestBody ProductDto updateProduct) {
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<ProductDto> updateProduct(@PathVariable("id") Long id, @ModelAttribute ProductDto updateProduct) throws IOException {
         ProductDto productDto = productService.updateProduct(id, updateProduct);
         return ResponseEntity.ok(productDto);
     }

@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface ProductService {
-    ProductDto createProduct(ProductDto productDto) throws IOException;
+    ProductDto createProduct(ProductDto productDto);
 
     ProductDto getProductById(Long id);
 
@@ -18,7 +18,7 @@ public interface ProductService {
 
     Page<ProductDto> getAllProducts(String name, Long typeID, Pageable pageable);
 
-    ProductDto updateProduct(Long id, ProductDto productDto);
+    ProductDto updateProduct(Long id, ProductDto productDto) throws IOException;
 
     List<ProductDto> getProductsByTypeID(Long typeID);
 }
