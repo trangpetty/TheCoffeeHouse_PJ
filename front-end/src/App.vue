@@ -54,4 +54,41 @@
   justify-content: center;
 }
 
+.el-dialog {
+  padding: 0 !important;
+}
+.dialog {
+  .el-dialog__header {
+    padding: 15px 20px !important;
+    background: #545c64 !important;
+
+    .el-dialog__title {
+      font-size: 17px;
+      font-family: SourceHanSansCN-Regular, Helvetica Neue, Helvetica, Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, SimSun, sans-serif;
+      color: #fffdfd;
+    }
+
+    .el-dialog__headerbtn .el-dialog__close {
+      color: #fff;
+      font-weight: bold;
+    }
+
+  }
+    .el-dialog__body {
+      padding: 1rem!important;
+    }
+
+  .needwrap {
+    .el-form-item__label {
+      font-family: SourceHanSansCN-Regular, Helvetica Neue, Helvetica, Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, SimSun, sans-serif;
+      color: #686868;
+      line-height: 30px;
+    }
+  }
+
+  .confirm {
+    margin-top: 13px;
+  }
+}
+
 </style>

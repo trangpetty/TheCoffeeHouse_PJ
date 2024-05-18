@@ -2,29 +2,16 @@ package com.example.thecoffeehouse.entity.mapper;
 
 import com.example.thecoffeehouse.dto.ProductDetailDto;
 import com.example.thecoffeehouse.dto.ProductDto;
-import com.example.thecoffeehouse.entity.Product;
+import com.example.thecoffeehouse.dto.ProductImageDto;
+import com.example.thecoffeehouse.entity.product.Product;
+import com.example.thecoffeehouse.entity.product.ProductDetail;
+import com.example.thecoffeehouse.entity.product.ProductImage;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 public class ProductMapper {
-    public static Product mapToProduct(ProductDto productDto) {
-        Product product = new Product(
-                productDto.getId(),
-                productDto.getTypeID(),
-                productDto.getName(),
-                productDto.getImage(),
-                productDto.getDescription(),
-                productDto.getPrice(),
-                productDto.getCreateTime(),
-                productDto.getModifyTime()
-        );
 
-        return product;
-    }
-
-    public static ProductDto mapToProductDto(Product product) {
+    public static ProductDto mapToProductDto(Product product, List<ProductDetailDto> productDetailDtos, List<ProductImageDto> productImages) {
         ProductDto productDto = new ProductDto();
         productDto.setId(product.getId());
         productDto.setTypeID(product.getTypeID());
@@ -33,39 +20,46 @@ public class ProductMapper {
         productDto.setPrice(product.getPrice());
         productDto.setCreateTime(product.getCreateTime());
         productDto.setModifyTime(product.getModifyTime());
-        productDto.setImage(product.getImage());
-
-        // Convert list of ProductDetail to list of ProductDetailDto
-        List<ProductDetailDto> productDetailDtos = productDto.getProductSizes() == null ?
-                Collections.emptyList()
-                : productDto.getProductSizes().stream()
-                .map(detail -> mapToProductDetailDto(detail))
-                .collect(Collectors.toList());
+        productDto.setImages(productImages);
         productDto.setProductSizes(productDetailDtos);
-
         return productDto;
     }
 
-    private static ProductDetailDto mapToProductDetailDto(ProductDetailDto productDetail) {
+    public static Product mapToProduct(ProductDto productDto) {
+        Product product = new Product();
+        product.setTypeID(productDto.getTypeID());
+        product.setName(productDto.getName());
+        product.setDescription(productDto.getDescription());
+        product.setPrice(productDto.getPrice());
+        return product;
+    }
+
+    public static ProductDetailDto mapToProductDetailDto(ProductDetail productDetail) {
         ProductDetailDto productDetailDto = new ProductDetailDto();
+        productDetailDto.setId(productDetail.getId());
         productDetailDto.setSize(productDetail.getSize());
         productDetailDto.setSurcharge(productDetail.getSurcharge());
-
         return productDetailDto;
     }
 
-//    public static ProductDto mapToProductDto (Product product) {
-//        ProductDto productDto = new ProductDto();
-//
-//        productDto.setId(product.getId());
-//        productDto.setName(product.getName());
-//        productDto.setTypeID(product.getTypeID());
-//        productDto.setDescription(product.getDescription());
-//        productDto.setPrice(product.getPrice());
-//        productDto.setCreateTime(product.getCreateTime());
-//        productDto.setModifyTime(product.getModifyTime());
-//        productDto.setImageUrl(product.getImage());
-//
-//        return productDto;
-//    }
+    public static List<ProductDetailDto> mapToProductDetailDtoList(List<ProductDetail> productDetails) {
+        return productDetails.stream()
+                .map(ProductMapper::mapToProductDetailDto)
+                .collect(Collectors.toList());
+    }
+
+    public static List<ProductImageDto> mapProductImagesToDto(List<ProductImage> productImages) {
+        return productImages.stream()
+                .map(ProductMapper::mapProductImageToDto)
+                .collect(Collectors.toList());
+    }
+
+    public static ProductImageDto mapProductImageToDto(ProductImage productImage) {
+        ProductImageDto productImageDto = new ProductImageDto();
+        productImageDto.setId(productImage.getId());
+        productImageDto.setUrl(productImage.getUrl());
+        return productImageDto;
+    }
+
+
 }

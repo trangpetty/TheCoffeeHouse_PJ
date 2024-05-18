@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductDetailDto {
+public class ProductImageDto {
     private Long id;
-    private String size;
-    private double surcharge;
+    private String url;
 }

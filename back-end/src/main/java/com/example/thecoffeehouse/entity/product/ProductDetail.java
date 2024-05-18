@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse.entity;
+package com.example.thecoffeehouse.entity.product;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

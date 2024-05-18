@@ -16,10 +16,12 @@ public class ProductDto {
     private Long id;
     private Long TypeID;
     private String name;
-    private String image;
+    private List<ProductImageDto> images;
+    private List<ProductImageDto> removedImages;
     private String description;
     private double price;
     private List<ProductDetailDto> productSizes;
+    private List<ProductDetailDto> removedProductSizes;
     private LocalDateTime createTime;
     private LocalDateTime modifyTime;
 }

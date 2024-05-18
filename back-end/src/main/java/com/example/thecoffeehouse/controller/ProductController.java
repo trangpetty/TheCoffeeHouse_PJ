@@ -46,8 +46,8 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProducts(name, typeID, pageable));
     }
 
-    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
-    public ResponseEntity<ProductDto> updateProduct(@PathVariable("id") Long id, @ModelAttribute ProductDto updateProduct) throws IOException {
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<ProductDto> updateProduct(@PathVariable("id") Long id, @RequestBody ProductDto updateProduct) throws IOException {
         ProductDto productDto = productService.updateProduct(id, updateProduct);
         return ResponseEntity.ok(productDto);
     }

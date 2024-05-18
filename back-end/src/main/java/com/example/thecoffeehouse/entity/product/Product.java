@@ -1,7 +1,6 @@
-package com.example.thecoffeehouse.entity;
+package com.example.thecoffeehouse.entity.product;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -27,8 +26,7 @@ public class Product {
     private Long TypeID;
     @Column(name = "name")
     private String name;
-    @Column(name = "image")
-    private String image;
+
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
     @Column(name = "price")
