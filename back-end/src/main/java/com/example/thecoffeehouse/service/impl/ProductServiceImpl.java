@@ -1,7 +1,6 @@
 package com.example.thecoffeehouse.service.impl;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.example.thecoffeehouse.dto.ProductDetailDto;
@@ -103,6 +102,7 @@ public class ProductServiceImpl implements ProductService {
         product.setName(productDto.getName());
         product.setPrice(productDto.getPrice());
         product.setTypeID(productDto.getTypeID());
+        product.setDescription(productDto.getDescription());
 
         // Save the updated Product entity
         Product updatedProduct = productRepository.save(product);
@@ -132,42 +132,32 @@ public class ProductServiceImpl implements ProductService {
 
     private void saveOrUpdateProductDetails(List<ProductDetailDto> productDetailDtos, Product product) {
         for (ProductDetailDto productDetailDto : productDetailDtos) {
-            if(productDetailDto.getId() != null) {
-                 ProductDetail productDetail = productDetailRepository.findById(productDetailDto.getId())
-                         .orElseGet(ProductDetail::new);
+            ProductDetail productDetail = new ProductDetail();
+            productDetail.setProductID(product.getId());
+            productDetail.setSize(productDetailDto.getSize());
+            productDetail.setSurcharge(productDetailDto.getSurcharge());
 
-                 productDetail.setProductID(product.getId());
-                 productDetail.setSize(productDetailDto.getSize());
-                 productDetail.setSurcharge(productDetailDto.getSurcharge());
-                 productDetailRepository.save(productDetail);
+            if (productDetailDto.getId() != null) {
+                productDetail.setId(productDetailDto.getId());
             }
-            else {
-                ProductDetail productDetail = new ProductDetail();
-                productDetail.setProductID(product.getId());
-                productDetail.setSize(productDetailDto.getSize());
-                productDetail.setSurcharge(productDetailDto.getSurcharge());
-                productDetailRepository.save(productDetail);
-            }
+
+            productDetailRepository.save(productDetail);
+
         }
     }
 
     private void saveOrUpdateProductImages(List<ProductImageDto> productImages, Product product) {
-        // Logic to update or save ProductImage entities based on changes in the ProductDto
         for (ProductImageDto imageUrl : productImages) {
-            if(imageUrl.getId() != null) {
-                ProductImage productImage = productImageRepository.findById(imageUrl.getId())
-                        .orElseGet(ProductImage::new);
+            ProductImage productImage = new ProductImage();
+            productImage.setProductID(product.getId());
+            productImage.setUrl(imageUrl.getUrl());
 
-                productImage.setProductID(product.getId());
-                productImage.setUrl(imageUrl.getUrl());
-                productImageRepository.save(productImage);
+            if (imageUrl.getId() != null) {
+                productImage.setId(imageUrl.getId());
             }
-            else {
-                ProductImage productImage = new ProductImage();
-                productImage.setProductID(product.getId());
-                productImage.setUrl(imageUrl.getUrl());
-                productImageRepository.save(productImage);
-            }
+
+            productImageRepository.save(productImage);
+
         }
     }
 
@@ -202,7 +192,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(Long id) {
-        Product product = productRepository
+        productRepository
         .findById(id)
         .orElseThrow(() -> new RuntimeException("Product does not exists"));
 

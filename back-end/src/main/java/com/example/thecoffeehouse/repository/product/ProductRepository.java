@@ -11,7 +11,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long>{
-    @Query("SELECT p FROM Product p WHERE p.name LIKE %:name% AND p.TypeID = :typeID")
+    @Query("SELECT p FROM Product p WHERE " +
+            "(:name IS NULL OR lower(p.name) LIKE %:name%) AND " +
+            "(:typeID IS NULL OR p.TypeID = :typeID)")
     Page<Product> getAllProducts(@Param("name") String name, @Param("typeID") Long typeID, Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE p.name LIKE %:name% AND p.TypeID = :typeID")

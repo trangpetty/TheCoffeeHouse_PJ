@@ -1,19 +1,15 @@
 package com.example.thecoffeehouse.controller;
 
-import com.example.thecoffeehouse.dto.ProductDetailDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.thecoffeehouse.dto.ProductDto;
 import com.example.thecoffeehouse.service.ProductService;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 import java.util.List;
 
@@ -38,7 +34,7 @@ public class ProductController {
     }
     
     @GetMapping
-    public ResponseEntity<Page<ProductDto>> getAllProducts(@RequestParam("name") String name,@RequestParam("typeID") Long typeID, @RequestParam("pageNo") int pageNo, @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<ProductDto>> getAllProducts(@RequestParam(required = false) String name,@RequestParam(required = false) Long typeID, @RequestParam(defaultValue = "0") int pageNo, @RequestParam(defaultValue = "10") int size) {
         if (pageNo > 0) {
             pageNo = pageNo - 1;
         }
