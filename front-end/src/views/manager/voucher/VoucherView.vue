@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2>Voucher</h2>
     <div class="box box-shadow mb-3">
       <el-form label-width="auto" :model="queryForm">
         <el-row>

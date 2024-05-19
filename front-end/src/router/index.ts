@@ -1,23 +1,36 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
-import HomeView from '@/views/manager/HomeView.vue'
-import OrderView from '@/views/user/OrderView.vue'
+import { createRouter, createWebHashHistory } from 'vue-router';
+import HomeView from '@/views/manager/HomeView.vue';
+import ProductView from '@/views/manager/product/ProductView.vue';
+import Voucher from '@/views/manager/voucher/VoucherView.vue';
+import OrderView from '@/views/user/OrderView.vue';
 
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: HomeView
+    component: HomeView,
+    children: [
+      {
+        path: 'product',
+        name: 'Product',
+        component: ProductView
+      },
+      {
+        path: 'voucher',
+        name: 'Voucher',
+        component: Voucher
+      }
+    ]
   },
   {
     path: '/order',
     name: 'order',
     component: OrderView
   }
-]
+];
 
 const router = createRouter({
-  history: createWebHashHistory(process.env.BASE_URL),
+  history: createWebHashHistory(),
   routes
-})
+});
 
-export default router
+export default router;
