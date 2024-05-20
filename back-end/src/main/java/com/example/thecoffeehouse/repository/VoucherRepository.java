@@ -14,8 +14,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VoucherRepository extends JpaRepository<Voucher, Long>{
-    @Query("select v from Voucher v " +
-            "where (:name is null or lower(v.name) like %:name%) and (:status is null or v.status = :status) " +
-            "and (:applyFrom is null or :applyTo is null or v.createTime between :applyFrom and :applyTo) order by v.id desc")
+    @Query("SELECT v FROM Voucher v " +
+            "WHERE (:name IS NULL OR LOWER(v.name) LIKE %:name%) " +
+            "AND (:status IS NULL OR v.status = :status) " +
+            "AND (:applyFrom IS NULL OR v.applyFrom >= :applyFrom) " +
+            "AND (:applyTo IS NULL OR v.applyTo <= :applyTo) " +
+            "ORDER BY v.id DESC")
     Page<Voucher> getAllVouchers(@Param("name") String name, @Param("status") int status, @Param("applyFrom") LocalDateTime applyFrom, @Param("applyTo") LocalDateTime applyTo, Pageable pageable);
 }

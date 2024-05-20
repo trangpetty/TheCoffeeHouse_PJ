@@ -25,6 +25,10 @@ public class Voucher {
 
     @Column(name = "name")
     private String name;
+    @Column(name = "code")
+    private String code;
+    @Column(name = "description")
+    private String description;
     @Column(name = "image")
     private String image;
     @Column(name = "value")

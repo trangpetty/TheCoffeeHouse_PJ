@@ -8,6 +8,8 @@ public class VoucherMapper {
         Voucher voucher = new Voucher(
                 voucherDto.getId(),
                 voucherDto.getName(),
+                voucherDto.getCode(),
+                voucherDto.getDescription(),
                 voucherDto.getImage(),
                 voucherDto.getValue(),
                 voucherDto.getStatus(),
@@ -24,6 +26,8 @@ public class VoucherMapper {
         VoucherDto voucherDto = new VoucherDto(
                 voucher.getId(),
                 voucher.getName(),
+                voucher.getCode(),
+                voucher.getDescription(),
                 voucher.getImage(),
                 voucher.getValue(),
                 voucher.getStatus(),

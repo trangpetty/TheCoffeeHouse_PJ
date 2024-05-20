@@ -1,5 +1,6 @@
 package com.example.thecoffeehouse.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,8 @@ import java.time.LocalDateTime;
 public class VoucherDto {
     private Long id;
     private String name;
+    private String code;
+    private String description;
     private String image;
     private double value;
     private int status;

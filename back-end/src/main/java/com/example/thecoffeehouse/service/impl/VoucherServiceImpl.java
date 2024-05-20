@@ -54,8 +54,6 @@ public class VoucherServiceImpl implements VoucherService {
 
         LocalDateTime applyToConverted = applyTo != null ?
                 dateTimeConverter.convertToDateViaInstant(applyTo) : lastDayOfMonth;
-
-        log.info("applyfrom: {}, applyto: {}", applyFromConverted, applyToConverted);
         Page<Voucher> vouchers = voucherRepository.getAllVouchers(name, status, applyFromConverted, applyToConverted, pageable);
         return vouchers.map(VoucherMapper::mapToVoucherDto);
     }
@@ -67,6 +65,8 @@ public class VoucherServiceImpl implements VoucherService {
                 .orElseThrow(() -> new RuntimeException("Voucher not found"));
 
         voucher.setName(voucherDto.getName());
+        voucher.setCode(voucherDto.getCode());
+        voucher.setDescription(voucherDto.getDescription());
         voucher.setValue(voucherDto.getValue());
         voucher.setStatus(voucherDto.getStatus());
         voucher.setImage(voucherDto.getImage());
