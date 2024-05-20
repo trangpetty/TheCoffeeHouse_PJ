@@ -1,6 +1,25 @@
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from './firebaseConfig';
-import type { UploadUserFile } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
+
+export async function confirm(message: string, title?: string) {
+    return new Promise<boolean>((resolve, reject) => {
+        ElMessageBox.confirm(
+            message,
+            title,
+            {
+                confirmButtonText: 'Confirm',
+                cancelButtonText: 'Cancel',
+                type: 'warning',
+            }
+        ).then(() => {
+            resolve(true); // User confirmed
+        }).catch(() => {
+            resolve(false); // User cancelled
+        });
+    });
+
+}
 
 export async function uploadFileToFirebaseAndGetURL(file: any, folder: string): Promise<string | null> {
     const fileRef = storageRef(storage, `${folder}/${file.name}`);
