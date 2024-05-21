@@ -1,9 +1,7 @@
 package com.example.thecoffeehouse.controller;
 
 import com.example.thecoffeehouse.dto.CustomerDto;
-import com.example.thecoffeehouse.dto.ProductDto;
 import com.example.thecoffeehouse.service.CustomerService;
-import com.example.thecoffeehouse.service.ProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/customers")
 public class CustomerController {
-    private CustomerService customerService;
+    private final CustomerService customerService;
 
     public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
@@ -33,6 +31,9 @@ public class CustomerController {
 
     @GetMapping
     public ResponseEntity<Page<CustomerDto>> getAllCustomers(@RequestParam("name") String name, @RequestParam("phoneNumber") String phoneNumber, @RequestParam("pageNo") int pageNo, @RequestParam(defaultValue = "10") int size) {
+        if (pageNo > 0) {
+            pageNo = pageNo - 1;
+        }
         Pageable pageable = PageRequest.of(pageNo, size);
         return ResponseEntity.ok(customerService.getAllCustomers(name, phoneNumber, pageable));
     }
