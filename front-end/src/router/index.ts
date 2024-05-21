@@ -2,9 +2,10 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import HomeView from '@/views/manager/HomeView.vue';
 import ProductView from '@/views/manager/product/ProductView.vue';
 import VoucherView from '@/views/manager/voucher/VoucherView.vue';
+import CustomerView from '@/views/manager/customer/CustomerView.vue';
 import OrderView from '@/views/user/OrderView.vue';
 
-const routes = [
+export const routes = [
   {
     path: '/',
     component: HomeView,
@@ -18,6 +19,11 @@ const routes = [
         path: '/voucher',
         name: 'Voucher',
         component: VoucherView
+      },
+      {
+        path: '/customer',
+        name: 'Customer',
+        component: CustomerView
       }
     ]
   },

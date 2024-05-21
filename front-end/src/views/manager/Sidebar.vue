@@ -8,32 +8,25 @@
         text-color="#fff"
     >
       <el-menu-item
-          v-for="(tab, index) in tabs"
+          v-for="(route, index) in routes[0].children"
           :key="index"
-          @click="changeTab(index)"
-          :index="tab.path"
+          @click="changeTab(route.path)"
+          :index="route.path"
       >
-        <span>{{ tab.label }}</span>
+        <span>{{ route.name }}</span>
       </el-menu-item>
     </el-menu>
   </aside>
 </template>
 
-<script lang="ts" setup>
-import { ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-
-const tabs = ref([
-  { label: 'Product', path: '/product' },
-  { label: 'Voucher', path: '/voucher' },
-  // Add more tabs here
-]);
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+import { routes } from '@/router'; // Importing routes from routes.ts
 
 const router = useRouter();
-// const route = useRoute();
 
-const changeTab = (index: number) => {
-  router.push(tabs.value[index].path);
+const changeTab = (path: string) => {
+  router.push(path);
 };
 </script>
 
