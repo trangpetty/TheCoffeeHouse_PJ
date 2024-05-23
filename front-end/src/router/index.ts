@@ -3,11 +3,12 @@ import HomeView from '@/views/manager/HomeView.vue';
 import ProductView from '@/views/manager/product/ProductView.vue';
 import VoucherView from '@/views/manager/voucher/VoucherView.vue';
 import CustomerView from '@/views/manager/customer/CustomerView.vue';
+import UserView from '@/views/manager/user/UserView.vue';
 import OrderView from '@/views/user/OrderView.vue';
 
 export const routes = [
   {
-    path: '/',
+    path: '/admin',
     component: HomeView,
     children: [
       {
@@ -24,6 +25,11 @@ export const routes = [
         path: '/customer',
         name: 'Customer',
         component: CustomerView
+      },
+      {
+        path: '/user',
+        name: 'User',
+        component: UserView
       }
     ]
   },
