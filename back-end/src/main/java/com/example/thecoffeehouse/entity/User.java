@@ -23,8 +23,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "role_id")
-    private Long roleID;
     @Column(name = "name")
     private String name;
     @Column(name = "password")
