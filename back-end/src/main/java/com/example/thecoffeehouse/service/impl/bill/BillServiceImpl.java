@@ -81,6 +81,6 @@ public class BillServiceImpl implements BillService {
 
         Bill savedBill = billRepository.save(bill);
         return null;
-        return BillMapper.mapToBillDto(savedBill);
+//        return BillMapper.mapToBillDto(savedBill);
     }
 }
