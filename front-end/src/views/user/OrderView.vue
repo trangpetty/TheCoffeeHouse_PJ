@@ -2,7 +2,7 @@
   <main>
     <div id="mainBanner" class="carousel slide" data-bs-ride="carousel" data-bs-interval="7000">
       <ul class="carousel-indicators" style="list-style-type: none;">
-        <li v-for="(slide, index) in images" :key="index" :data-bs-target="'#mainBanner'" :data-bs-slide-to="index" :class="{ 'active': index === 0 }"></li>
+        <li v-for="index in images" :key="index" :data-bs-target="'#mainBanner'" :data-bs-slide-to="index" :class="{ 'active': index === 0 }"></li>
       </ul>
       <div class="carousel-inner">
         <div v-for="(item, index) in images" :key="index" :class="{ 'carousel-item': true, 'active': index === 0 }" style="height: 550px;">
@@ -66,7 +66,7 @@
             </div>
           </div>
           <!-- Product Dialog -->
-          <el-dialog v-model="ui.dialogVisible" :show-close="false" width="30%" class="rounded">
+          <el-dialog v-model="ui.dialogVisible" :show-close="false" width="30%" class="rounded custom-dialog">
             <template #header="{close}">
               <div class="d-flex align-items-center w-100 p-2">
                 <h4 class="mx-auto my-0 fs-6">Thêm món mới</h4>
@@ -141,9 +141,9 @@
 import banner1 from '@/assets/images/banner1.webp'
 import banner2 from '@/assets/images/banner2.webp'
 import banner3 from '@/assets/images/banner3.webp'
-import {provide, ref, computed, onMounted} from 'vue'
+import { ref } from 'vue'
 import axios from "axios";
-import {Close, Handbag, Tickets} from "@element-plus/icons-vue";
+import {Close, Tickets} from "@element-plus/icons-vue";
 import {useStore} from 'vuex'
 
 const ui = ref({
@@ -217,10 +217,6 @@ const addToCart = () => {
   ui.value.dialogVisible = false;
 };
 
-const totalQuantity = computed(() => {
-  return cart.value.reduce((sum, item) => sum + item.quantity, 0);
-});
-
 const handleSelectSize = () => {
   console.log(selectedSize.value)
 };
@@ -264,24 +260,24 @@ getTypes();
   cursor: pointer;
 }
 
-.el-overlay-dialog {
+.custom-dialog.el-overlay-dialog {
   overflow: hidden!important;
 }
 
-.el-dialog {
+.custom-dialog.el-dialog {
   overflow-y: scroll;
   height: 90vh;
 }
 
-.el-overlay-dialog {
+.custom-dialog.el-overlay-dialog {
   top: auto!important;
 }
 
-.el-dialog header {
+.custom-dialog.el-dialog header {
   height: auto!important;
 }
 
-.el-dialog__header {
+.custom-dialog.el-dialog__header {
   border-bottom: 1px solid #dee2e6;
 }
 

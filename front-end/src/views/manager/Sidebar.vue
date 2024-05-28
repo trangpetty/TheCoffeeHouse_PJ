@@ -7,21 +7,30 @@
         :default-active="$route.path"
         text-color="#fff"
     >
-      <el-menu-item
-          v-for="(route, index) in filteredRoutes"
-          :key="index"
-          @click="changeTab(route.path)"
-          :index="route.path"
-      >
-        <span>{{ route.name }}</span>
-      </el-menu-item>
+      <template v-for="(route, index) in filteredRoutes" :key="index">
+        <el-sub-menu v-if="route.children && route.children.length" :index="route.path">
+          <template #title>
+            <span>{{ route.name }}</span>
+          </template>
+          <template v-for="(child, childIndex) in route.children" :key="childIndex">
+            <el-menu-item
+                :index="`${child.path}`"
+                @click="changeTab(`${child.path}`)"
+            >
+              <span>{{ child.name }}</span>
+            </el-menu-item>
+          </template>
+        </el-sub-menu>
+        <el-menu-item v-else @click="changeTab(route.path)" :index="route.path">
+          <span>{{ route.name }}</span>
+        </el-menu-item>
+      </template>
     </el-menu>
   </aside>
 </template>
 
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router';
-import { routes } from '@/router'; // Importing routes from routes.ts
 
 const router = useRouter();
 const route = useRoute();
@@ -30,8 +39,7 @@ const changeTab = (path: string) => {
   router.push(path);
 };
 
-// Filter out the "Product Type" route
-const filteredRoutes = routes[0].children.filter(route => route.path !== '/product-type');
+const filteredRoutes = route.matched[0].children.filter(route => route.path);
 </script>
 
 <style scoped>

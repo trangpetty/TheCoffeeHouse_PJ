@@ -1,7 +1,9 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import HomeView from '@/views/manager/HomeView.vue';
+import ProductManagerView from '@/views/manager/product/index.vue';
 import ProductView from '@/views/manager/product/ProductView.vue';
 import ProductTypeView from '@/views/manager/product/ProductTypeView.vue';
+import ToppingView from '@/views/manager/product/ToppingView.vue';
 import VoucherView from '@/views/manager/voucher/VoucherView.vue';
 import CustomerView from '@/views/manager/customer/CustomerView.vue';
 import UserView from '@/views/manager/user/UserView.vue';
@@ -18,12 +20,24 @@ export const routes = [
       {
         path: '/product',
         name: 'Product',
-        component: ProductView
-      },
-      {
-        path: '/product-type',
-        name: 'Product Type',
-        component: ProductTypeView
+        component: ProductManagerView,
+        children: [
+          {
+            path: '/product',
+            name: 'Product',
+            component: ProductView,
+          },
+          {
+            path: '/product-type',
+            name: 'Product Type',
+            component: ProductTypeView
+          },
+          {
+            path: '/topping',
+            name: 'Topping',
+            component: ToppingView
+          },
+        ]
       },
       {
         path: '/voucher',

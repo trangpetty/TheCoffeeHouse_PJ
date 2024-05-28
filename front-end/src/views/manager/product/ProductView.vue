@@ -23,15 +23,12 @@
             <font-awesome-icon icon="fa-solid fa-circle-plus" />
             Add
           </el-button>
-          <el-button type="primary" @click="()=>$router.push('/product-type')">
-            Type
-          </el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="box box-shadow">
       <!-- Table -->
-      <el-table :data="tableData" stripe v-loading="ui.loading">
+      <el-table :data="tableData" stripe v-loading="ui.loading" @row-click="handleEditRow">
         <el-table-column type="index" label="#" />
         <el-table-column prop="name" label="Name" />
         <el-table-column prop="price" label="Price" />
@@ -44,8 +41,8 @@
         </el-table-column>
         <el-table-column label="Action">
           <template #default="{ row }">
-            <el-button type="success" size="small" @click="handleEditRow(row.id)">Update</el-button>
-            <el-button type="danger" size="small" @click="handleDeleteRow(row.id)">Delete</el-button>
+            <el-button type="success" size="small" @click.stop="handleEditRow(row.id)">Update</el-button>
+            <el-button type="danger" size="small" @click.stop="handleDeleteRow(row.id)">Delete</el-button>
           </template>
         </el-table-column>
       </el-table>
