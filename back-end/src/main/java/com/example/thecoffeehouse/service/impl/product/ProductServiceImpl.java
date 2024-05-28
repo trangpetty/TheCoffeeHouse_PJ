@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse.service.impl;
+package com.example.thecoffeehouse.service.impl.product;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +19,7 @@ import com.example.thecoffeehouse.dto.ProductDto;
 import com.example.thecoffeehouse.entity.product.Product;
 import com.example.thecoffeehouse.entity.mapper.ProductMapper;
 import com.example.thecoffeehouse.repository.product.ProductRepository;
-import com.example.thecoffeehouse.service.ProductService;
+import com.example.thecoffeehouse.service.product.ProductService;
 
 @Service
 public class ProductServiceImpl implements ProductService {

@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse.service.impl;
+package com.example.thecoffeehouse.service.impl.bill;
 
 import com.example.thecoffeehouse.DateTimeConverter;
 import com.example.thecoffeehouse.dto.BillDto;
@@ -7,12 +7,9 @@ import com.example.thecoffeehouse.entity.Bill;
 import com.example.thecoffeehouse.entity.BillProduct;
 import com.example.thecoffeehouse.entity.mapper.BillMapper;
 import com.example.thecoffeehouse.entity.product.Product;
-import com.example.thecoffeehouse.repository.BillProductRepository;
-import com.example.thecoffeehouse.repository.BillRepository;
+import com.example.thecoffeehouse.repository.bill.BillProductRepository;
+import com.example.thecoffeehouse.repository.bill.BillRepository;
 import com.example.thecoffeehouse.repository.product.ProductRepository;
-import com.example.thecoffeehouse.service.BillService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,12 +18,10 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class BillServiceImpl implements BillService {
-    private static final Logger log = LoggerFactory.getLogger(BillServiceImpl.class);
     private final BillRepository billRepository;
     private final BillProductRepository billProductRepository;
     private final DateTimeConverter dateTimeConverter;
@@ -86,6 +81,6 @@ public class BillServiceImpl implements BillService {
 
         Bill savedBill = billRepository.save(bill);
         return null;
-//        return BillMapper.mapToBillDto(savedBill);
+        return BillMapper.mapToBillDto(savedBill);
     }
 }

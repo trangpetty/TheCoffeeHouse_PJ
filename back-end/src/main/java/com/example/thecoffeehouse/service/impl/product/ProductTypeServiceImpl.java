@@ -1,8 +1,8 @@
-package com.example.thecoffeehouse.service.impl;
+package com.example.thecoffeehouse.service.impl.product;
 
 import com.example.thecoffeehouse.entity.ProductType;
 import com.example.thecoffeehouse.repository.ProductTypeRepository;
-import com.example.thecoffeehouse.service.ProductTypeService;
+import com.example.thecoffeehouse.service.product.ProductTypeService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,8 +23,7 @@ public class ProductTypeServiceImpl implements ProductTypeService {
 
     @Override
     public ProductType createProductType(ProductType productType) {
-        ProductType savedProductType = productTypeRepository.save(productType);
-        return savedProductType;
+        return productTypeRepository.save(productType);
     }
 
     @Override
@@ -35,8 +34,7 @@ public class ProductTypeServiceImpl implements ProductTypeService {
 
         productType.setName(savedProductType.getName());
         productType.setImage(savedProductType.getImage());
-        ProductType updateProductType = productTypeRepository.save(productType);
-        return updateProductType;
+        return productTypeRepository.save(productType);
     }
 
     @Override

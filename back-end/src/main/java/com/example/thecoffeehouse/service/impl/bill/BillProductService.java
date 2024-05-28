@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse.service;
+package com.example.thecoffeehouse.service.impl.bill;
 
 import com.example.thecoffeehouse.entity.BillProduct;
 

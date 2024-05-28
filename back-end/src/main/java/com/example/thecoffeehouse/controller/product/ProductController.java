@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse.controller;
+package com.example.thecoffeehouse.controller.product;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.thecoffeehouse.dto.ProductDto;
-import com.example.thecoffeehouse.service.ProductService;
+import com.example.thecoffeehouse.service.product.ProductService;
 
 import java.io.IOException;
 import java.util.List;

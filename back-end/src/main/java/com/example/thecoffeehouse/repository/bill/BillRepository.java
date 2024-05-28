@@ -1,6 +1,5 @@
-package com.example.thecoffeehouse.repository;
+package com.example.thecoffeehouse.repository.bill;
 
-import com.example.thecoffeehouse.entity.Voucher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

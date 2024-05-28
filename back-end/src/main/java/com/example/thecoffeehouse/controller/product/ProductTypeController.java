@@ -1,7 +1,7 @@
-package com.example.thecoffeehouse.controller;
+package com.example.thecoffeehouse.controller.product;
 
 import com.example.thecoffeehouse.entity.ProductType;
-import com.example.thecoffeehouse.service.ProductTypeService;
+import com.example.thecoffeehouse.service.product.ProductTypeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

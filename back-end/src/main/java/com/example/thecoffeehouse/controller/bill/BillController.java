@@ -1,7 +1,7 @@
-package com.example.thecoffeehouse.controller;
+package com.example.thecoffeehouse.controller.bill;
 
 import com.example.thecoffeehouse.dto.BillDto;
-import com.example.thecoffeehouse.service.BillService;
+import com.example.thecoffeehouse.service.impl.bill.BillService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
