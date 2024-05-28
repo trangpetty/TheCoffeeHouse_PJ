@@ -8,7 +8,7 @@
         text-color="#fff"
     >
       <el-menu-item
-          v-for="(route, index) in routes[0].children"
+          v-for="(route, index) in filteredRoutes"
           :key="index"
           @click="changeTab(route.path)"
           :index="route.path"
@@ -20,16 +20,22 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { routes } from '@/router'; // Importing routes from routes.ts
 
 const router = useRouter();
+const route = useRoute();
 
 const changeTab = (path: string) => {
   router.push(path);
 };
+
+// Filter out the "Product Type" route
+const filteredRoutes = routes[0].children.filter(route => route.path !== '/product-type');
 </script>
 
 <style scoped>
-/* Component-specific styles */
+.el-menu-item.is-active {
+  background-color: #3e4a54 !important; /* Your desired active background color */
+}
 </style>

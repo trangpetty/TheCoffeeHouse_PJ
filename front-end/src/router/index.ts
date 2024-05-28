@@ -1,10 +1,14 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import HomeView from '@/views/manager/HomeView.vue';
 import ProductView from '@/views/manager/product/ProductView.vue';
+import ProductTypeView from '@/views/manager/product/ProductTypeView.vue';
 import VoucherView from '@/views/manager/voucher/VoucherView.vue';
 import CustomerView from '@/views/manager/customer/CustomerView.vue';
 import UserView from '@/views/manager/user/UserView.vue';
+import BillView from '@/views/manager/bill/BillView.vue';
+import HomeUserView from '@/views/user/HomeView.vue';
 import OrderView from '@/views/user/OrderView.vue';
+import CartView from '@/views/user/CartView.vue';
 
 export const routes = [
   {
@@ -15,6 +19,11 @@ export const routes = [
         path: '/product',
         name: 'Product',
         component: ProductView
+      },
+      {
+        path: '/product-type',
+        name: 'Product Type',
+        component: ProductTypeView
       },
       {
         path: '/voucher',
@@ -30,14 +39,30 @@ export const routes = [
         path: '/user',
         name: 'User',
         component: UserView
+      },
+      {
+        path: '/bill',
+        name: 'Bill',
+        component: BillView
       }
     ]
   },
   {
     path: '/order',
-    name: 'order',
-    component: OrderView
-  }
+    component: HomeUserView,
+    children: [
+      {
+        path: '/order',
+        name: 'order',
+        component: OrderView
+      },
+      {
+        path: '/checkout',
+        name: 'checkout',
+        component: CartView
+      }
+    ]
+  },
 ];
 
 const router = createRouter({

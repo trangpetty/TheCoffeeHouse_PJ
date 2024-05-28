@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="d-flex">
-      <div class="box-shadow">
-          <img src="../../assets/images/logo.jpg" alt="" class="img-logo">
+      <div class="box-shadow" style="width: 240px;">
+          <img :src="Logo" alt="" class="w-100">
           <Sidebar class="h-100"/>
       </div>
       <div class="p-3 w-100">
@@ -16,12 +16,10 @@
 
 <script lang="ts" setup>
 import Sidebar from '@/views/manager/Sidebar.vue';
+import Logo from '@/assets/images/logo.png'
 
 </script>
 
 <style>
-.img-logo {
-  width: 200px;
-  padding: 0 30px;
-}
+
 </style>
