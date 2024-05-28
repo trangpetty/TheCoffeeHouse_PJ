@@ -26,8 +26,12 @@ public class BillProduct {
     private Long billID;
     @Column(name = "product_id")
     private Long productID;
+    @Column(name = "product_size_id")
+    private String productSizeID;
+    @Column(name = "topping_id")
+    private String toppingID;
     @Column(name = "quantity")
     private int quantity;
-    @Column(name = "price")
-    private double price;
+    @Column(name = "cost")
+    private double cost;
 }

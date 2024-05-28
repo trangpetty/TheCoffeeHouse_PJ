@@ -1,7 +1,12 @@
 package com.example.thecoffeehouse.entity.mapper;
 
 import com.example.thecoffeehouse.dto.BillDto;
+import com.example.thecoffeehouse.dto.BillProductDto;
 import com.example.thecoffeehouse.entity.Bill;
+import com.example.thecoffeehouse.entity.BillProduct;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class BillMapper {
     public static Bill mapToBill(BillDto billDto) {
@@ -24,7 +29,7 @@ public class BillMapper {
         return bill;
     }
 
-    public static BillDto mapToBillDto(Bill bill) {
+    public static BillDto mapToBillDto(Bill bill, List<BillProductDto> billProductDtoList) {
         BillDto billDto = new BillDto(
                 bill.getId(),
                 bill.getCustomerID(),
@@ -38,9 +43,27 @@ public class BillMapper {
                 bill.getStatus(),
                 bill.getAddress(),
                 bill.getCreateTime(),
-                bill.getModifyTime()
+                bill.getModifyTime(),
+                billProductDtoList
         );
 
         return billDto;
     }
+
+    public static BillProductDto mapToBillProductDto(BillProduct billProduct) {
+        BillProductDto billProductDto = new BillProductDto();
+        billProductDto.setId(billProduct.getId());
+        billProductDto.setProductID(billProduct.getProductID());
+        billProductDto.setQuantity(billProduct.getQuantity());
+        billProductDto.setPrice(billProduct.getCost());
+
+        return billProductDto;
+    }
+
+    public static List<BillProductDto> mapToBillProductsDto(List<BillProduct> billProducts) {
+        return billProducts.stream()
+                .map(BillMapper::mapToBillProductDto)
+                .collect(Collectors.toList());
+    }
+
 }

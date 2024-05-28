@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -23,4 +24,5 @@ public class BillDto {
     private String address;
     private LocalDateTime createTime;
     private LocalDateTime modifyTime;
+    private List<BillProductDto> products;
 }

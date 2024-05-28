@@ -21,6 +21,7 @@ public class BillProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<List<BillProduct>> getBill(@PathVariable Long id) {
+        System.out.println("Accessing /bills/" + id);
         List<BillProduct> billProducts = billProductService.getBillProductByBillID(id);
         return ResponseEntity.ok(billProducts);
     }

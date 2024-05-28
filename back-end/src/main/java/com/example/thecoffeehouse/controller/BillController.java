@@ -23,9 +23,12 @@ public class BillController {
 
     @GetMapping
     public ResponseEntity<Page<BillDto>> getAllBills(@RequestParam("code") String code, @RequestParam("status") int status,
-                                                     @RequestParam(value = "applyFrom", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date applyFrom,
-                                                     @RequestParam(value = "applyTo", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date applyTo,
+                                                     @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date applyFrom,
+                                                     @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date applyTo,
                                                      @RequestParam("pageNo") int pageNo, @RequestParam(defaultValue = "10") int pageSize) {
+        if (pageNo > 0) {
+            pageNo = pageNo - 1;
+        }
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         return ResponseEntity.ok(billService.getAllBills(code, status, applyFrom, applyTo, pageable));
     }

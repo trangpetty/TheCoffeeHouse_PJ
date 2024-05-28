@@ -25,5 +25,4 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
     @Query("SELECT p FROM Product p WHERE p.TypeID = :typeID")
     List<Product> getProductsByTypeID(@Param("typeID") Long typeID);
 
-
 }
