@@ -102,7 +102,9 @@
   width: 2.5rem;
 }
 
-.btn.btn--white {
+.btn.btn--white,
+.btn.btn--white:hover,
+.btn.btn--white:active{
   background: var(--white);
   border-radius: var(--space-100);
 }
@@ -137,6 +139,13 @@
 {
   background: var(--orange-2)!important;
   border-color: var(--orange-2)!important;
+}
+
+.btn.btn--smoky-gray {
+  background: var(--smoky-gray-4);
+  color: rgba(36, 36, 36, .3);
+  border-bottom-right-radius: var(--space-4) !important;
+  border-top-right-radius: var(--space-4) !important;
 }
 
 .el-radio__input.is-checked+.el-radio__label {

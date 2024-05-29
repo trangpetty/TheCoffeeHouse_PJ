@@ -74,13 +74,16 @@
 
       <!-- Dialog -->
       <el-dialog v-model="ui.dialogVisible" width="40%" class="dialog" title="Detail">
+        <el-form>
+
+        </el-form>
         <el-table :data="bill.products" style="width: 100%">
-          <el-table-column prop="id" label="Product ID"></el-table-column>
           <el-table-column prop="productName" label="Product Name"></el-table-column>
           <el-table-column prop="quantity" label="Quantity"></el-table-column>
           <el-table-column prop="price" label="Price"></el-table-column>
+          <el-table-column prop="cost" label="Cost"></el-table-column>
         </el-table>
-        <p class="text-end">Total: {{ bill.totalValue }}</p>
+        <p class="text-end">Total: {{ bill.value }}</p>
       </el-dialog>
 
       <!-- Pagination -->
@@ -148,6 +151,12 @@ const resetForm = () => {
 const handleDetail = async (row: object) => {
   ui.value.dialogVisible = true;
   bill.value = row
+  console.log(bill.value)
+  for(const item of bill.value.products) {
+    let product = await axios.get(`http://localhost:8082/api/products/${item.productID}`);
+    item.productName = product.data.name;
+    item.price = product.data.price;
+  }
 }
 
 fetchData()

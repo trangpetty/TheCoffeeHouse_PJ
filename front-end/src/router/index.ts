@@ -62,11 +62,11 @@ export const routes = [
     ]
   },
   {
-    path: '/order',
+    path: '/',
     component: HomeUserView,
     children: [
       {
-        path: '/order',
+        path: '/',
         name: 'order',
         component: OrderView
       },

@@ -76,7 +76,7 @@
                       <p class="checkout-box_btn-outline">Thêm món</p>
                     </router-link>
                   </div>
-                  <div class="order-card d-flex align-items-center justify-content-between" v-for="item in cartItems" :key="item.productId">
+                  <div class="order-card d-flex align-items-center justify-content-between" v-for="(item, index) in cartItems" :key="item.productId">
                     <div class="d-flex">
                       <span class="d-flex align-items-center order-card-icon">
                         <font-awesome-icon icon="fa-solid fa-pen" />
@@ -84,7 +84,7 @@
                       <div class="ps-3">
                         <h5 class="delivery-card__title mb-0"> {{ item.quantity }} x {{ item.name }}</h5>
                         <p class="delivery-card__description mb-0">{{(item.productSize.size === 'S')? 'Nho' : (item.productSize.size === 'M')? 'Vua' : (item.productSize.size === 'L')? 'Lon' : ''}}</p>
-                        <p class="d-inline" style="cursor: pointer" @click="removeFromCart(item.productId)">Xoa</p>
+                        <p class="d-inline" style="cursor: pointer" @click="removeFromCart(index)">Xoa</p>
                       </div>
                     </div>
                     <div>
@@ -118,7 +118,7 @@
                       <p class="text-decoration-line-through text-black-50">{{formatPrice(0)}}</p>
                     </div>
                   </div>
-                  <div class="d-flex align-items-center justify-content-between pt-3">
+                  <div class="d-flex align-items-center justify-content-between pt-3 order-card">
                     <div>
                       <p class="text-orange order-card__text">Khuyến mãi</p>
                     </div>
@@ -129,7 +129,7 @@
                     <p class="order-card__text text-white mb-0">Thành tiền</p>
                     <p class="order-card__text text-white fw-bold mb-0">{{formatPrice(totalCost + 18000)}}</p>
                   </div>
-                  <button class="btn btn--white px-4">
+                  <button class="btn btn--white px-4" @click="confirmOrder">
                     Đặt hàng
                   </button>
                 </div>
@@ -163,7 +163,25 @@
         </div>
       </div>
     </div>
-    </div>
+<!-- Voucher Dialog -->
+    <el-dialog v-model="ui.voucherDialog" :show-close="false" width="30%" class="rounded custom-dialog">
+      <template #header="{close}">
+        <div class="d-flex align-items-center w-100 p-2">
+          <h4 class="mx-auto my-0 fs-6">Khuyến mãi</h4>
+          <el-button class="border-0" @click="close">
+            <el-icon class="fs-3"><Close /></el-icon>
+          </el-button>
+        </div>
+      </template>
+      <div>
+        <div class="d-flex align-items-center">
+          <font-awesome-icon icon="fa-solid fa-expand" />
+          <input type="text" v-model="code">
+          <button class="btn" :class=" (code) ? 'btn--orange-1' : 'btn--smoky-gray'"></button>
+        </div>
+      </div>
+    </el-dialog>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -173,13 +191,15 @@ import momo from '@/assets/images/momo.png';
 import zalo from '@/assets/images/zalopay.png';
 import shoppe from '@/assets/images/shoppepay.png';
 import banking from '@/assets/images/banking.png'
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
+import {Close} from "@element-plus/icons-vue";
+import axios from "axios";
 
 const store = useStore();
 const cartItems = computed(() => store.getters.cartItems);
-const removeFromCart = (productId: number) => {
-  store.dispatch('removeProductFromCart', productId);
+const removeFromCart = (index: number) => {
+  store.dispatch('removeProductFromCart', index);
 };
 
 const formatPrice = (price: number): string => {
@@ -199,6 +219,42 @@ const paymentMethods = [
 ]
 
 const payment = {};
+
+const formData = ref({
+  customerID: null,
+  voucherID: null,
+  value: totalCost.value,
+  ValueOfVoucher: 0,
+  ValueOfCustomerPoint: 0,
+  totalValue: totalCost.value + 18000,
+  code: generateRandomString(),
+  point: 0,
+  status: 0,
+  address: '4 Ngõ 15 Phố Duy Tân, Dịch Vọng Hậu, Cầu Giấy, Hà Nội 100000, Việt Nam',
+  products: []
+})
+
+const ui = ref({
+  voucherDialog: false
+})
+
+function generateRandomString(): string {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  return Array.from({ length: 10 }, (_, i) => i === 0 ? characters[Math.floor(Math.random() * 26)] : characters[Math.floor(Math.random() * characters.length)]).join('');
+}
+
+const confirmOrder = async () => {
+  for (const item of cartItems.value) {
+    formData.value.products.push({
+      productID: item.productId,
+      productSizeID: item.productSize.id,
+      toppingID: null,
+      quantity: item.quantity,
+      cost: item.cost
+    })
+  }
+  await axios.post('http://localhost:8082/api/bills', formData.value);
+}
 </script>
 <style>
 .checkout-header .icon{
@@ -342,6 +398,27 @@ const payment = {};
 .form-control:focus {
   box-shadow: none!important;
   outline: none!important;
+}
+
+.custom-dialog.el-overlay-dialog {
+  overflow: hidden!important;
+}
+
+.custom-dialog.el-dialog {
+  overflow-y: scroll;
+  height: 90vh;
+}
+
+.custom-dialog.el-overlay-dialog {
+  top: auto!important;
+}
+
+.custom-dialog.el-dialog header {
+  height: auto!important;
+}
+
+.custom-dialog.el-dialog__header {
+  border-bottom: 1px solid #dee2e6;
 }
 
 @media (min-width: 992px)

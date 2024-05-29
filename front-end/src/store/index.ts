@@ -24,8 +24,8 @@ const store = createStore<State>({
         addToCart(state, product: Product) {
             state.cart.push(product);
         },
-        removeFromCart(state, productId: number) {
-            state.cart = state.cart.filter(item => item.productId !== productId);
+        removeFromCart(state, index: number) {
+            state.cart.splice(index, 1)
         },
     },
     actions: {
