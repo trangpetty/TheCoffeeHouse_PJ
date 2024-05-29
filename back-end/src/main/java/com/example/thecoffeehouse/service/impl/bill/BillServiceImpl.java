@@ -10,6 +10,7 @@ import com.example.thecoffeehouse.entity.product.Product;
 import com.example.thecoffeehouse.repository.bill.BillProductRepository;
 import com.example.thecoffeehouse.repository.bill.BillRepository;
 import com.example.thecoffeehouse.repository.product.ProductRepository;
+import com.example.thecoffeehouse.service.bill.BillService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,6 @@ public class BillServiceImpl implements BillService {
     private final BillProductRepository billProductRepository;
     private final DateTimeConverter dateTimeConverter;
     private final ProductRepository productRepository;
-
 
     public BillServiceImpl(BillRepository billRepository, BillProductRepository billProductRepository, DateTimeConverter dateTimeConverter, ProductRepository productRepository) {
         this.billRepository = billRepository;
@@ -49,15 +49,7 @@ public class BillServiceImpl implements BillService {
         return bills.map( bill -> {
             List<BillProduct> billProducts = billProductRepository.getBillProductByBillID(bill.getId());
             List<BillProductDto> billProductDtos = billProducts.stream()
-                    .map(billProduct -> {
-                        BillProductDto billProductDto = BillMapper.mapToBillProductDto(billProduct);
-                        if(billProduct.getProductID() != null) {
-                            Product product = productRepository.findById(billProduct.getProductID())
-                                    .orElseThrow(() -> new RuntimeException("Product does not exist"));
-                            billProductDto.setProductName(product.getName());
-                        }
-                        return billProductDto;
-                    })
+                    .map(BillMapper::mapToBillProductDto)
                     .collect(Collectors.toList());
             return BillMapper.mapToBillDto(bill, billProductDtos);
 
@@ -68,8 +60,24 @@ public class BillServiceImpl implements BillService {
     public BillDto createBill(BillDto billDto) {
         Bill bill = BillMapper.mapToBill(billDto);
         Bill savedBill = billRepository.save(bill);
-//        return BillMapper.mapToBillDto(savedBill);
-        return null;
+        saveBillProducts(billDto.getProducts(), savedBill);
+        List<BillProductDto> billProductDtos = billDto.getProducts();
+        return BillMapper.mapToBillDto(savedBill, billProductDtos);
+    }
+
+    private void saveBillProducts(List<BillProductDto> billProductDtos, Bill bill) {
+
+        for (BillProductDto product : billProductDtos) {
+            BillProduct billProduct = new BillProduct();
+            billProduct.setBillID(bill.getId());
+            billProduct.setProductID(product.getProductID());
+            billProduct.setProductSizeID(product.getProductSizeID());
+            billProduct.setToppingID(product.getToppingID());
+            billProduct.setQuantity(product.getQuantity());
+            billProduct.setCost(product.getCost());
+
+            billProductRepository.save(billProduct);
+        }
     }
 
     @Override

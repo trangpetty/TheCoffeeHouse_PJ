@@ -29,7 +29,7 @@ public class BillMapper {
         return bill;
     }
 
-    public static BillDto mapToBillDto(Bill bill, List<BillProductDto> billProductDtoList) {
+    public static BillDto mapToBillDto(Bill bill, List<BillProductDto> billProductDtos) {
         BillDto billDto = new BillDto(
                 bill.getId(),
                 bill.getCustomerID(),
@@ -44,20 +44,10 @@ public class BillMapper {
                 bill.getAddress(),
                 bill.getCreateTime(),
                 bill.getModifyTime(),
-                billProductDtoList
+                billProductDtos
         );
 
         return billDto;
-    }
-
-    public static BillProductDto mapToBillProductDto(BillProduct billProduct) {
-        BillProductDto billProductDto = new BillProductDto();
-        billProductDto.setId(billProduct.getId());
-        billProductDto.setProductID(billProduct.getProductID());
-        billProductDto.setQuantity(billProduct.getQuantity());
-        billProductDto.setPrice(billProduct.getCost());
-
-        return billProductDto;
     }
 
     public static List<BillProductDto> mapToBillProductsDto(List<BillProduct> billProducts) {
@@ -66,4 +56,15 @@ public class BillMapper {
                 .collect(Collectors.toList());
     }
 
+    public static BillProductDto mapToBillProductDto(BillProduct billProduct) {
+        BillProductDto billProductDto = new BillProductDto();
+        billProductDto.setId(billProduct.getId());
+        billProductDto.setProductID(billProduct.getProductID());
+        billProductDto.setProductSizeID(billProduct.getProductSizeID());
+        billProductDto.setToppingID(billProduct.getToppingID());
+        billProductDto.setQuantity(billProduct.getQuantity());
+        billProductDto.setCost(billProduct.getCost());
+
+        return billProductDto;
+    }
 }

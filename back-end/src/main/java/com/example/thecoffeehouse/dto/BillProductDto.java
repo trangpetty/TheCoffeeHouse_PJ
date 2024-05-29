@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 public class BillProductDto {
     private Long id;
     private Long productID;
-    private String productName;
-    private String productSize;
+    private String productSizeID;
+    private String toppingID;
     private int quantity;
-    private double price;
+    private double cost;
 }

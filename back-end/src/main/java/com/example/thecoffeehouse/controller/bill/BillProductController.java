@@ -1,7 +1,7 @@
 package com.example.thecoffeehouse.controller.bill;
 
 import com.example.thecoffeehouse.entity.BillProduct;
-import com.example.thecoffeehouse.service.impl.bill.BillProductService;
+import com.example.thecoffeehouse.service.bill.BillProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
