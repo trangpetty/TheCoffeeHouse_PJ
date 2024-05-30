@@ -57,7 +57,7 @@
         <el-table-column label="status">
           <template #default={row}>
             <span :style="row.status === 0 ? 'color:#5daf34':'color:red'">
-              {{ row.status === 0 ? 'Active' : 'Inactive' }}
+              {{ row.status === 0 ? 'Active' : 'Done' }}
             </span>
           </template>
         </el-table-column>
@@ -73,16 +73,22 @@
       </el-table>
 
       <!-- Dialog -->
-      <el-dialog v-model="ui.dialogVisible" width="40%" class="dialog" title="Detail">
+      <el-dialog v-model="ui.dialogVisible" width="65%" class="dialog" title="Detail">
         <el-form>
 
         </el-form>
         <el-table :data="bill.products" style="width: 100%">
-          <el-table-column prop="productName" label="Product Name"></el-table-column>
-          <el-table-column prop="quantity" label="Quantity"></el-table-column>
-          <el-table-column prop="price" label="Price"></el-table-column>
-          <el-table-column prop="cost" label="Cost"></el-table-column>
+          <el-table-column prop="productName" label="Product" width="200" header-align="center" />
+          <el-table-column prop="quantityProduct" label="Quantity" align="center"/>
+          <el-table-column prop="productSize" label="Size" align="center" />
+          <el-table-column prop="priceProduct" label="Price" align="center"/>
+          <el-table-column prop="surcharge" label="Surcharge" align="center"/>
+          <el-table-column prop="toppingName" label="Topping" width="200" header-align="center"/>
+          <el-table-column prop="quantityTopping" label="Quantity" align="center"/>
+          <el-table-column prop="priceTopping" label="Price" align="center"/>
+          <el-table-column prop="cost" label="Cost" />
         </el-table>
+
         <p class="text-end">Total: {{ bill.value }}</p>
       </el-dialog>
 
@@ -152,11 +158,11 @@ const handleDetail = async (row: object) => {
   ui.value.dialogVisible = true;
   bill.value = row
   console.log(bill.value)
-  for(const item of bill.value.products) {
-    let product = await axios.get(`http://localhost:8082/api/products/${item.productID}`);
-    item.productName = product.data.name;
-    item.price = product.data.price;
-  }
+  // for(const item of bill.value.products) {
+  //   let product = await axios.get(`http://localhost:8082/api/products/${item.productID}`);
+  //   item.productName = product.data.name;
+  //   item.price = product.data.price;
+  // }
 }
 
 fetchData()

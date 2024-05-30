@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="checkout-box">
+    <div class="checkout-box" v-loading="ui.loading">
       <div class="container-lg container-fluid">
         <div class="row justify-content-center">
           <div class="col-12 col-lg-10">
@@ -72,7 +72,7 @@
                 <div class="py-3 w-100 px-4">
                   <div class="d-flex justify-content-between">
                     <h4 class="checkout-box_title mb-0">Các món đã chọn</h4>
-                    <router-link to="/order" class="text-decoration-none text-dark">
+                    <router-link to="/" class="text-decoration-none text-dark">
                       <p class="checkout-box_btn-outline">Thêm món</p>
                     </router-link>
                   </div>
@@ -196,8 +196,11 @@ import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import {Close} from "@element-plus/icons-vue";
 import axios from "axios";
+import {useRouter} from "vue-router";
 
+const router = useRouter();
 const store = useStore();
+
 const cartItems = computed(() => store.getters.cartItems);
 const removeFromCart = (index: number) => {
   store.dispatch('removeProductFromCart', index);
@@ -236,7 +239,8 @@ const formData = ref({
 })
 
 const ui = ref({
-  voucherDialog: false
+  voucherDialog: false,
+  loading: false
 })
 
 function generateRandomString(): string {
@@ -250,12 +254,18 @@ const confirmOrder = async () => {
       productID: item.productId,
       productSizeID: item.productSize.id,
       toppingID:  item.topping ? item.topping.toppingID : null,
-      quantity: item.quantity,
+      quantityProduct: item.quantity,
+      quantityTopping: item.topping ? item.topping.quantity : null,
       cost: item.cost
     })
   }
-  console.log(formData.value)
-  // await axios.post('http://localhost:8082/api/bills', formData.value);
+  // console.log(formData.value)
+  await axios.post('http://localhost:8082/api/bills', formData.value);
+  await store.dispatch('clearCart')
+  ui.value.loading = true;
+  setTimeout(() => {
+    router.push('/');
+  }, 2000);
 }
 </script>
 <style>

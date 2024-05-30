@@ -28,6 +28,9 @@ const store = createStore<State>({
         removeFromCart(state, index: number) {
             state.cart.splice(index, 1)
         },
+        clearCart(state) {
+            state.cart = [];
+        }
     },
     actions: {
         loadCart({ commit }) {
@@ -44,6 +47,10 @@ const store = createStore<State>({
         removeProductFromCart({ commit, dispatch }, productId: number) {
             commit('removeFromCart', productId);
             dispatch('saveCart');
+        },
+        clearCart({ commit }) {
+            commit('clearCart');
+            localStorage.removeItem('cart'); // Optionally, remove cart data from localStorage
         },
     },
     getters: {

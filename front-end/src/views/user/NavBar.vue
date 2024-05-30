@@ -1,7 +1,7 @@
 <template>
   <header class="bg-header d-flex align-items-center text-white">
     <div class="container-fluid container-lg d-flex align-items-center px-3 justify-content-center">
-      <router-link to="/order" class="navbar-brand fw-bolder me-5" href="#">PETTY COFFEE</router-link>
+      <router-link to="/" class="navbar-brand fw-bolder me-5" href="#">PETTY COFFEE</router-link>
       <div class="header-delivery header-delivery--bg d-flex align-items-center">
         <img :src="delivery" alt="" class="icon-delivery">
         <div class="delivery-header_text ps-2">
@@ -41,21 +41,11 @@
 import delivery from "@/assets/images/Delivery2.png";
 import noAvatar from "@/assets/images/no-avatar.png";
 import {Handbag} from "@element-plus/icons-vue";
-import {computed, inject, onMounted} from 'vue';
+import {computed} from 'vue';
 import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
-import { routes } from '@/router';
 const store = useStore();
 
 const totalQuantity = computed(() => store.getters.cartTotalQuantity);
-
-const router = useRouter();
-
-// const store = useStore();
-// const cart = computed(() => store.getters.cartItems);
-// const totalQuantity = computed(() => {
-//   return cart.value.reduce((sum, item) => sum + item.quantity, 0);
-// });
 
 </script>
 
