@@ -103,7 +103,7 @@
                 <div class="card-product-option">
                   <span class="card-product-option-text">CHỌN SIZE (BẮT BUỘC)</span>
                 </div>
-                <el-radio-group class="d-flex justify-content-between mt-3" v-model="selectedSize" @change="handleSelectSize">
+                <el-radio-group class="d-flex justify-content-between mt-3" v-model="selectedSize">
                   <el-radio v-for="(item, index) in selectedProduct.productSizes" :key="index" :value="item">
                     <div class="d-flex flex-column fs-6">
                       <span>{{(item.size === 'S')? 'Nho' : (item.size === 'M')? 'Vua' : (item.size === 'L')? 'Lon' : ''}}</span>
@@ -116,18 +116,23 @@
                 <div class="card-product-option">
                   <span class="card-product-option-text">CHỌN TOPPING (TÙY CHỌN)</span>
                 </div>
-
               </section>
-<!--              <div v-if="toppings.length">-->
-<!--                <h5>Toppings</h5>-->
-<!--                <div v-for="(topping, index) in toppings" :key="index">-->
-<!--                  <input type="checkbox" :value="topping" v-model="selectedToppings">-->
-<!--                  {{ topping.name }} (+{{ formatPrice(topping.price) }})-->
-<!--                </div>-->
-<!--              </div>-->
+              <div v-if="toppings.length">
+                <div v-for="(topping, index) in toppings" :key="index" class="card-product-option-topping">
+                  <div class="d-flex flex-column">
+                    <span class="card-product-option-topping-name">{{ topping.name }}</span>
+                    <span class="card-product-option-topping-price">+{{ formatPrice(topping.price) }}</span>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <div v-if="getToppingQuantity(topping) > 0" class="quantity-extra d-flex align-items-center justify-content-center" @click="decreaseQuantity(topping)"><font-awesome-icon icon="fa-solid fa-minus" /></div>
+                    <span>{{getToppingQuantity(topping)}}</span>
+                    <div class="quantity-extra d-flex align-items-center justify-content-center" @click="increaseQuantity(topping)"><font-awesome-icon icon="fa-solid fa-plus" /></div>
+                  </div>
+                </div>
+              </div>
             </div>
             <template #footer>
-              <button class="btn-add-item" @click="addToCart">{{formatPrice(cost = selectedProduct?.price * quantity + selectedSize.surcharge)}} - Thêm vào giỏ hàng</button>
+              <button class="btn-add-item" @click="addToCart">{{formatPrice(cost)}} - Thêm vào giỏ hàng</button>
             </template>
           </el-dialog>
         </div>
@@ -141,7 +146,7 @@
 import banner1 from '@/assets/images/banner1.webp'
 import banner2 from '@/assets/images/banner2.webp'
 import banner3 from '@/assets/images/banner3.webp'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import axios from "axios";
 import {Close, Tickets} from "@element-plus/icons-vue";
 import {useStore} from 'vuex'
@@ -163,7 +168,12 @@ const selectedSize = ref({
   size: '',
   surcharge: 0
 });
-const cost = ref(0)
+const selectedTopping = ref({
+    toppingID: null,
+    toppingName: '',
+    quantity: 0
+  });
+const toppings = ref([]);
 const cart = ref([]);
 
 const getTypes = async () => {
@@ -171,9 +181,6 @@ const getTypes = async () => {
   types.value = response.data;
   const response2 = await axios.get(`http://localhost:8082/api/products/type/1`);
   products.value = response2.data;
-  products.value.forEach(item => {
-    console.log(item.images[0].url)
-  })
 };
 
 const handleChangeType = async (id: number, event: Event) => {
@@ -191,16 +198,46 @@ const showProductModal = async (product) => {
   selectedProduct.value = product;
   quantity.value = 1; // Reset quantity
   selectedSize.value = selectedProduct.value.productSizes.reduce((max, item) => (item.surcharge > max.surcharge) ? item : max);
-  // // Fetch toppings if needed (you can replace with actual API call)
-  // // const response = await axios.get(`http://localhost:8082/api/toppings`);
-  // // toppings.value = response.data;
-  // toppings.value = [
-  //   { id: 1, name: 'Topping 1', price: 5000 },
-  //   { id: 2, name: 'Topping 2', price: 7000 }
-  // ];
-  // selectedToppings.value = [];
+  toppings.value = product.toppings;
   ui.value.dialogVisible = true;
 };
+
+const getToppingQuantity = (topping) => {
+  return selectedTopping.value.toppingID === topping.toppingID ? selectedTopping.value.quantity : 0;
+};
+
+// Function to decrease the quantity of the selected topping
+const decreaseQuantity = (topping) => {
+  if (selectedTopping.value.toppingID === topping.toppingID && selectedTopping.value.quantity > 0) {
+    selectedTopping.value.quantity--;
+  }
+};
+
+// Function to increase the quantity of the selected topping
+const increaseQuantity = (topping) => {
+  if (selectedTopping.value.toppingID === topping.toppingID) {
+    selectedTopping.value.quantity++;
+  } else {
+    // If a new topping is selected, update selectedTopping with its data
+    selectedTopping.value = {
+      toppingID: topping.toppingID,
+      toppingName: topping.name,
+      price: topping.price,
+      quantity: 1
+    };
+  }
+};
+
+const cost = computed(() => {
+  let totalCost = selectedProduct.value.price * quantity.value + selectedSize.value.surcharge;
+
+  // Add the cost of the selected topping if any
+  if (selectedTopping.value.quantity > 0) {
+    totalCost += selectedTopping.value.price * selectedTopping.value.quantity;
+  }
+
+  return totalCost;
+});
 
 const addToCart = () => {
   const productWithDetails = {
@@ -209,24 +246,24 @@ const addToCart = () => {
     productSize: selectedSize.value,
     cost: cost.value,
     quantity: quantity.value,
-    // toppings: selectedToppings.value
+    topping: selectedTopping.value
   };
+  // console.log(productWithDetails)
   cart.value.push(productWithDetails);
   localStorage.setItem('cart', JSON.stringify(cart.value));
   store.dispatch('addProductToCart', productWithDetails)
   ui.value.dialogVisible = false;
 };
 
-const handleSelectSize = () => {
-  console.log(selectedSize.value)
-};
-
-
 getTypes();
 
 </script>
 
 <style>
+.cursor-pointer {
+  cursor: pointer;
+}
+
 .dropdown:hover .dropdown-menu {
       display: block;
     }
@@ -372,6 +409,41 @@ getTypes();
   line-height: var(--space-24);
   margin: var(--space-6) var(--space-16);
   text-transform: uppercase;
+}
+
+.card-product-option-topping:first-child {
+  border-top: none;
+}
+
+.card-product-option-topping {
+  display: flex;
+  align-items: center;
+  border-bottom: none;
+  border-top: 1px solid #c4c4c4;
+  height: var(--space-70);
+  justify-content: space-between;
+  margin: 0 var(--space-15);
+  padding: var(--space-15) 0;
+}
+
+.card-product-option-topping-name {
+  font-size: var(--space-16);
+}
+
+.card-product-option-topping-price {
+  color: #262626;
+  font-size: var(--space-14);
+  font-weight: 600;
+}
+
+.quantity-extra {
+  background: #fff;
+  border: 2px solid #e4e4e4;
+  border-radius: 50%;
+  box-sizing: border-box;
+  height: var(--space-24);
+  width: var(--space-24);
+  color: #e4e4e4;
 }
 
 .btn-add-item {

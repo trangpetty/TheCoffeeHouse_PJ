@@ -79,7 +79,8 @@
               </el-table-column>
             </el-table>
           </el-form-item>
-          <el-form-item label="Image">
+          <h6>Image</h6>
+          <el-form-item>
             <el-upload action="#" list-type="picture-card" :auto-upload="false" :file-list="fileList" :on-change="handleUploadChange">
               <el-icon><Plus /></el-icon>
               <template #file="{ file }">
@@ -102,6 +103,23 @@
             <el-dialog v-model="dialogVisible">
               <img :src="dialogImageUrl" alt="" width="100%" />
             </el-dialog>
+          </el-form-item>
+          <el-form-item>
+            <h6>Topping</h6>
+            <el-table :data="productToppings" style="width: 100%" @row-click="toggleChecked">
+              <el-table-column width="40">
+                <template #default="{ row }">
+                  <el-checkbox v-model="row.checked" :label="row.size" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="name" label="Name" />
+              <el-table-column prop="price" label="Price" />
+              <el-table-column label="Image">
+                <template #default="{ row }">
+                  <el-image :src="row.image" class="w-50" />
+                </template>
+              </el-table-column>
+            </el-table>
           </el-form-item>
         </el-form>
         <div class="text-end">
@@ -145,7 +163,10 @@ const sizeData = ref([
   { id: null, size: 'L', checked: false, surcharge: 0 }
 ]);
 
+const productToppings = ref([]);
+
 const removedProductSizes = ref([]);
+const removedToppings = ref([]);
 
 const formData = ref({
   name: '',
@@ -153,7 +174,8 @@ const formData = ref({
   images: [],
   price: 0,
   productSizes: [],
-  typeID: 1
+  typeID: 1,
+  toppings: []
 });
 
 const product_id = ref(0);
@@ -186,16 +208,22 @@ const getTypes = async () => {
   types.value = response.data;
 };
 
-const handleAdd = () => {
+const handleAdd = async () => {
   ui.value.dialogVisible = true;
   ui.value.addRecord = true;
   formData.value.name = '';
   formData.value.description = '';
-  formData.value.image = '';
+  formData.value.images = [];
   formData.value.price = 0;
   formData.value.productSizes = [];
   formData.value.typeID = 1;
   fileList.value = []; // Clear the fileList when adding a new product
+  const result = await axios.get(`http://localhost:8082/api/topping`);
+  productToppings.value = result.data.map(item => ({
+    ...item,
+    productID: null,
+    checked: false
+  }));
 };
 
 const handleEditRow = async (id: number) => {
@@ -210,12 +238,38 @@ const handleEditRow = async (id: number) => {
     formData.value.price = result.data.price;
     formData.value.productSizes = result.data.productSizes;
     formData.value.images = result.data.images;
+    formData.value.toppings = result.data.toppings;
+    console.log("edit", formData.value.toppings)
     sizeData.value.forEach(size => {
       size.checked = formData.value.productSizes.some(ps => ps.size === size.size);
       if (size.checked) {
         const productSize = formData.value.productSizes.find(ps => ps.size === size.size);
         size.surcharge = productSize.surcharge;
         size.id = productSize.id;
+      }
+    });
+    const getTopping = await axios.get(`http://localhost:8082/api/topping`);
+    productToppings.value = getTopping.data.map(item => ({
+      name: item.name,
+      price: item.price,
+      image: item.image,
+      productID: product_id.value,
+      toppingID: item.id,
+      id: null,
+      checked: false,
+    }));
+    productToppings.value.forEach(topping => {
+      topping.checked = formData.value.toppings.some(t => t.toppingID === topping.toppingID);
+      if (topping.checked) {
+        const productTopping = formData.value.toppings.find(ps => ps.id === topping.id);
+        if (productTopping) {
+          topping.name = productTopping.name;
+          topping.image = productTopping.image;
+          topping.price = productTopping.price;
+          topping.id = productTopping.id;
+          topping.productID = productTopping.productID;
+          topping.toppingID = productTopping.toppingID;
+        }
       }
     });
     fileList.value = formData.value.images.map(image => ({
@@ -254,6 +308,10 @@ const handleUploadChange = (file, newFileList) => {
   }));
 };
 
+const toggleChecked = (row: object) => {
+  row.checked = !row.checked;
+}
+
 const handleConfirm = async () => {
   ui.value.dialogVisible = false;
   ui.value.loading = true;
@@ -285,18 +343,28 @@ const handleConfirm = async () => {
       surcharge: row.surcharge
     }));
 
+    formData.value.toppings = productToppings.value.filter(row => row.checked).map(row => ({
+      id: row.id,
+      productID: product_id.value,
+      toppingID: row.toppingID,
+      name: row.name,
+      price: row.price,
+      image: row.image
+    }));
+
+    console.log("confirm ", formData.value.toppings)
+
     removedProductSizes.value = sizeData.value.filter(row => !row.checked).map(row => ({
       id: row.id,
       size: row.size,
       surcharge: row.surcharge
     }));
-    console.log("size data: ", sizeData.value)
-    console.log("formData: ", formData.value.productSizes)
-    console.log("remove; ", removedProductSizes.value)
+
     await axios.put(`http://localhost:8082/api/products/${product_id.value}`, {
       ...formData.value,
       removedImages: removedImages.value,
-      removedProductSizes: removedProductSizes.value
+      removedProductSizes: removedProductSizes.value,
+      removedToppings: removedToppings.value
     });
   }
   ui.value.loading = false;

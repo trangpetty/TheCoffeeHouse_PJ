@@ -84,6 +84,7 @@
                       <div class="ps-3">
                         <h5 class="delivery-card__title mb-0"> {{ item.quantity }} x {{ item.name }}</h5>
                         <p class="delivery-card__description mb-0">{{(item.productSize.size === 'S')? 'Nho' : (item.productSize.size === 'M')? 'Vua' : (item.productSize.size === 'L')? 'Lon' : ''}}</p>
+                        <h5 class="delivery-card__description mb-0" v-if="item.topping"> {{ item.topping.toppingName }} x {{ item.topping.quantity }}</h5>
                         <p class="d-inline" style="cursor: pointer" @click="removeFromCart(index)">Xoa</p>
                       </div>
                     </div>
@@ -248,12 +249,13 @@ const confirmOrder = async () => {
     formData.value.products.push({
       productID: item.productId,
       productSizeID: item.productSize.id,
-      toppingID: null,
+      toppingID:  item.topping ? item.topping.toppingID : null,
       quantity: item.quantity,
       cost: item.cost
     })
   }
-  await axios.post('http://localhost:8082/api/bills', formData.value);
+  console.log(formData.value)
+  // await axios.post('http://localhost:8082/api/bills', formData.value);
 }
 </script>
 <style>

@@ -7,6 +7,7 @@ interface Product {
     productSize: object,
     cost: number,
     quantity: number,
+    topping: object
 }
 
 interface State {
