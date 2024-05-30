@@ -1,10 +1,5 @@
 package com.example.thecoffeehouse.entity;
 
-import java.sql.Date;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,11 +22,13 @@ public class BillProduct {
     @Column(name = "product_id")
     private Long productID;
     @Column(name = "product_size_id")
-    private String productSizeID;
+    private Long productSizeID;
     @Column(name = "topping_id")
-    private String toppingID;
-    @Column(name = "quantity")
-    private int quantity;
-    @Column(name = "cost")
-    private double cost;
+    private Long toppingID;
+    @Column(name = "quantity_product", nullable = false)
+    private int quantityProduct = 0;
+    @Column(name = "quantity_topping", nullable = false)
+    private int quantityTopping = 0;
+    @Column(name = "cost", nullable = false)
+    private double cost = 0.0;
 }

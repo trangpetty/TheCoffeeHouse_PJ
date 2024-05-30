@@ -1,6 +1,5 @@
 package com.example.thecoffeehouse.dto;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,8 +10,12 @@ import lombok.NoArgsConstructor;
 public class BillProductDto {
     private Long id;
     private Long productID;
-    private String productSizeID;
-    private String toppingID;
-    private int quantity;
+    private Long productSizeID;
+    private Long toppingID;
+    private String productName;
+    private String productSize;
+    private String toppingName;
+    private int quantityProduct;
+    private int quantityTopping;
     private double cost;
 }
