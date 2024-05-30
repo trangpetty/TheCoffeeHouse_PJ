@@ -7,7 +7,6 @@ import com.example.thecoffeehouse.entity.BillProduct;
 import com.example.thecoffeehouse.entity.product.Product;
 import com.example.thecoffeehouse.entity.product.ProductDetail;
 import com.example.thecoffeehouse.entity.product.Topping;
-import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -82,16 +81,19 @@ public class BillMapper {
         billProductDto.setToppingID(billProductDto.getToppingID());
         if(product != null) {
             billProductDto.setProductName(product.getName());
+            billProductDto.setPriceProduct(product.getPrice());
         }
         if(topping != null) {
             billProductDto.setToppingName(topping.getName());
+            billProductDto.setPriceTopping(topping.getPrice());
         }
         if(size != null) {
             billProductDto.setProductSize(size.getSize());
+            billProductDto.setSurcharge(size.getSurcharge());
         }
-//        billProductDto.setQuantityProduct(billProduct.getQuantityProduct());
-//        billProductDto.setQuantityTopping(billProduct.getQuantityTopping());
-//        billProductDto.setCost(billProduct.getCost());
+        billProductDto.setQuantityProduct(billProduct.getQuantityProduct());
+        billProductDto.setQuantityTopping(billProduct.getQuantityTopping());
+        billProductDto.setCost(billProduct.getCost());
 
         return billProductDto;
     }

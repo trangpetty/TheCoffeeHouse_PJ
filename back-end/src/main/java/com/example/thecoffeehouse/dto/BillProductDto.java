@@ -17,5 +17,8 @@ public class BillProductDto {
     private String toppingName;
     private int quantityProduct;
     private int quantityTopping;
+    private double priceProduct;
+    private double surcharge;
+    private double priceTopping;
     private double cost;
 }
