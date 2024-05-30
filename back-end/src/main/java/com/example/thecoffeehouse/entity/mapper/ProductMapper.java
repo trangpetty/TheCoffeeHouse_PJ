@@ -3,15 +3,14 @@ package com.example.thecoffeehouse.entity.mapper;
 import com.example.thecoffeehouse.dto.ProductDetailDto;
 import com.example.thecoffeehouse.dto.ProductDto;
 import com.example.thecoffeehouse.dto.ProductImageDto;
-import com.example.thecoffeehouse.entity.product.Product;
-import com.example.thecoffeehouse.entity.product.ProductDetail;
-import com.example.thecoffeehouse.entity.product.ProductImage;
+import com.example.thecoffeehouse.dto.ProductToppingDto;
+import com.example.thecoffeehouse.entity.product.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 public class ProductMapper {
 
-    public static ProductDto mapToProductDto(Product product, List<ProductDetailDto> productDetailDtos, List<ProductImageDto> productImages) {
+    public static ProductDto mapToProductDto(Product product, List<ProductDetailDto> productDetailDtos, List<ProductImageDto> productImages, List<ProductToppingDto> productToppingDtos) {
         ProductDto productDto = new ProductDto();
         productDto.setId(product.getId());
         productDto.setTypeID(product.getTypeID());
@@ -22,6 +21,7 @@ public class ProductMapper {
         productDto.setModifyTime(product.getModifyTime());
         productDto.setImages(productImages);
         productDto.setProductSizes(productDetailDtos);
+        productDto.setToppings(productToppingDtos);
         return productDto;
     }
 
@@ -59,6 +59,31 @@ public class ProductMapper {
         productImageDto.setId(productImage.getId());
         productImageDto.setUrl(productImage.getUrl());
         return productImageDto;
+    }
+
+    public static List<ProductToppingDto> mapProductToppingsDto(List<ProductTopping> productToppings, List<Topping> toppings) {
+        return productToppings.stream()
+                .map(productTopping -> {
+                    Topping topping = toppings.stream()
+                            .filter(t -> t.getId().equals(productTopping.getToppingID()))
+                            .findFirst()
+                            .orElse(null);
+                    return mapProductToppingDto(productTopping, topping);
+                })
+                .collect(Collectors.toList());
+    }
+
+    public static ProductToppingDto mapProductToppingDto(ProductTopping productTopping, Topping topping) {
+        ProductToppingDto productToppingDto = new ProductToppingDto();
+        productToppingDto.setId(productTopping.getId());
+        productToppingDto.setProductID(productTopping.getProductID());
+        productToppingDto.setToppingID(productTopping.getToppingID());
+        if(topping != null) {
+            productToppingDto.setName(topping.getName());
+            productToppingDto.setPrice(topping.getPrice());
+            productToppingDto.setImage(topping.getImage());
+        }
+        return productToppingDto;
     }
 
 

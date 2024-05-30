@@ -12,4 +12,6 @@ public interface ToppingService {
     Topping updateTopping(Long id, Topping topping);
 
     void deleteTopping(Long id);
+
+    Topping findToppingById(Long id);
 }

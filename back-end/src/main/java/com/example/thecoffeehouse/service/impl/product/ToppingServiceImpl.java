@@ -45,4 +45,9 @@ public class ToppingServiceImpl implements ToppingService {
                 .orElseThrow(() -> new RuntimeException("Topping not found"));
         toppingRepository.deleteById(id);
     }
+
+    @Override
+    public Topping findToppingById(Long id) {
+        return toppingRepository.findToppingById(id);
+    }
 }

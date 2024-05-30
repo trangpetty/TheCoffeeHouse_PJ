@@ -1,13 +1,11 @@
 package com.example.thecoffeehouse.dto;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @NoArgsConstructor
@@ -22,6 +20,8 @@ public class ProductDto {
     private double price;
     private List<ProductDetailDto> productSizes;
     private List<ProductDetailDto> removedProductSizes;
+    private List<ProductToppingDto> toppings;
+    private List<ProductToppingDto> removedToppings;
     private LocalDateTime createTime;
     private LocalDateTime modifyTime;
 }
