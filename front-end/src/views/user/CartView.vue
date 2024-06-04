@@ -84,7 +84,7 @@
                       <div class="ps-3">
                         <h5 class="delivery-card__title mb-0"> {{ item.quantity }} x {{ item.name }}</h5>
                         <p class="delivery-card__description mb-0">{{(item.productSize.size === 'S')? 'Nho' : (item.productSize.size === 'M')? 'Vua' : (item.productSize.size === 'L')? 'Lon' : ''}}</p>
-                        <h5 class="delivery-card__description mb-0" v-if="item.topping"> {{ item.topping.toppingName }} x {{ item.topping.quantity }}</h5>
+                        <h5 class="delivery-card__description mb-0" v-if="item.topping.toppingName"> {{ item.topping.toppingName }} x {{ item.topping.quantity }}</h5>
                         <p class="d-inline" style="cursor: pointer" @click="removeFromCart(index)">Xoa</p>
                       </div>
                     </div>
@@ -142,7 +142,7 @@
                 </h4>
                 <ul class="list-payment-method">
                   <li class="list-payment-method-item" v-for="(item, index) in paymentMethods" :key="index">
-                    <el-radio :value="item" v-model="payment">
+                    <el-radio :value="item" v-model="paymentMethod">
                       <span class="mx-2" style="width: 1.5rem; height: 0.8rem">
                         <img :src="item.url" alt="" style="width: 1.5rem; height: 0.8rem; object-fit: cover">
                       </span>
@@ -189,9 +189,7 @@
 import delivery from "@/assets/images/Delivery2.png";
 import money from '@/assets/images/money.jpg';
 import momo from '@/assets/images/momo.png';
-import zalo from '@/assets/images/zalopay.png';
-import shoppe from '@/assets/images/shoppepay.png';
-import banking from '@/assets/images/banking.png'
+import vnpay from '@/assets/images/vnpay.png'
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import {Close} from "@element-plus/icons-vue";
@@ -202,6 +200,7 @@ const router = useRouter();
 const store = useStore();
 
 const cartItems = computed(() => store.getters.cartItems);
+console.log(cartItems.value)
 const removeFromCart = (index: number) => {
   store.dispatch('removeProductFromCart', index);
 };
@@ -214,15 +213,13 @@ const totalCost = computed(() => {
   return cartItems.value.reduce((total, item) => total + item.cost, 0);
 });
 
-const paymentMethods = [
-  {url: money, label: 'Tiền mặt'},
-  {url: momo, label: 'MoMo'},
-  {url: zalo, label: 'ZaloPay'},
-  {url: shoppe, label: 'ShoppePay'},
-  {url: banking, label: 'Thẻ ngân hàng'}
-]
+const paymentMethods = ref([
+  {url: money, label: 'Tiền mặt', methodName: 'cash'},
+  {url: momo, label: 'MoMo', methodName: 'momo'},
+  {url: vnpay, label: 'VnPay', methodName: 'vnpay'}
+])
 
-const payment = {};
+const paymentMethod = ref({});
 
 const formData = ref({
   customerID: null,
@@ -249,6 +246,7 @@ function generateRandomString(): string {
 }
 
 const confirmOrder = async () => {
+  ui.value.loading = true;
   for (const item of cartItems.value) {
     formData.value.products.push({
       productID: item.productId,
@@ -260,12 +258,36 @@ const confirmOrder = async () => {
     })
   }
   // console.log(formData.value)
-  await axios.post('http://localhost:8082/api/bills', formData.value);
-  await store.dispatch('clearCart')
-  ui.value.loading = true;
-  setTimeout(() => {
-    router.push('/');
-  }, 2000);
+  // await axios.post('http://localhost:8082/api/bills', formData.value);
+  // await store.dispatch('clearCart')
+  console.log(paymentMethod.value);
+  if (paymentMethod.value.methodName == 'cash') {
+    // await axios.post('http://localhost:8082/api/payment/cash', formData.value);
+  }
+  else if (paymentMethod.value.methodName == 'momo') {
+    // const signature = await axios.get('http://localhost:8082/api/payment/generate-key')
+    // console.log(signature.data)
+    const pay = await axios.post('http://localhost:8082/api/payment/momo', {
+      "amount": formData.value.totalValue
+    });
+
+    if(pay.status == 200) {
+      setTimeout(() => {
+        window.location.href = pay.data.url;
+      }, 2000);
+    }
+  }
+  else if (paymentMethod.value.methodName == 'vnpay') {
+    const pay = await axios.post('http://localhost:8082/api/payment/vnpay', {
+      "amount": formData.value.totalValue
+    });
+    console.log(pay.status)
+    if(pay.status == 200) {
+      setTimeout(() => {
+        window.location.href = pay.data.url;
+      }, 2000);
+    }
+  }
 }
 </script>
 <style>

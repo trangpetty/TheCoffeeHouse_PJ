@@ -27,7 +27,7 @@
         </div>
         <!--   Type of Drink     -->
         <ul class="category-list d-flex flex-wrap justify-content-center">
-          <li v-for="(item, index) in types" :key="index" class="category-item mx-2 mb-2 nav-item" @click="event => handleChangeType(item.id, event)">
+          <li v-for="(item, index) in types" :key="index" class="category-item mx-2 mb-2 nav-item" @click="event => handleChangeType(item.id, item.name, event)">
             <a href="#" class="nav-link m-0 border-0 py-2 px-3" :class="{ active: activeId === item.id }">
               <div class="d-flex flex-column">
                 <div class="category-image d-flex align-items-center justify-content-center">
@@ -47,7 +47,7 @@
             <div class="col-12 col-md-6 col-xl-2 col-lg-3 mt-lg-3" v-for="(item, index) in products" :key="index">
               <div class="product-card p-2 m-2 box-shadow d-flex flex-lg-column">
                 <div class="product-card_image h-auto">
-                  <img :src="item.images[0].url" alt="" class="w-100 rounded">
+                  <img :src="item.image ? item.image : item.images[0].url" alt="" class="w-100 rounded">
                 </div>
                 <div class="d-flex flex-column pt-3">
                   <div class="mb-1 mb-lg-3 product-title_name">
@@ -77,7 +77,7 @@
             </template>
             <div>
               <div class="card-product_detail d-flex flex-column">
-                <img :src="selectedProduct?.images[0].url" alt="" class="w-100 rounded mb-3">
+                <img :src="selectedProduct.image ? selectedProduct.image : selectedProduct.images[0].url" alt="" class="w-100 rounded mb-3">
                 <div class="d-flex flex-column px-1">
                   <h5 class="h5 text-dark" style="font-weight: 600;">{{selectedProduct.name}}</h5>
                   <p style="text-align: justify">{{selectedProduct.description}}</p>
@@ -124,9 +124,9 @@
                     <span class="card-product-option-topping-price">+{{ formatPrice(topping.price) }}</span>
                   </div>
                   <div class="d-flex align-items-center">
-                    <div v-if="getToppingQuantity(topping) > 0" class="quantity-extra d-flex align-items-center justify-content-center" @click="decreaseQuantity(topping)"><font-awesome-icon icon="fa-solid fa-minus" /></div>
-                    <span>{{getToppingQuantity(topping)}}</span>
-                    <div class="quantity-extra d-flex align-items-center justify-content-center" @click="increaseQuantity(topping)"><font-awesome-icon icon="fa-solid fa-plus" /></div>
+                    <div v-if="getToppingQuantity(topping) > 0" class="quantity-extra d-flex align-items-center justify-content-center cursor-pointer" @click="decreaseQuantity(topping)"><font-awesome-icon icon="fa-solid fa-minus" /></div>
+                    <span class="my-1 text-center fs-6" style="width: 40px">{{getToppingQuantity(topping)}}</span>
+                    <div class="quantity-extra d-flex align-items-center justify-content-center cursor-pointer" @click="increaseQuantity(topping)"><font-awesome-icon icon="fa-solid fa-plus" /></div>
                   </div>
                 </div>
               </div>
@@ -183,11 +183,17 @@ const getTypes = async () => {
   products.value = response2.data;
 };
 
-const handleChangeType = async (id: number, event: Event) => {
+const handleChangeType = async (id: number, name: string, event: Event) => {
   event.preventDefault();
   activeId.value = id;
-  const response = await axios.get(`http://localhost:8082/api/products/type/${id}`);
-  products.value = response.data;
+  if(name == 'Topping') {
+    const response = await axios.get(`http://localhost:8082/api/topping`);
+    products.value = response.data;
+  }
+  else {
+    const response = await axios.get(`http://localhost:8082/api/products/type/${id}`);
+    products.value = response.data;
+  }
 }
 
 const formatPrice = (price: number): string => {
@@ -197,6 +203,7 @@ const formatPrice = (price: number): string => {
 const showProductModal = async (product) => {
   selectedProduct.value = product;
   quantity.value = 1; // Reset quantity
+  // console.log(typeof(selectedProduct.value.image) !== 'string')
   selectedSize.value = selectedProduct.value.productSizes.reduce((max, item) => (item.surcharge > max.surcharge) ? item : max);
   toppings.value = product.toppings;
   ui.value.dialogVisible = true;
@@ -251,7 +258,7 @@ const addToCart = () => {
   // console.log(productWithDetails)
   cart.value.push(productWithDetails);
   localStorage.setItem('cart', JSON.stringify(cart.value));
-  store.dispatch('addProductToCart', productWithDetails)
+  store.dispatch('addProductToCart', productWithDetails);
   ui.value.dialogVisible = false;
 };
 
@@ -297,6 +304,10 @@ getTypes();
   cursor: pointer;
 }
 
+.el-overlay-dialog {
+  overflow: unset!important;
+}
+
 .custom-dialog.el-overlay-dialog {
   overflow: hidden!important;
 }
@@ -304,6 +315,7 @@ getTypes();
 .custom-dialog.el-dialog {
   overflow-y: scroll;
   height: 90vh;
+  top: -100px;
 }
 
 .custom-dialog.el-overlay-dialog {

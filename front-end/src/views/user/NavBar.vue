@@ -25,7 +25,7 @@
         <a href="#">
           <img :src="noAvatar" style="width: 40px;" alt="">
         </a>
-        <router-link to="/checkout" class="ms-3">
+        <router-link :to="(totalQuantity > 0) ? '/checkout' : ''" class="ms-3">
           <div class="icon d-flex align-items-center justify-content-center" :class="(totalQuantity > 0) ? 'icon-cart-has-item' : 'icon-cart'">
             <el-icon class="fs-4 fw-bold"><Handbag /></el-icon>
             <div class="icon-quatity d-flex align-items-center justify-content-center" v-if="totalQuantity > 0">

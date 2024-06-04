@@ -11,6 +11,7 @@ import BillView from '@/views/manager/bill/BillView.vue';
 import HomeUserView from '@/views/user/HomeView.vue';
 import OrderView from '@/views/user/OrderView.vue';
 import CartView from '@/views/user/CartView.vue';
+import BillOrderedView from '@/views/user/BillView.vue';
 
 export const routes = [
   {
@@ -74,6 +75,11 @@ export const routes = [
         path: '/checkout',
         name: 'checkout',
         component: CartView
+      },
+      {
+        path: '/checkbill',
+        name: 'checkbill',
+        component: BillOrderedView
       }
     ]
   },
