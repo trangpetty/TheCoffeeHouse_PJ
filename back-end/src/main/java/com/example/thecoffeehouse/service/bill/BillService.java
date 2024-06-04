@@ -13,4 +13,9 @@ public interface BillService {
 
     BillDto updateBill(Long id, BillDto billDto);
 
+    BillDto payWithMoMo(Long billID, String qrCodeTransactionId);
+
+    BillDto payWithCash(Long billID, String cashTransactionId);
+
+    BillDto markAsDelivered(Long orderId);
 }

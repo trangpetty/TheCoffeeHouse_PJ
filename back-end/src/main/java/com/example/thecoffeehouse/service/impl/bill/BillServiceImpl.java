@@ -1,10 +1,10 @@
 package com.example.thecoffeehouse.service.impl.bill;
 
-import com.example.thecoffeehouse.DateTimeConverter;
+import com.example.thecoffeehouse.Utils.DateTimeConverter;
 import com.example.thecoffeehouse.dto.BillDto;
 import com.example.thecoffeehouse.dto.BillProductDto;
-import com.example.thecoffeehouse.entity.Bill;
-import com.example.thecoffeehouse.entity.BillProduct;
+import com.example.thecoffeehouse.entity.bill.Bill;
+import com.example.thecoffeehouse.entity.bill.BillProduct;
 import com.example.thecoffeehouse.entity.mapper.BillMapper;
 import com.example.thecoffeehouse.entity.product.Product;
 import com.example.thecoffeehouse.entity.product.ProductDetail;
@@ -65,7 +65,6 @@ public class BillServiceImpl implements BillService {
         return bills.map( bill -> {
             List<BillProduct> billProducts = billProductRepository.getBillProductByBillID(bill.getId());
             List<BillProductDto> billProductDtos = BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
-            log.info("bill product: {}", billProductDtos);
             return BillMapper.mapToBillDto(bill, billProductDtos);
 
         });
@@ -101,10 +100,37 @@ public class BillServiceImpl implements BillService {
         Bill bill = billRepository.
                 findById(id)
                 .orElseThrow(() -> new RuntimeException("Bill not found"));
-        bill.setStatus(billDto.getStatus());
+//        bill.setStatus(billDto.getStatus());
 
         Bill savedBill = billRepository.save(bill);
         return null;
 //        return BillMapper.mapToBillDto(savedBill);
+    }
+
+    @Override
+    public BillDto payWithMoMo(Long billID, String qrCodeTransactionId) {
+        Bill bill = billRepository.findById(billID).orElse(null);
+        if (bill == null) {
+            // Handle case where bill is not found
+            return null;
+        }
+
+        List<Product> products = productRepository.findAll();
+        List<Topping> toppings = toppingRepository.findAll();
+        List<ProductDetail> sizes = productDetailRepository.findAll();
+
+        List<BillProduct> billProducts = billProductRepository.getBillProductByBillID(bill.getId());
+        List<BillProductDto> billProductDtos = BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
+        return BillMapper.mapToBillDto(bill, billProductDtos);
+    }
+
+    @Override
+    public BillDto payWithCash(Long billID, String cashTransactionId) {
+        return null;
+    }
+
+    @Override
+    public BillDto markAsDelivered(Long orderId) {
+        return null;
     }
 }

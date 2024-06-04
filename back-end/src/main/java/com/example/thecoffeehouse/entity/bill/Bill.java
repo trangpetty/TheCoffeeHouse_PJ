@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse.entity;
+package com.example.thecoffeehouse.entity.bill;
 
 import java.time.LocalDateTime;
 
@@ -22,8 +22,8 @@ public class Bill {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "customer_id")
-    private Long customerID;
+    @Column(name = "user_id")
+    private Long userID;
     @Column(name = "voucher_id")
     private Long voucherID;
     @Column(name = "value")
@@ -36,12 +36,12 @@ public class Bill {
     private double TotalValue;
     @Column(name = "code")
     private String code;
-    @Column(name = "point")
-    private int point;
-    @Column(name = "status")
-    private int status;
-    @Column(name = "address")
-    private String address;
+    @Column(name = "payment_method")
+    private String paymentMethod;
+    @Column(name = "payment_status")
+    private int paymentStatus;
+    @Column(name = "delivery_status")
+    private String deliveryStatus;
 
     @CreationTimestamp
     @Column(name = "create_time", nullable = false, updatable = false)

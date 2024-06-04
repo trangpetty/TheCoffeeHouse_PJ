@@ -1,7 +1,7 @@
 package com.example.thecoffeehouse.service.impl.bill;
 
-import com.example.thecoffeehouse.entity.Bill;
-import com.example.thecoffeehouse.entity.BillProduct;
+import com.example.thecoffeehouse.entity.bill.Bill;
+import com.example.thecoffeehouse.entity.bill.BillProduct;
 import com.example.thecoffeehouse.repository.bill.BillProductRepository;
 import com.example.thecoffeehouse.repository.bill.BillRepository;
 import com.example.thecoffeehouse.service.bill.BillProductService;

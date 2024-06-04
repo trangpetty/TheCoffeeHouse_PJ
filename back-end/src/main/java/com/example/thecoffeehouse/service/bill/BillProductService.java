@@ -1,6 +1,6 @@
 package com.example.thecoffeehouse.service.bill;
 
-import com.example.thecoffeehouse.entity.BillProduct;
+import com.example.thecoffeehouse.entity.bill.BillProduct;
 
 import java.util.List;
 

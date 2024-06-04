@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse.entity;
+package com.example.thecoffeehouse.entity.bill;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

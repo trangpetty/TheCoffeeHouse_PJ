@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse;
+package com.example.thecoffeehouse.Utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -28,11 +28,24 @@ public class SecurityConfig {
                                 .requestMatchers("/order/**").hasRole("USER")
                                 .anyRequest().authenticated()
                 )
-                .formLogin(AbstractAuthenticationFilterConfigurer::permitAll);
+                .formLogin(AbstractAuthenticationFilterConfigurer::disable);
 //                .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());
 
         return http.build();
     }
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(AbstractHttpConfigurer::disable) // Vô hiệu hóa CSRF
+//                .authorizeHttpRequests(authorizeRequests ->
+//                        authorizeRequests
+//                                .anyRequest().permitAll() // Cho phép tất cả các yêu cầu không cần xác thực
+//                )
+//                .formLogin(AbstractAuthenticationFilterConfigurer::disable) // Vô hiệu hóa form login
+//                .logout(AbstractHttpConfigurer::disable); // Vô hiệu hóa logout
+//
+//        return http.build();
+//    }
 
 
     @Bean

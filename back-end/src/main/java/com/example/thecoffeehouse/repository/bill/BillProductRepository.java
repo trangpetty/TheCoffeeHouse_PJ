@@ -2,7 +2,7 @@ package com.example.thecoffeehouse.repository.bill;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.thecoffeehouse.entity.BillProduct;
+import com.example.thecoffeehouse.entity.bill.BillProduct;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 

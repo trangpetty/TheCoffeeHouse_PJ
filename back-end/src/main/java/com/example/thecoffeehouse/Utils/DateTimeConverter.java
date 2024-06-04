@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse;
+package com.example.thecoffeehouse.Utils;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
