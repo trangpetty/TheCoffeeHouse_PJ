@@ -11,7 +11,6 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 import store from './store'
 
 library.add(fas)
-store.dispatch('loadCart');
 createApp(App)
 .use(router)
 .use(ElementPlus)

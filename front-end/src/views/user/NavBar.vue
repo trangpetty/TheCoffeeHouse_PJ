@@ -2,12 +2,13 @@
   <header class="bg-header d-flex align-items-center text-white">
     <div class="container-fluid container-lg d-flex align-items-center px-3 justify-content-center">
       <router-link to="/" class="navbar-brand fw-bolder me-5" href="#">PETTY COFFEE</router-link>
-      <div class="header-delivery header-delivery--bg d-flex align-items-center">
+      <div class="header-delivery header-delivery--bg d-flex align-items-center" @click="showDialog">
         <img :src="delivery" alt="" class="icon-delivery">
         <div class="delivery-header_text ps-2">
           <h5 style="font-size: 13px; margin-bottom: 2px; font-weight: 600;">Giao hàng</h5>
-          <p class="text-limit-1-line">Tại: {{}}</p>
+          <p class="text-limit-1-line">Tại: {{address}}</p>
         </div>
+        <font-awesome-icon icon="fa-solid fa-chevron-down" class="icon-vertor"/>
       </div>
       <div class="me-4">
         <nav class="navbar navbar-expand-lg d-lg-inline">
@@ -43,9 +44,15 @@ import noAvatar from "@/assets/images/no-avatar.png";
 import {Handbag} from "@element-plus/icons-vue";
 import {computed} from 'vue';
 import { useStore } from 'vuex';
+
+const showDialog = () => {
+  store.dispatch('openAddressDialog', true);
+};
+
 const store = useStore();
 
 const totalQuantity = computed(() => store.getters.cartTotalQuantity);
+const address = computed(() => store.getters.address);
 
 </script>
 
@@ -105,6 +112,21 @@ header {
   font-size: 0.625rem;
   font-weight: 600;
   line-height: 1.125rem;
+}
+
+.text-limit-1-line, input::placeholder {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  -webkit-line-clamp: 1;
+}
+
+.icon-vertor {
+  flex-shrink: 0;
+  height: var(--space-12);
+  width: var(--space-8);
 }
 
 @media (min-width: 768px)

@@ -150,6 +150,7 @@ import { ref, computed } from 'vue'
 import axios from "axios";
 import {Close, Tickets} from "@element-plus/icons-vue";
 import {useStore} from 'vuex'
+import { ElNotification } from 'element-plus'
 
 const ui = ref({
   dialogVisible: false
@@ -260,6 +261,12 @@ const addToCart = () => {
   localStorage.setItem('cart', JSON.stringify(cart.value));
   store.dispatch('addProductToCart', productWithDetails);
   ui.value.dialogVisible = false;
+  ElNotification({
+    title: 'Thành công',
+    message: 'Thêm sản phẩm thành công',
+    type: 'success',
+    showClose: false,
+  })
 };
 
 getTypes();
@@ -480,6 +487,10 @@ getTypes();
 
 .el-dialog__footer {
   padding: var(--space-12);
+}
+
+.el-notification {
+  align-items: center!important;
 }
 
 @media(min-width:768px)

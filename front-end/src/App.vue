@@ -8,6 +8,7 @@
   --white: #fff;
   --white-1: #f5f5f5;
   --black: #000;
+  --black-3: #262626;
   --orange-1: rgba(232, 130, 21, .7);
   --orange-2: #fa8c16;
   --orange-3: rgba(255, 231, 186, .6);
@@ -15,6 +16,7 @@
   --orange-5: #e57905;
   --radial-gradient-orange-1: radial-gradient(100% 501.4% at 0% 100%, #ffb141 0%, #fb8d17 100%);
   --radial-gradient-orange-9: radial-gradient(75.9% 488.28% at 24.1% 100%, #e87800 0%, #fa8c16 100%);
+  --radial-gradient-orange-10: radial-gradient(100% 828.83% at 0% 100%,#e87800 0%,#fa8c16 100%);
   --nude-1: #fff7e6;
   --nude-2: #ffe7ba;
   --smoky-gray-2: #b2b2b2;
@@ -119,6 +121,10 @@
 
 .box-shadow {
   box-shadow: 0px 12px 32px 4px rgba(0, 0, 0, .04), 0px 8px 20px rgba(0, 0, 0, .08);
+}
+
+.box-shadow-1 {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, .12) !important;
 }
 
 .box {

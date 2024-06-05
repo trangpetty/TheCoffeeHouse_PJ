@@ -23,7 +23,7 @@
                     Đổi phương thức
                   </div>
                 </div>
-                <div class="d-flex align-items-md-start flex-row delivery-card border-bottom">
+                <div class="d-flex align-items-md-start flex-row delivery-card border-bottom" @click="showDialog">
                   <div class="delivery-card__image">
                     <img :src="delivery" style="width: 40px;" alt="">
                   </div>
@@ -33,7 +33,7 @@
                         4 Ngõ 15 Phố Duy Tân
                       </h5>
                       <p class="delivery-card__description mb-0">
-                        4 Ngõ 15 Phố Duy Tân, Dịch Vọng Hậu, Cầu Giấy, Hà Nội 100000, Việt Nam
+                        {{ address }}
                       </p>
                     </div>
                     <span class="icon mt-2">
@@ -194,9 +194,7 @@ import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import {Close} from "@element-plus/icons-vue";
 import axios from "axios";
-import {useRouter} from "vue-router";
 
-const router = useRouter();
 const store = useStore();
 
 const cartItems = computed(() => store.getters.cartItems);
@@ -204,6 +202,8 @@ console.log(cartItems.value)
 const removeFromCart = (index: number) => {
   store.dispatch('removeProductFromCart', index);
 };
+
+const address = computed(() => store.getters.address);
 
 const formatPrice = (price: number): string => {
   return price.toLocaleString('vi-VN') + 'đ';
@@ -244,6 +244,10 @@ function generateRandomString(): string {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   return Array.from({ length: 10 }, (_, i) => i === 0 ? characters[Math.floor(Math.random() * 26)] : characters[Math.floor(Math.random() * characters.length)]).join('');
 }
+
+const showDialog = () => {
+  store.dispatch('openAddressDialog', true);
+};
 
 const confirmOrder = async () => {
   ui.value.loading = true;

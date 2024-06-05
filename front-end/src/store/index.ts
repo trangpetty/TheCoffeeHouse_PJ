@@ -12,11 +12,15 @@ interface Product {
 
 interface State {
     cart: Product[];
+    addressDialog: boolean;
+    address: string;
 }
 
 const store = createStore<State>({
     state: {
         cart: [],
+        addressDialog: false,
+        address: ''
     },
     mutations: {
         setCart(state, cart: Product[]) {
@@ -30,6 +34,15 @@ const store = createStore<State>({
         },
         clearCart(state) {
             state.cart = [];
+        },
+        openAddressDialog(state, visible: boolean) {
+            state.addressDialog = visible;
+        },
+        setAddress(state, address: string) {
+            state.address = address;
+        },
+        clearAddress(state) {
+            state.address = '';
         }
     },
     actions: {
@@ -52,10 +65,33 @@ const store = createStore<State>({
             commit('clearCart');
             localStorage.removeItem('cart'); // Optionally, remove cart data from localStorage
         },
+        openAddressDialog({ commit, dispatch }, visible: boolean) {
+            commit('openAddressDialog', visible);
+        },
+        loadAddress({ commit }) {
+            const localAddressString = localStorage.getItem('address');
+            let localAddress = '';
+
+            if (localAddressString) {
+                try {
+                    localAddress = JSON.parse(localAddressString);
+                } catch (e) {
+                    console.error('Error parsing address from localStorage:', e);
+                    localAddress = '';
+                }
+            }
+
+            commit('setAddress', localAddress);
+        },
+        saveAddress({state}) {
+            localStorage.setItem('address', JSON.stringify(state.address));
+        }
     },
     getters: {
         cartItems: (state) => state.cart,
         cartTotalQuantity: (state) => state.cart.reduce((total, item) => total + item.quantity, 0),
+        addressDialog: (state) => state.addressDialog,
+        address: (state) => state.address
     },
 });
 
