@@ -2,7 +2,7 @@
   <header class="bg-header d-flex align-items-center text-white">
     <div class="container-fluid container-lg d-flex align-items-center px-3 justify-content-center">
       <router-link to="/" class="navbar-brand fw-bolder me-5" href="#">PETTY COFFEE</router-link>
-      <div class="header-delivery header-delivery--bg d-flex align-items-center" @click="showDialog">
+      <div class="header-delivery header-delivery--bg d-flex align-items-center" @click="showAddressDialog">
         <img :src="delivery" alt="" class="icon-delivery">
         <div class="delivery-header_text ps-2">
           <h5 style="font-size: 13px; margin-bottom: 2px; font-weight: 600;">Giao hàng</h5>
@@ -17,7 +17,7 @@
               <a class="nav-link" aria-current="page" href="#">Blog</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Voucher</a>
+              <a class="nav-link" @click="showVoucherDialog">Voucher</a>
             </li>
           </ul>
         </nav>
@@ -45,8 +45,12 @@ import {Handbag} from "@element-plus/icons-vue";
 import {computed} from 'vue';
 import { useStore } from 'vuex';
 
-const showDialog = () => {
+const showAddressDialog = () => {
   store.dispatch('openAddressDialog', true);
+};
+
+const showVoucherDialog = () => {
+  store.dispatch('VoucherDialog', true);
 };
 
 const store = useStore();

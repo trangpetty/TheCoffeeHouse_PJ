@@ -177,6 +177,9 @@ const selectedTopping = ref({
 const toppings = ref([]);
 const cart = ref([]);
 
+const cartItems = computed(() => store.getters.cartItems);
+const voucher = computed(() => store.getters.voucher);
+
 const getTypes = async () => {
   const response = await axios.get('http://localhost:8082/api/product-type');
   types.value = response.data;
@@ -266,7 +269,16 @@ const addToCart = () => {
     message: 'Thêm sản phẩm thành công',
     type: 'success',
     showClose: false,
+    offset: 100,
   })
+  const totalCost = cartItems.value.reduce((total, item) => total + item.cost, 0);
+  const totalQuantity = cartItems.value.reduce((total, item) => total + item.quantity, 0);
+
+  if (totalCost > voucher.value.minimumOrderValue && totalQuantity >= voucher.value.minimumItems) {
+    store.dispatch('clearErrorMessage');
+  } else {
+    store.dispatch('setErrorMessage', voucher.value.errorMessage);
+  }
 };
 
 getTypes();
@@ -274,10 +286,6 @@ getTypes();
 </script>
 
 <style>
-.cursor-pointer {
-  cursor: pointer;
-}
-
 .dropdown:hover .dropdown-menu {
       display: block;
     }
@@ -322,11 +330,6 @@ getTypes();
 .custom-dialog.el-dialog {
   overflow-y: scroll;
   height: 90vh;
-  top: -100px;
-}
-
-.custom-dialog.el-overlay-dialog {
-  top: auto!important;
 }
 
 .custom-dialog.el-dialog header {

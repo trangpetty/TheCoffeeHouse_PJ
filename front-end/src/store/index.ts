@@ -1,4 +1,3 @@
-// store/index.ts
 import { createStore } from 'vuex';
 
 interface Product {
@@ -14,20 +13,32 @@ interface State {
     cart: Product[];
     addressDialog: boolean;
     address: string;
+    voucherDialog: boolean;
+    voucher: object;
+    errorMessage: string;
 }
 
 const store = createStore<State>({
     state: {
         cart: [],
         addressDialog: false,
-        address: ''
+        address: '',
+        voucherDialog: false,
+        voucher: {},
+        errorMessage: '' // Add errorMessage to the state
     },
     mutations: {
         setCart(state, cart: Product[]) {
             state.cart = cart;
         },
         addToCart(state, product: Product) {
-            state.cart.push(product);
+            const existingProduct = state.cart.find((item: Product) => item.productId === product.productId);
+            if (existingProduct) {
+                existingProduct.quantity += product.quantity;
+                existingProduct.cost += product.cost;
+            } else {
+                state.cart.push(product);
+            }
         },
         removeFromCart(state, index: number) {
             state.cart.splice(index, 1)
@@ -43,6 +54,23 @@ const store = createStore<State>({
         },
         clearAddress(state) {
             state.address = '';
+        },
+        VoucherDialog(state, visible: boolean) {
+            state.voucherDialog = visible;
+        },
+        setVoucher(state, voucher: object) {
+            state.voucher = voucher;
+            state.errorMessage = ''; // Clear error message when voucher is set
+        },
+        clearVoucher(state) {
+            state.voucher = {};
+            state.errorMessage = ''; // Clear error message when voucher is cleared
+        },
+        setErrorMessage(state, errorMessage: string) {
+            state.errorMessage = errorMessage;
+        },
+        clearErrorMessage(state) {
+            state.errorMessage = '';
         }
     },
     actions: {
@@ -63,7 +91,7 @@ const store = createStore<State>({
         },
         clearCart({ commit }) {
             commit('clearCart');
-            localStorage.removeItem('cart'); // Optionally, remove cart data from localStorage
+            localStorage.removeItem('cart');
         },
         openAddressDialog({ commit, dispatch }, visible: boolean) {
             commit('openAddressDialog', visible);
@@ -85,13 +113,53 @@ const store = createStore<State>({
         },
         saveAddress({state}) {
             localStorage.setItem('address', JSON.stringify(state.address));
+        },
+        VoucherDialog({ commit, dispatch }, visible: boolean) {
+            commit('VoucherDialog', visible);
+        },
+        loadVoucher({ commit }) {
+            const localVoucherString = localStorage.getItem('voucher');
+            let localVoucher = {};
+
+            if (localVoucherString) {
+                try {
+                    localVoucher = JSON.parse(localVoucherString);
+                } catch (e) {
+                    console.error('Error parsing voucher from localStorage:', e);
+                    localVoucher = {};
+                }
+            }
+
+            commit('setVoucher', localVoucher);
+        },
+        saveVoucher({state}) {
+            localStorage.setItem('voucher', JSON.stringify(state.voucher));
+        },
+        clearVoucher({ commit }) {
+            commit('clearVoucher');
+            localStorage.removeItem('voucher');
+        },
+        loadErrorMessageVoucher({ commit }) {
+            const localErrorMessage = localStorage.getItem('errorMessage') || '';
+            commit('setErrorMessage', localErrorMessage);
+        },
+        setErrorMessage({ commit }, errorMessage: string) {
+            commit('setErrorMessage', errorMessage);
+            localStorage.setItem('errorMessage', errorMessage);
+        },
+        clearErrorMessage({ commit }) {
+            commit('clearErrorMessage');
+            localStorage.removeItem('errorMessage');
         }
     },
     getters: {
         cartItems: (state) => state.cart,
         cartTotalQuantity: (state) => state.cart.reduce((total, item) => total + item.quantity, 0),
         addressDialog: (state) => state.addressDialog,
-        address: (state) => state.address
+        address: (state) => state.address,
+        voucherDialog: (state) => state.voucherDialog,
+        voucher: (state) => state.voucher,
+        errorMessage: (state) => state.errorMessage
     },
 });
 

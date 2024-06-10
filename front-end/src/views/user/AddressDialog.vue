@@ -179,10 +179,6 @@ const handleSelect = (item) => {
   outline: none;
 }
 
-.input-group-prepend {
-  margin-right: -1px;
-}
-
 .current_address {
   background: #e57905;
   border: none;

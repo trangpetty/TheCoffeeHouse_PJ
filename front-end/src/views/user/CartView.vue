@@ -23,7 +23,7 @@
                     Đổi phương thức
                   </div>
                 </div>
-                <div class="d-flex align-items-md-start flex-row delivery-card border-bottom" @click="showDialog">
+                <div class="d-flex align-items-md-start flex-row delivery-card border-bottom" @click="showAddressDialog">
                   <div class="delivery-card__image">
                     <img :src="delivery" style="width: 40px;" alt="">
                   </div>
@@ -119,16 +119,31 @@
                       <p class="text-decoration-line-through text-black-50">{{formatPrice(0)}}</p>
                     </div>
                   </div>
-                  <div class="d-flex align-items-center justify-content-between pt-3 order-card">
+                  <div class="d-flex pt-3 order-card flex-column">
                     <div>
-                      <p class="text-orange order-card__text">Khuyến mãi</p>
+                      <p class="text-orange order-card__text mb-0" @click="showVoucherDialog">Khuyến mãi</p>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between" v-if="!errorMessage && voucher.name">
+                      <div class="d-flex flex-column">
+                        <span>{{voucher.name}}</span>
+                        <p class="d-inline cursor-pointer" @click="handleClearVoucher">Xoa</p>
+                      </div>
+                      <p v-if="!discountPercent">
+                        -{{formatPrice(parseInt(voucher.discountValue))}}
+                      </p>
+                      <p v-else>
+                        -{{formatPrice(discountPercent)}}
+                      </p>
+                    </div>
+                    <div v-if="errorMessage" class="error-message">
+                      <p>{{ errorMessage }}</p>
                     </div>
                   </div>
                 </div>
                 <div class="checkout-box checkout-box--list-submited px-4 d-flex align-items-center justify-content-between position-static">
                   <div>
                     <p class="order-card__text text-white mb-0">Thành tiền</p>
-                    <p class="order-card__text text-white fw-bold mb-0">{{formatPrice(totalCost + 18000)}}</p>
+                    <p class="order-card__text text-white fw-bold mb-0">{{ formatPrice(totalValue) }}</p>
                   </div>
                   <button class="btn btn--white px-4" @click="confirmOrder">
                     Đặt hàng
@@ -142,7 +157,7 @@
                 </h4>
                 <ul class="list-payment-method">
                   <li class="list-payment-method-item" v-for="(item, index) in paymentMethods" :key="index">
-                    <el-radio :value="item" v-model="paymentMethod">
+                    <el-radio :value="item" v-model="paymentMethod" class="w-100">
                       <span class="mx-2" style="width: 1.5rem; height: 0.8rem">
                         <img :src="item.url" alt="" style="width: 1.5rem; height: 0.8rem; object-fit: cover">
                       </span>
@@ -164,24 +179,6 @@
         </div>
       </div>
     </div>
-<!-- Voucher Dialog -->
-    <el-dialog v-model="ui.voucherDialog" :show-close="false" width="30%" class="rounded custom-dialog">
-      <template #header="{close}">
-        <div class="d-flex align-items-center w-100 p-2">
-          <h4 class="mx-auto my-0 fs-6">Khuyến mãi</h4>
-          <el-button class="border-0" @click="close">
-            <el-icon class="fs-3"><Close /></el-icon>
-          </el-button>
-        </div>
-      </template>
-      <div>
-        <div class="d-flex align-items-center">
-          <font-awesome-icon icon="fa-solid fa-expand" />
-          <input type="text" v-model="code">
-          <button class="btn" :class=" (code) ? 'btn--orange-1' : 'btn--smoky-gray'"></button>
-        </div>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -190,18 +187,27 @@ import delivery from "@/assets/images/Delivery2.png";
 import money from '@/assets/images/money.jpg';
 import momo from '@/assets/images/momo.png';
 import vnpay from '@/assets/images/vnpay.png'
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
-import {Close} from "@element-plus/icons-vue";
 import axios from "axios";
 
 const store = useStore();
 
 const cartItems = computed(() => store.getters.cartItems);
-console.log(cartItems.value)
+const voucher = computed(() => store.getters.voucher);
+const errorMessage = computed(() => store.getters.errorMessage);
+const totalQuantity = cartItems.value.reduce((total, item) => total + item.quantity, 0);
+
+const feeship = ref(18000);
+const discountPercent = ref(0);
+
 const removeFromCart = (index: number) => {
   store.dispatch('removeProductFromCart', index);
 };
+
+onMounted(() => {
+  store.dispatch('loadVoucher');
+});
 
 const address = computed(() => store.getters.address);
 
@@ -209,25 +215,39 @@ const formatPrice = (price: number): string => {
   return price.toLocaleString('vi-VN') + 'đ';
 };
 
+
 const totalCost = computed(() => {
   return cartItems.value.reduce((total, item) => total + item.cost, 0);
 });
 
-const paymentMethods = ref([
-  {url: money, label: 'Tiền mặt', methodName: 'cash'},
-  {url: momo, label: 'MoMo', methodName: 'momo'},
-  {url: vnpay, label: 'VnPay', methodName: 'vnpay'}
-])
+const totalValue = computed(() => {
+  let cost = totalCost.value;
 
-const paymentMethod = ref({});
+  // Adjust total cost based on voucher type
+  if (cost >= voucher.value.minimumOrderValue && totalQuantity >= voucher.value.minimumItems) {
+    if(voucher.value.voucherType == 'percentage') {
+      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+      discountPercent.value = cost * voucher.value.discountValue;
+      cost -= discountPercent.value;
+    }
+    else cost -= parseInt(voucher.value.discountValue);
+  }
+
+  cost += feeship.value; // Adding feeship
+  return cost;
+})
+
+watch(voucher, (newVoucher, oldVoucher) => {
+  discountPercent.value = 0;
+});
 
 const formData = ref({
   customerID: null,
   voucherID: null,
-  value: totalCost.value,
   ValueOfVoucher: 0,
   ValueOfCustomerPoint: 0,
-  totalValue: totalCost.value + 18000,
+  totalValue: totalCost.value,
+  value: totalValue.value,
   code: generateRandomString(),
   point: 0,
   status: 0,
@@ -235,22 +255,54 @@ const formData = ref({
   products: []
 })
 
+watch(totalValue, (newValue) => {
+  formData.value.value = newValue;
+});
+
+watch(totalCost, (newValue) => {
+  formData.value.totalValue = newValue;
+
+  if (newValue > voucher.value.minimumOrderValue && totalQuantity >= voucher.value.minimumItems) {
+    store.dispatch('clearErrorMessage');
+  } else {
+    store.dispatch('setErrorMessage', voucher.value.errorMessage);
+  }
+});
+
+const handleClearVoucher = () => {
+  store.dispatch('clearVoucher');
+  store.dispatch('clearErrorMessage');
+}
+
+const paymentMethods = ref([
+  {url: momo, label: 'MoMo', methodName: 'momo'},
+  {url: vnpay, label: 'VnPay', methodName: 'vnpay'},
+  {url: money, label: 'Tiền mặt', methodName: 'cash'},
+])
+
+const paymentMethod = ref(paymentMethods.value[0]);
+
 const ui = ref({
   voucherDialog: false,
   loading: false
 })
+
 
 function generateRandomString(): string {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   return Array.from({ length: 10 }, (_, i) => i === 0 ? characters[Math.floor(Math.random() * 26)] : characters[Math.floor(Math.random() * characters.length)]).join('');
 }
 
-const showDialog = () => {
+const showAddressDialog = () => {
   store.dispatch('openAddressDialog', true);
 };
 
+const showVoucherDialog = () => {
+  store.dispatch('VoucherDialog', true);
+};
+
 const confirmOrder = async () => {
-  ui.value.loading = true;
+  // ui.value.loading = true;
   for (const item of cartItems.value) {
     formData.value.products.push({
       productID: item.productId,
@@ -264,37 +316,29 @@ const confirmOrder = async () => {
   // console.log(formData.value)
   // await axios.post('http://localhost:8082/api/bills', formData.value);
   // await store.dispatch('clearCart')
-  console.log(paymentMethod.value);
+  // console.log(formData.value.totalValue);
   if (paymentMethod.value.methodName == 'cash') {
     // await axios.post('http://localhost:8082/api/payment/cash', formData.value);
   }
-  else if (paymentMethod.value.methodName == 'momo') {
-    // const signature = await axios.get('http://localhost:8082/api/payment/generate-key')
-    // console.log(signature.data)
-    const pay = await axios.post('http://localhost:8082/api/payment/momo', {
-      "amount": formData.value.totalValue
-    });
-
-    if(pay.status == 200) {
-      setTimeout(() => {
-        window.location.href = pay.data.url;
-      }, 2000);
-    }
-  }
-  else if (paymentMethod.value.methodName == 'vnpay') {
-    const pay = await axios.post('http://localhost:8082/api/payment/vnpay', {
-      "amount": formData.value.totalValue
-    });
-    console.log(pay.status)
-    if(pay.status == 200) {
-      setTimeout(() => {
-        window.location.href = pay.data.url;
-      }, 2000);
+  else {
+    try {
+      const endpoint = paymentMethod.value.methodName === 'momo'
+          ? 'momo'
+          : 'vnpay';
+      // const pay = await axios.post(`http://localhost:8082/api/payment/${endpoint}`, formData.value);
+      // if (pay.status === 200) {
+      //   setTimeout(() => {
+      //     window.location.href = pay.data.paymentUrl;
+      //   }, 2000);
+      // }
+    } catch (error) {
+      console.error('Error processing payment:', error);
     }
   }
 }
+
 </script>
-<style>
+<style scoped>
 .checkout-header .icon{
   color: #fad207;
   font-size: var(--space-16);
@@ -378,21 +422,6 @@ const confirmOrder = async () => {
   font-size: var(--space-24);
   line-height: 1;
   padding-left: var(--space-30);
-}
-
-.delivery__input {
-  background: #fafafa;
-  border: 1px solid rgba(0, 0, 0, .15);
-  border-radius: 0!important;
-  font-size: 1rem;
-  line-height: 1.5;
-  outline: 0;
-  padding: 11px 23px!important;
-  height: var(--space-44);
-}
-
-.delivery__input::placeholder {
-  font-size: var(--space-14)!important;
 }
 
 .order-card-icon {

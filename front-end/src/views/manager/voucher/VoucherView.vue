@@ -50,6 +50,9 @@
           <el-button type="primary" @click="handleAdd">
             <i class="el-icon-circle-plus-outline"/><span>Add</span>
           </el-button>
+          <el-button type="primary" @click="handleAddType">
+            <span>Type</span>
+          </el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -80,61 +83,106 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-dialog v-model="ui.dialogVisible" width="40%" class="dialog" v-loading="ui.loading" :title="ui.addRecord?'Add voucher':'Update voucher'">
+
+      <!-- Dialog Voucher -->
+      <el-dialog v-model="ui.dialogVisible" width="60%" class="dialog" :title="ui.addRecord?'Add voucher':'Update voucher'">
         <el-form :model="formData" label-width="auto">
           <el-input v-model="voucher_id" class="d-none" />
-          <el-form-item label="Name">
-            <el-input v-model="formData.name" />
-          </el-form-item>
-          <el-form-item label="Code">
-            <el-input v-model="formData.code" />
-          </el-form-item>
-          <el-form-item label="Value">
-            <el-input-number v-model="formData.value" :min="0" :max="0.5" :step="0.01" />
-          </el-form-item>
-          <el-form-item label="Apply">
-            <el-date-picker
-                v-model="dateRange"
-                type="daterange"
-                range-separator="To"
-                start-placeholder="Start date"
-                end-placeholder="End date"
-                @change="handleDateChange"
-            />
-          </el-form-item>
-          <el-form-item label="Description">
-            <el-input type="textarea" v-model="formData.description" :rows="6"/>
-          </el-form-item>
-          <el-form-item label="Image">
-            <el-upload action="#" list-type="picture-card" :auto-upload="false" :file-list="fileList" :on-change="handleUploadChange" :limit="1">
-              <template v-if="fileList.length < 1" #trigger>
-                <el-icon><Plus /></el-icon>
-              </template>
-              <template #file="{ file }">
-                <div>
-                  <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                  <span class="el-upload-list__item-actions">
-                    <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
-                      <el-icon><ZoomIn /></el-icon>
-                    </span>
-                    <span class="el-upload-list__item-delete" @click="openFileInput(file)">
-                      <el-icon><Edit /></el-icon>
-                    </span>
-                  </span>
-                </div>
-              </template>
-            </el-upload>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="Name">
+                <el-input v-model="formData.name" />
+              </el-form-item>
+              <el-form-item label="Code">
+                <el-input v-model="formData.code" />
+              </el-form-item>
+              <el-form-item label="Type">
+                <el-select v-model="formData.voucherTypeID">
+                  <el-option v-for="(item, index) in types" :key="index" :label="item.type" :value="item.id"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="Discount Value">
+                <el-input-number v-model="formData.discountValue" :min="0" />
+              </el-form-item>
+              <el-form-item label="Minimum Order Value">
+                <el-input-number v-model="formData.minimumOrderValue" :min="0" />
+              </el-form-item>
+              <el-form-item label="Minimum Items">
+                <el-input-number v-model="formData.minimumItems" :min="0" />
+              </el-form-item>
+              <el-form-item label="Max Uses">
+                <el-input-number v-model="formData.maxUses" :min="0" :step="1" />
+              </el-form-item>
+              <el-form-item label="Current Uses">
+                <el-input-number v-model="formData.currentUses" :min="0" :step="1" />
+              </el-form-item>
+              <el-form-item label="Error Message">
+                <el-input v-model="formData.errorMessage" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="Apply">
+                <el-date-picker
+                    v-model="dateRange"
+                    type="daterange"
+                    range-separator="To"
+                    start-placeholder="Start date"
+                    end-placeholder="End date"
+                    @change="handleDateChange"
+                />
+              </el-form-item>
+              <el-form-item label="Description">
+                <el-input type="textarea" v-model="formData.description" :rows="6"/>
+              </el-form-item>
+              <el-form-item label="Image">
+                <el-upload action="#" list-type="picture-card" :auto-upload="false" :file-list="fileList" :on-change="handleUploadChange" :limit="1">
+                  <template v-if="fileList.length < 1" #trigger>
+                    <el-icon><Plus /></el-icon>
+                  </template>
+                  <template #file="{ file }">
+                    <div>
+                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
+                      <span class="el-upload-list__item-actions">
+                        <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
+                          <el-icon><ZoomIn /></el-icon>
+                        </span>
+                        <span class="el-upload-list__item-delete" @click="openFileInput(file)">
+                          <el-icon><Edit /></el-icon>
+                        </span>
+                      </span>
+                    </div>
+                  </template>
+                </el-upload>
 
-            <el-dialog v-model="dialogVisible">
-              <img :src="dialogImageUrl" alt="" width="100%" />
-            </el-dialog>
-          </el-form-item>
+                <el-dialog v-model="dialogVisible">
+                  <img :src="dialogImageUrl" alt="" width="100%" />
+                </el-dialog>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-form>
         <div class="text-end">
           <el-button @click="ui.dialogVisible = false">Cancel</el-button>
           <el-button type="primary" @click="handleConfirm">Confirm</el-button>
         </div>
       </el-dialog>
+
+      <!-- Dialog Type -->
+      <el-dialog v-model="ui.typeDialog"  width="40%" class="dialog" title="Add type">
+        <el-form :model="formType" label-width="auto">
+          <el-form-item label="Type">
+            <el-input v-model="formType.type" />
+          </el-form-item>
+          <el-form-item label="Description">
+            <el-input type="textarea" v-model="formType.description" :rows="6"/>
+          </el-form-item>
+        </el-form>
+        <div class="text-end">
+          <el-button @click="ui.typeDialog = false">Cancel</el-button>
+          <el-button type="primary" @click="handleConfirmType">Confirm</el-button>
+        </div>
+      </el-dialog>
+
       <!-- Pagination -->
       <el-pagination class="pagination" v-model:current-page="currentPage" layout="total, prev, pager, next" :total="total" @current-change="fetchData" />
     </div>
@@ -158,9 +206,7 @@ const ui = ref({
   dialogVisible: false,
   loading: false,
   addRecord: false,
-  userRole: false,
-  adminRole: false,
-  nameDisable: false,
+  typeDialog: false
 });
 
 const queryForm = ref({
@@ -171,15 +217,28 @@ const queryForm = ref({
 });
 
 const formData = ref({
+  voucherTypeID: null,
   name: '',
   code: '',
   description: '',
   image: '',
-  value: 0,
+  discountValue: 0,
+  minimumOrderValue: 0,
+  minimumItems: 0,
+  maxUses: 0,
+  currentUses: 0,
   status: 0,
+  errorMessage: '',
   applyFrom: null,
   applyTo: null
 })
+
+const formType = ref({
+  type: '',
+  description: ''
+})
+
+const types = ref([]);
 
 const currentPage = ref(1);
 const total = ref(0);
@@ -206,6 +265,13 @@ const fetchData = async () => {
     console.error('Error fetching data:', error);
   }
 };
+
+const getTypes = async () => {
+  const result =  await axios.get('http://localhost:8082/api/vouchers/type')
+  if(result.status == 200) {
+    types.value = result.data;
+  }
+}
 
 const handleUploadChange = (file, newFileList) => {
   fileList.value = newFileList.map(f => ({
@@ -249,6 +315,11 @@ const handleConfirm = async () => {
   await fetchData();
 };
 
+const handleConfirmType = async () => {
+  ui.value.typeDialog = false;
+  await axios.post('http://localhost:8082/api/vouchers/type', formType.value);
+}
+
 const resetForm = () => {
   queryForm.value.name = '';
   queryForm.value.status = null;
@@ -256,6 +327,12 @@ const resetForm = () => {
   queryForm.value.applyTo = null;
   currentPage.value = 1;
   fetchData();
+}
+
+const handleAddType = () => {
+  ui.value.typeDialog = true;
+  formType.value.type = '';
+  formType.value.description = '';
 }
 
 const handleAdd = () => {
@@ -269,6 +346,7 @@ const handleAdd = () => {
   formData.value.status = 0;
   formData.value.applyFrom = null;
   formData.value.applyTo = null;
+  dateRange.value = null;
   fileList.value = [];
 }
 
@@ -279,13 +357,19 @@ const handleEditRow = (row: object) => {
   formData.value.name = row.name;
   formData.value.description = row.description;
   formData.value.code = row.code;
-  formData.value.value = row.value;
+  formData.value.discountValue = row.discountValue;
   formData.value.image = row.image;
   formData.value.status = row.status;
   formData.value.applyFrom = row.applyFrom;
   formData.value.applyTo = row.applyTo;
   dateRange.value[0] = row.applyFrom;
   dateRange.value[1] = row.applyTo;
+  formData.value.minimumOrderValue = row.minimumOrderValue;
+  formData.value.minimumItems = row.minimumItems;
+  formData.value.voucherTypeID = row.voucherTypeID;
+  formData.value.maxUses = row.maxUses;
+  formData.value.currentUses = row.currentUses;
+  formData.value.errorMessage = row.errorMessage;
   fileList.value = [{
     url: formData.value.image
   }]
@@ -328,6 +412,7 @@ const handleFileInputChange = async (event, fileToEdit) => {
 };
 
 fetchData()
+getTypes()
 
 </script>
 

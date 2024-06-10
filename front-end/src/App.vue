@@ -7,8 +7,11 @@
   --brown: #724E2C;
   --white: #fff;
   --white-1: #f5f5f5;
+  --blue: #0084ff;
   --black: #000;
+  --black-2: #666;
   --black-3: #262626;
+  --black-6: rgba(38,38,38,.5);
   --orange-1: rgba(232, 130, 21, .7);
   --orange-2: #fa8c16;
   --orange-3: rgba(255, 231, 186, .6);
@@ -72,6 +75,7 @@
   --space-94: calc(var(--scale-unit)* 5.875);
   --space-98: calc(var(--scale-unit)* 6.125);
   --space-100: calc(var(--scale-unit)* 6.25);
+  --space-376: calc(var(--scale-unit)*23.5);
 }
 
 #app {
@@ -102,6 +106,10 @@
   flex-shrink: 0;
   height: 2.5rem;
   width: 2.5rem;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 
 .btn.btn--white,
@@ -147,15 +155,37 @@
   border-color: var(--orange-2)!important;
 }
 
-.btn.btn--smoky-gray {
-  background: var(--smoky-gray-4);
-  color: rgba(36, 36, 36, .3);
+.btn.btn--smoky-gray,
+.btn.btn--smoky-gray:hover,
+.btn.btn--smoky-gray:active {
+  background: var(--smoky-gray-4)!important;
+  color: rgba(36, 36, 36, .3)!important;
   border-bottom-right-radius: var(--space-4) !important;
   border-top-right-radius: var(--space-4) !important;
+  border: none!important;
 }
 
 .el-radio__input.is-checked+.el-radio__label {
   color: var(--el-radio-text-color)!important;
+}
+
+.delivery__input {
+  background: #fafafa;
+  border: 1px solid rgba(0, 0, 0, .15);
+  border-radius: 0!important;
+  font-size: 1rem;
+  line-height: 1.5;
+  outline: 0;
+  padding: 11px 23px!important;
+  height: var(--space-44);
+}
+
+.delivery__input::placeholder {
+  font-size: var(--space-14)!important;
+}
+
+.input-group-prepend {
+  margin-right: -1px;
 }
 
 .pagination {
