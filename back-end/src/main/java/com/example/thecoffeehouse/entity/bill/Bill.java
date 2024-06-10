@@ -40,6 +40,8 @@ public class Bill {
     private String paymentMethod;
     @Column(name = "payment_status")
     private int paymentStatus;
+    @Column(name = "address")
+    private String address;
     @Column(name = "delivery_status")
     private String deliveryStatus;
 

@@ -1,6 +1,5 @@
-package com.example.thecoffeehouse.entity;
+package com.example.thecoffeehouse.entity.voucher;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -27,14 +26,26 @@ public class Voucher {
     private String name;
     @Column(name = "code")
     private String code;
-    @Column(name = "description")
+    @Column(name = "voucher_type_id")
+    private Long voucherTypeID;
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
     @Column(name = "image")
     private String image;
-    @Column(name = "value")
-    private double value;
+    @Column(name = "discount_value", columnDefinition = "DOUBLE DEFAULT 0")
+    private double discountValue;
+    @Column(name = "minimum_order_value", columnDefinition = "DOUBLE DEFAULT 0")
+    private double minimumOrderValue;
+    @Column(name = "max_uses", columnDefinition = "INT DEFAULT 0")
+    private int maxUses;
+    @Column(name = "minimum_items", columnDefinition = "INT DEFAULT 0")
+    private int minimumItems;
+    @Column(name = "current_uses", columnDefinition = "INT DEFAULT 0")
+    private int currentUses;
     @Column(name = "status", columnDefinition = "INT DEFAULT 0")
     private int status;
+    @Column(name = "error_message")
+    private String errorMessage;
     @Column(name = "apply_from", nullable = false)
     private LocalDateTime applyFrom;
     @Column(name = "apply_to", nullable = false)

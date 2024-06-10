@@ -12,17 +12,18 @@ import java.util.List;
 @AllArgsConstructor
 public class BillDto {
     private Long id;
-    private Long customerID;
+    private Long userID;
     private Long voucherID;
     private double value;
     private double ValueOfVoucher;
     private double ValueOfCustomerPoint;
     private double TotalValue;
     private String code;
-    private int point;
-    private int status;
     private String address;
     private LocalDateTime createTime;
     private LocalDateTime modifyTime;
     private List<BillProductDto> products;
+    private String paymentMethod;
+    private int paymentStatus;
+    private String deliveryStatus;
 }

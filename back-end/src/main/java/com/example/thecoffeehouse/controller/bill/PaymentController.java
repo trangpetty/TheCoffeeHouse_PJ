@@ -4,11 +4,11 @@ import com.example.thecoffeehouse.Utils.HmacUtil;
 import com.example.thecoffeehouse.Utils.MomoConfig;
 import com.example.thecoffeehouse.Utils.VnPayConfig;
 import com.example.thecoffeehouse.dto.BillDto;
-import com.example.thecoffeehouse.dto.PaymentResDTO;
-import com.example.thecoffeehouse.dto.TestAmountDto;
 import com.example.thecoffeehouse.service.bill.BillService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,14 +36,15 @@ public class PaymentController {
     }
 
     @PostMapping("/momo")
-    public ResponseEntity<?> queryTransaction(@RequestBody TestAmountDto amountDto) throws Exception {
-        String orderId = String.valueOf(System.currentTimeMillis());
+    public ResponseEntity<?> queryTransaction(@RequestBody BillDto billDto) throws Exception {
+        long amount = (long) (billDto.getValue());
+        String orderId = billDto.getCode();
         String requestId = String.valueOf(System.currentTimeMillis());
         String requestType = "captureWallet";
         String extraData = "";
 
         String rawHash = String.format("accessKey=%s&amount=%s&extraData=%s&ipnUrl=%s&orderId=%s&orderInfo=%s&partnerCode=%s&redirectUrl=%s&requestId=%s&requestType=%s",
-                MomoConfig.ACCESS_KEY, amountDto.getAmount(), extraData, MomoConfig.IPN_URL, orderId, MomoConfig.ORDER_INFO, MomoConfig.PARTNER_CODE, MomoConfig.REDIRECT_URL, requestId, requestType);
+                MomoConfig.ACCESS_KEY, amount, extraData, MomoConfig.IPN_URL, orderId, MomoConfig.ORDER_INFO, MomoConfig.PARTNER_CODE, MomoConfig.REDIRECT_URL, requestId, requestType);
 
         String signature = HmacUtil.hmacSHA256(MomoConfig.SECRET_KEY, rawHash);
 
@@ -52,7 +53,7 @@ public class PaymentController {
         requestData.put("partnerName", "Test");
         requestData.put("storeId", "MomoTestStore");
         requestData.put("requestId", requestId);
-        requestData.put("amount", amountDto.getAmount());
+        requestData.put("amount", amount);
         requestData.put("orderId", orderId);
         requestData.put("orderInfo", MomoConfig.ORDER_INFO);
         requestData.put("redirectUrl", MomoConfig.REDIRECT_URL);
@@ -70,12 +71,12 @@ public class PaymentController {
         });
         String paymentUrl = (String) responseBody.get("payUrl");
 
-        PaymentResDTO paymentResDTO = new PaymentResDTO();
-        paymentResDTO.setStatus("OK");
-        paymentResDTO.setMessage("success");
-        paymentResDTO.setURL(paymentUrl);
+        billDto.setPaymentMethod("momo");
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("billDto", billService.createBill(billDto));
+        responseData.put("paymentUrl", paymentUrl);
 
-        return new ResponseEntity<>(paymentResDTO, HttpStatus.OK);
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
     private String execPostRequest(String url, Map<String, Object> requestData) throws Exception {
@@ -109,12 +110,12 @@ public class PaymentController {
     }
 
     @PostMapping("/vnpay")
-    public ResponseEntity<?> payWithVnPay(@RequestBody TestAmountDto amountDto) throws UnsupportedEncodingException {
+    public ResponseEntity<?> payWithVnPay(@RequestBody BillDto billDto) throws UnsupportedEncodingException {
 
-        long amount = amountDto.getAmount()*100;
+        long amount = (long) (billDto.getValue()*100);
         String orderType = "other";
 
-        String vnp_TxnRef = VnPayConfig.getRandomNumber(8);
+        String vnp_TxnRef = billDto.getCode();
         String vnp_IpAddr = "127.0.0.1";
 
         String vnp_TmnCode = VnPayConfig.vnp_TmnCode;
@@ -172,12 +173,12 @@ public class PaymentController {
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = VnPayConfig.vnp_PayUrl + "?" + queryUrl;
 
-        PaymentResDTO paymentResDTO = new PaymentResDTO();
-        paymentResDTO.setStatus("OK");
-        paymentResDTO.setMessage("success");
-        paymentResDTO.setURL(paymentUrl);
+        billDto.setPaymentMethod("vnpay");
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("billDto", billService.createBill(billDto));
+        responseData.put("paymentUrl", paymentUrl);
 
-        return new ResponseEntity<>(paymentResDTO, HttpStatus.OK);
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
     @PutMapping("/markDelivered")

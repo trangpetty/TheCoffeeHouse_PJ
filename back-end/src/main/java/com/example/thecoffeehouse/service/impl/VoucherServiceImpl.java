@@ -2,9 +2,11 @@ package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.Utils.DateTimeConverter;
 import com.example.thecoffeehouse.dto.VoucherDto;
-import com.example.thecoffeehouse.entity.Voucher;
+import com.example.thecoffeehouse.entity.voucher.Voucher;
 import com.example.thecoffeehouse.entity.mapper.VoucherMapper;
+import com.example.thecoffeehouse.entity.voucher.VoucherType;
 import com.example.thecoffeehouse.repository.VoucherRepository;
+import com.example.thecoffeehouse.repository.VoucherTypeRepository;
 import com.example.thecoffeehouse.service.VoucherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,23 +17,29 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class VoucherServiceImpl implements VoucherService {
-    private static final Logger log = LoggerFactory.getLogger(VoucherServiceImpl.class);
     private final VoucherRepository voucherRepository;
+    private final VoucherTypeRepository voucherTypeRepository;
     private final DateTimeConverter dateTimeConverter;
 
-    public VoucherServiceImpl(VoucherRepository voucherRepository, DateTimeConverter dateTimeConverter) {
+    public VoucherServiceImpl(VoucherRepository voucherRepository, VoucherTypeRepository voucherTypeRepository, DateTimeConverter dateTimeConverter) {
         this.voucherRepository = voucherRepository;
+        this.voucherTypeRepository = voucherTypeRepository;
         this.dateTimeConverter = dateTimeConverter;
     }
 
     @Override
     public VoucherDto createVoucher(VoucherDto voucherDto) {
+        VoucherType voucherType = voucherTypeRepository.findById(voucherDto.getVoucherTypeID())
+                                                        .orElseThrow(() -> new RuntimeException("VoucherType not found"));
         Voucher voucher = VoucherMapper.mapToVoucher(voucherDto);
         Voucher savedVoucher = voucherRepository.save(voucher);
-        return VoucherMapper.mapToVoucherDto(savedVoucher);
+        return VoucherMapper.mapToVoucherDto(savedVoucher, voucherType);
     }
 
     @Override
@@ -53,9 +61,16 @@ public class VoucherServiceImpl implements VoucherService {
 
         LocalDateTime applyToConverted = applyTo != null ?
                 dateTimeConverter.convertToDateViaInstant(applyTo) : lastDayOfMonth;
+
         Page<Voucher> vouchers = voucherRepository.getAllVouchers(name, status, applyFromConverted, applyToConverted, pageable);
-        return vouchers.map(VoucherMapper::mapToVoucherDto);
+
+        return vouchers.map(voucher -> {
+            Optional<VoucherType> optionalVoucherType = voucherTypeRepository.findById(voucher.getVoucherTypeID());
+            VoucherType voucherType = optionalVoucherType.orElseThrow(() -> new RuntimeException("VoucherType not found"));
+            return VoucherMapper.mapToVoucherDto(voucher, voucherType);
+        });
     }
+
 
     @Override
     public VoucherDto updateVoucher(Long id, VoucherDto voucherDto) {
@@ -63,16 +78,53 @@ public class VoucherServiceImpl implements VoucherService {
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Voucher not found"));
 
+        VoucherType voucherType = voucherTypeRepository.findById(voucherDto.getVoucherTypeID())
+                .orElseThrow(() -> new RuntimeException("VoucherType not found"));
+
         voucher.setName(voucherDto.getName());
         voucher.setCode(voucherDto.getCode());
+        voucher.setVoucherTypeID(voucherDto.getVoucherTypeID());
         voucher.setDescription(voucherDto.getDescription());
-        voucher.setValue(voucherDto.getValue());
-        voucher.setStatus(voucherDto.getStatus());
         voucher.setImage(voucherDto.getImage());
+        voucher.setDiscountValue(voucherDto.getDiscountValue());
+        voucher.setMinimumOrderValue(voucherDto.getMinimumOrderValue());
+        voucher.setMinimumItems(voucherDto.getMinimumItems());
+        voucher.setMaxUses(voucherDto.getMaxUses());
+        voucher.setCurrentUses(voucherDto.getCurrentUses());
+        voucher.setStatus(voucherDto.getStatus());
+        voucher.setErrorMessage(voucherDto.getErrorMessage());
         voucher.setApplyFrom(voucherDto.getApplyFrom());
         voucher.setApplyTo(voucherDto.getApplyTo());
 
         Voucher updatedVoucher = voucherRepository.save(voucher);
-        return VoucherMapper.mapToVoucherDto(updatedVoucher);
+        return VoucherMapper.mapToVoucherDto(updatedVoucher, voucherType);
+    }
+
+    @Override
+    public List<VoucherDto> getVouchers() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime firstDayOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime lastDayOfMonth = now.withDayOfMonth(YearMonth.from(now).lengthOfMonth()).withHour(23).withMinute(59).withSecond(59);
+
+        List<Voucher> vouchers = voucherRepository.getVouchers(firstDayOfMonth, lastDayOfMonth);
+
+        return vouchers.stream().map(voucher -> {
+            Optional<VoucherType> optionalVoucherType = voucherTypeRepository.findById(voucher.getVoucherTypeID());
+            VoucherType voucherType = optionalVoucherType.orElse(null); // Return null if VoucherType is not found
+            assert voucherType != null;
+            return VoucherMapper.mapToVoucherDto(voucher, voucherType);
+        }).collect(Collectors.toList());
+    }
+
+
+
+    @Override
+    public VoucherType createVoucherType(VoucherType voucherType) {
+        return voucherTypeRepository.save(voucherType);
+    }
+
+    @Override
+    public List<VoucherType> getVoucherTypes() {
+        return voucherTypeRepository.findAll();
     }
 }

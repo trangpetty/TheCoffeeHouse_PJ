@@ -14,42 +14,42 @@ import java.util.stream.Collectors;
 public class BillMapper {
     public static Bill mapToBill(BillDto billDto) {
         Bill bill = new Bill(
-//                billDto.getId(),
-//                billDto.getCustomerID(),
-//                billDto.getVoucherID(),
-//                billDto.getValue(),
-//                billDto.getValueOfVoucher(),
-//                billDto.getValueOfCustomerPoint(),
-//                billDto.getTotalValue(),
-//                billDto.getCode(),
-//
-//                billDto.getStatus(),
-//                billDto.getAddress(),
-//                billDto.getCreateTime(),
-//                billDto.getModifyTime()
+                billDto.getId(),
+                billDto.getUserID(),
+                billDto.getVoucherID(),
+                billDto.getValue(),
+                billDto.getValueOfVoucher(),
+                billDto.getValueOfCustomerPoint(),
+                billDto.getTotalValue(),
+                billDto.getCode(),
+                billDto.getPaymentMethod(),
+                billDto.getPaymentStatus(),
+                billDto.getDeliveryStatus(),
+                billDto.getAddress(),
+                billDto.getCreateTime(),
+                billDto.getModifyTime()
         );
 
         return bill;
     }
 
     public static BillDto mapToBillDto(Bill bill, List<BillProductDto> billProductDtos) {
-        BillDto billDto = new BillDto(
-//                bill.getId(),
-//                bill.getCustomerID(),
-//                bill.getVoucherID(),
-//                bill.getValue(),
-//                bill.getValueOfVoucher(),
-//                bill.getValueOfCustomerPoint(),
-//                bill.getTotalValue(),
-//                bill.getCode(),
-//                bill.getPoint(),
-//                bill.getStatus(),
-//                bill.getAddress(),
-//                bill.getCreateTime(),
-//                bill.getModifyTime(),
-//                billProductDtos
-        );
-
+        BillDto billDto = new BillDto();
+        billDto.setId(bill.getId());
+        billDto.setUserID(bill.getUserID());
+        billDto.setVoucherID(bill.getVoucherID());
+        billDto.setValue(bill.getValue());
+        billDto.setValueOfVoucher(bill.getValueOfVoucher());
+        billDto.setValueOfCustomerPoint(bill.getValueOfCustomerPoint());
+        billDto.setTotalValue(bill.getTotalValue());
+        billDto.setCode(bill.getCode());
+        billDto.setAddress(bill.getAddress());
+        billDto.setCreateTime(bill.getCreateTime());
+        billDto.setModifyTime(bill.getModifyTime());
+        billDto.setProducts(billProductDtos);
+        billDto.setPaymentMethod(bill.getPaymentMethod());
+        billDto.setPaymentStatus(bill.getPaymentStatus());
+        billDto.setDeliveryStatus(bill.getDeliveryStatus());
         return billDto;
     }
 
