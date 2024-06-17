@@ -16,6 +16,9 @@ interface State {
     voucherDialog: boolean;
     voucher: object;
     errorMessage: string;
+    user: object;
+    token: string;
+    refreshToken: string;
 }
 
 const store = createStore<State>({
@@ -25,7 +28,10 @@ const store = createStore<State>({
         address: '',
         voucherDialog: false,
         voucher: {},
-        errorMessage: '' // Add errorMessage to the state
+        errorMessage: '',
+        user: {},
+        token: '',
+        refreshToken: ''
     },
     mutations: {
         setCart(state, cart: Product[]) {
@@ -71,7 +77,19 @@ const store = createStore<State>({
         },
         clearErrorMessage(state) {
             state.errorMessage = '';
-        }
+        },
+        setToken(state, token) {
+            state.token = token;
+            localStorage.setItem('token', token);
+        },
+        setRefreshToken(state, refreshToken) {
+            state.refreshToken = refreshToken;
+            localStorage.setItem('refreshToken', refreshToken);
+        },
+        setUser(state, user) {
+            state.user = user;
+            localStorage.setItem('user', JSON.stringify(user));
+        },
     },
     actions: {
         loadCart({ commit }) {
@@ -150,7 +168,20 @@ const store = createStore<State>({
         clearErrorMessage({ commit }) {
             commit('clearErrorMessage');
             localStorage.removeItem('errorMessage');
-        }
+        },
+        login({ commit }, { token, refreshToken, user }) {
+            commit('setToken', token);
+            commit('setRefreshToken', refreshToken);
+            commit('setUser', user);
+        },
+        logout({ commit }) {
+            commit('setToken', '');
+            commit('setRefreshToken', '');
+            commit('setUser', {});
+            localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('user');
+        },
     },
     getters: {
         cartItems: (state) => state.cart,
@@ -159,7 +190,9 @@ const store = createStore<State>({
         address: (state) => state.address,
         voucherDialog: (state) => state.voucherDialog,
         voucher: (state) => state.voucher,
-        errorMessage: (state) => state.errorMessage
+        errorMessage: (state) => state.errorMessage,
+        isLoggedIn: (state) => !!state.token,
+        currentUser: (state) => state.user,
     },
 });
 
