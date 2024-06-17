@@ -138,7 +138,7 @@ const formData = ref({
   phoneNumber: '',
   avatar: '',
   gender: 0,
-  roleName: 'ADMIN'
+  roleName: 'USER'
 })
 
 const currentPage = ref(1);
@@ -213,7 +213,7 @@ const handleAdd = () => {
   formData.value.name = '';
   formData.value.email = '';
   formData.value.phoneNumber = '';
-  formData.value.roleName = 'ADMIN';
+  formData.value.roleName = 'USER';
   formData.value.gender = 0;
   formData.value.avatar = '';
   fileList.value = [];

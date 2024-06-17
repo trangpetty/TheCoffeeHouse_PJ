@@ -12,6 +12,8 @@ import HomeUserView from '@/views/user/HomeView.vue';
 import OrderView from '@/views/user/OrderView.vue';
 import CartView from '@/views/user/CartView.vue';
 import BillOrderedView from '@/views/user/BillView.vue';
+import LoginView from '@/views/user/LoginView.vue';
+import RegisterView from '@/views/user/RegisterView.vue';
 
 export const routes = [
   {
@@ -80,7 +82,17 @@ export const routes = [
         path: '/checkbill',
         name: 'checkbill',
         component: BillOrderedView
-      }
+      },
+      {
+        path: '/login',
+        name: 'login',
+        component: LoginView
+      },
+      {
+        path: '/register',
+        name: 'register',
+        component: RegisterView
+      },
     ]
   },
 ];

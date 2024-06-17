@@ -230,4 +230,10 @@
   }
 }
 
+footer {
+  background: #000000D9;
+  padding-top: 34px;
+  padding-bottom: 54px;
+}
+
 </style>
