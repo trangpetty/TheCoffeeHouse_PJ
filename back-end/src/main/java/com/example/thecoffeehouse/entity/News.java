@@ -16,18 +16,26 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "blog")
-public class Blog {
+@Table(name = "news")
+public class News {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "user_id")
     private Long userID;
+
     @Column(name = "title")
     private String title;
-    @Column(name = "content")
+
+    @Column(name = "content", columnDefinition = "TEXT")
     private String content;
+
+    @Column(name = "type")
+    private String type;
+
+    @Column(name = "image")
+    private String image;
 
     @CreationTimestamp
     @Column(name = "create_time", nullable = false, updatable = false)
