@@ -1,6 +1,6 @@
 package com.example.thecoffeehouse.entity.mapper;
 
-import com.example.thecoffeehouse.dto.user.UserDto;
+import com.example.thecoffeehouse.dto.UserDto;
 import com.example.thecoffeehouse.entity.User;
 
 public class UserMapper {

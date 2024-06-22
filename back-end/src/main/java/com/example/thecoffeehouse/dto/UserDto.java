@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse.dto.user;
+package com.example.thecoffeehouse.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,10 +9,9 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegisterDto {
+public class UserDto {
     private Long id;
     private String name;
-    private String password;
     private String phoneNumber;
     private String email;
     private String avatar;
