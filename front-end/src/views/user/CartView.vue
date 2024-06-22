@@ -128,11 +128,11 @@
                         <span>{{voucher.name}}</span>
                         <p class="d-inline cursor-pointer" @click="handleClearVoucher">Xoa</p>
                       </div>
-                      <p v-if="!discountPercent">
+                      <p v-if="!discount">
                         -{{formatPrice(parseInt(voucher.discountValue))}}
                       </p>
                       <p v-else>
-                        -{{formatPrice(discountPercent)}}
+                        -{{formatPrice(discount)}}
                       </p>
                     </div>
                     <div v-if="errorMessage" class="error-message">
@@ -196,10 +196,13 @@ const store = useStore();
 const cartItems = computed(() => store.getters.cartItems);
 const voucher = computed(() => store.getters.voucher);
 const errorMessage = computed(() => store.getters.errorMessage);
+const address = computed(() => store.getters.address);
+const user = computed(() => store.getters.user);
+
 const totalQuantity = cartItems.value.reduce((total, item) => total + item.quantity, 0);
 
 const feeship = ref(18000);
-const discountPercent = ref(0);
+const discount = ref(0);
 
 const removeFromCart = (index: number) => {
   store.dispatch('removeProductFromCart', index);
@@ -208,8 +211,6 @@ const removeFromCart = (index: number) => {
 onMounted(() => {
   store.dispatch('loadVoucher');
 });
-
-const address = computed(() => store.getters.address);
 
 const formatPrice = (price: number): string => {
   return price.toLocaleString('vi-VN') + 'đ';
@@ -227,10 +228,13 @@ const totalValue = computed(() => {
   if (cost >= voucher.value.minimumOrderValue && totalQuantity >= voucher.value.minimumItems) {
     if(voucher.value.voucherType == 'percentage') {
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      discountPercent.value = cost * voucher.value.discountValue;
-      cost -= discountPercent.value;
+      discount.value = cost * voucher.value.discountValue;
     }
-    else cost -= parseInt(voucher.value.discountValue);
+    else {
+      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+      discount.value = parseInt(voucher.value.discountValue);
+    }
+    cost -= discount.value;
   }
 
   cost += feeship.value; // Adding feeship
@@ -238,20 +242,20 @@ const totalValue = computed(() => {
 })
 
 watch(voucher, (newVoucher, oldVoucher) => {
-  discountPercent.value = 0;
+  discount.value = 0;
 });
 
 const formData = ref({
-  customerID: null,
-  voucherID: null,
-  ValueOfVoucher: 0,
+  userID: user.value.id,
+  voucherID: voucher.value ? voucher.value.id : null,
+  ValueOfVoucher: discount.value,
   ValueOfCustomerPoint: 0,
   totalValue: totalCost.value,
   value: totalValue.value,
   code: generateRandomString(),
   point: 0,
   status: 0,
-  address: '4 Ngõ 15 Phố Duy Tân, Dịch Vọng Hậu, Cầu Giấy, Hà Nội 100000, Việt Nam',
+  address: address.value,
   products: []
 })
 

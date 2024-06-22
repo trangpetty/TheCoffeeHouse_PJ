@@ -14,18 +14,19 @@
         <nav class="navbar navbar-expand-lg d-lg-inline">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="#">Blog</a>
+              <router-link to="/blogs" class="nav-link" aria-current="page" href="#">Tin tức</router-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link" @click="showVoucherDialog">Voucher</a>
+              <a class="nav-link" @click="showVoucherDialog">Khuyến mãi</a>
             </li>
           </ul>
         </nav>
       </div>
       <div class="d-flex align-items-center ms-auto header-right">
-        <a href="#">
-          <img :src="noAvatar" style="width: 40px;" alt="">
-        </a>
+        <router-link to="/user-info" href="#">
+          <img :src="user.avatar ? user.avatar :noAvatar" style="width: 40px;" alt="" class="rounded-circle">
+        </router-link>
+        <span class="name_user">{{user.name}}</span>
         <router-link :to="(totalQuantity > 0) ? '/checkout' : ''" class="ms-3">
           <div class="icon d-flex align-items-center justify-content-center" :class="(totalQuantity > 0) ? 'icon-cart-has-item' : 'icon-cart'">
             <el-icon class="fs-4 fw-bold"><Handbag /></el-icon>
@@ -57,6 +58,8 @@ const store = useStore();
 
 const totalQuantity = computed(() => store.getters.cartTotalQuantity);
 const address = computed(() => store.getters.address);
+const user = computed(() => store.getters.user);
+console.log(user.value)
 
 </script>
 
@@ -125,6 +128,19 @@ header {
   text-overflow: ellipsis;
   word-break: break-all;
   -webkit-line-clamp: 1;
+}
+
+.name_user {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  height: 14px;
+  line-height: 14px;
+  margin: 0 1.5rem;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  display: -webkit-box;
+  overflow: hidden;
 }
 
 .icon-vertor {

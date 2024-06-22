@@ -17,6 +17,7 @@
   --orange-3: rgba(255, 231, 186, .6);
   --orange-4: #ff792c;
   --orange-5: #e57905;
+  --product-box-shadow: 0px 10px 20px rgba(0,0,0,.1);
   --radial-gradient-orange-1: radial-gradient(100% 501.4% at 0% 100%, #ffb141 0%, #fb8d17 100%);
   --radial-gradient-orange-9: radial-gradient(75.9% 488.28% at 24.1% 100%, #e87800 0%, #fa8c16 100%);
   --radial-gradient-orange-10: radial-gradient(100% 828.83% at 0% 100%,#e87800 0%,#fa8c16 100%);
@@ -228,6 +229,12 @@
   .confirm {
     margin-top: 13px;
   }
+}
+
+footer {
+  background: #000000D9;
+  padding-top: 34px;
+  padding-bottom: 54px;
 }
 
 </style>

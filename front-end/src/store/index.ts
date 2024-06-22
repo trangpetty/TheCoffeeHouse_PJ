@@ -78,17 +78,25 @@ const store = createStore<State>({
         clearErrorMessage(state) {
             state.errorMessage = '';
         },
-        setToken(state, token) {
+        setToken(state, token: string) {
             state.token = token;
             localStorage.setItem('token', token);
         },
-        setRefreshToken(state, refreshToken) {
+        setRefreshToken(state, refreshToken: string) {
             state.refreshToken = refreshToken;
             localStorage.setItem('refreshToken', refreshToken);
         },
-        setUser(state, user) {
+        setUser(state, user: object) {
             state.user = user;
             localStorage.setItem('user', JSON.stringify(user));
+        },
+        clearAuthData(state) {
+            state.token = '';
+            state.refreshToken = '';
+            state.user = {};
+            localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('user');
         },
     },
     actions: {
@@ -169,18 +177,17 @@ const store = createStore<State>({
             commit('clearErrorMessage');
             localStorage.removeItem('errorMessage');
         },
-        login({ commit }, { token, refreshToken, user }) {
+        login({ commit }, { token, refreshToken, user }: { token: string; refreshToken: string; user: object }) {
             commit('setToken', token);
             commit('setRefreshToken', refreshToken);
             commit('setUser', user);
         },
         logout({ commit }) {
-            commit('setToken', '');
-            commit('setRefreshToken', '');
-            commit('setUser', {});
-            localStorage.removeItem('token');
-            localStorage.removeItem('refreshToken');
-            localStorage.removeItem('user');
+            commit('clearAuthData');
+        },
+        loadUser({ commit }) {
+            const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+            commit('setUser', localUser);
         },
     },
     getters: {
@@ -192,7 +199,7 @@ const store = createStore<State>({
         voucher: (state) => state.voucher,
         errorMessage: (state) => state.errorMessage,
         isLoggedIn: (state) => !!state.token,
-        currentUser: (state) => state.user,
+        user: (state) => state.user,
     },
 });
 

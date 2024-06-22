@@ -8,10 +8,17 @@ import VoucherView from '@/views/manager/voucher/VoucherView.vue';
 import CustomerView from '@/views/manager/customer/CustomerView.vue';
 import UserView from '@/views/manager/user/UserView.vue';
 import BillView from '@/views/manager/bill/BillView.vue';
+import NewsView from '@/views/manager/news/index.vue';
+
 import HomeUserView from '@/views/user/HomeView.vue';
 import OrderView from '@/views/user/OrderView.vue';
 import CartView from '@/views/user/CartView.vue';
 import BillOrderedView from '@/views/user/BillView.vue';
+import LoginView from '@/views/user/LoginView.vue';
+import RegisterView from '@/views/user/RegisterView.vue';
+import UserInfoView from '@/views/user/UserInfoView.vue';
+import BlogsView from '@/views/user/NewsView.vue';
+import BlogDetail from '@/views/user/NewsDetail.vue';
 
 export const routes = [
   {
@@ -59,6 +66,11 @@ export const routes = [
         path: '/bill',
         name: 'Bill',
         component: BillView
+      },
+      {
+        path: '/news',
+        name: 'News',
+        component: NewsView
       }
     ]
   },
@@ -80,7 +92,33 @@ export const routes = [
         path: '/checkbill',
         name: 'checkbill',
         component: BillOrderedView
-      }
+      },
+      {
+        path: '/login',
+        name: 'login',
+        component: LoginView
+      },
+      {
+        path: '/register',
+        name: 'register',
+        component: RegisterView
+      },
+      {
+        path: '/user-info',
+        name: 'user-info',
+        component: UserInfoView
+      },
+      {
+        path: '/blogs',
+        name: 'blogs',
+        component: BlogsView
+      },
+      {
+        path: '/blog-detail/:id',
+        name: 'blog-detail',
+        component: BlogDetail,
+        props: true
+      },
     ]
   },
 ];

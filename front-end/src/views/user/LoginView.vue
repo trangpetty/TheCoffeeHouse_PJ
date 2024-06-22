@@ -18,7 +18,7 @@
     <div class="text-center">
       <p class="mb-2">Đăng nhập với</p>
       <div class="d-flex justify-content-between align-items-center">
-        <button class="btn btn-light border-0 rounded d-flex align-items-center" @click="redirectToGoogle">
+        <button class="btn btn-light border-0 rounded d-flex align-items-center">
           <img :src="google" style="width:2rem" class="me-2">
           <span>Sign in with Google</span>
         </button>
@@ -66,12 +66,6 @@ const login = async () => {
     console.error('Error during login:', loginError.value);
   }
 };
-
-const redirectToGoogle = () => {
-  window.location.href = 'http://localhost:8082/oauth2/authorization/google';
-};
-
-
 </script>
 
 <style scoped>
