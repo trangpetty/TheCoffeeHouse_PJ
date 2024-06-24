@@ -1,5 +1,6 @@
 package com.example.thecoffeehouse.service.impl.bill;
 
+import com.example.thecoffeehouse.dto.MonthlyDataDTO;
 import com.example.thecoffeehouse.entity.bill.Bill;
 import com.example.thecoffeehouse.entity.bill.BillProduct;
 import com.example.thecoffeehouse.repository.bill.BillProductRepository;
@@ -34,5 +35,10 @@ public class BillProductServiceImpl implements BillProductService {
     @Override
     public BillProduct createBillProduct(BillProduct billProduct) {
         return billProductRepository.save(billProduct);
+    }
+
+    @Override
+    public List<MonthlyDataDTO> getSaleByMonth(int year) {
+        return billProductRepository.getMonthlySales(year);
     }
 }

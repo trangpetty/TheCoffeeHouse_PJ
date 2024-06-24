@@ -1,6 +1,7 @@
 package com.example.thecoffeehouse.controller.bill;
 
 import com.example.thecoffeehouse.dto.BillDto;
+import com.example.thecoffeehouse.dto.MonthlyDataDTO;
 import com.example.thecoffeehouse.service.bill.BillService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/bills")
@@ -42,5 +44,16 @@ public class BillController {
     public ResponseEntity<BillDto> updateBill(@PathVariable("id") long id, @RequestBody BillDto updateBillDto) {
         BillDto billDto = billService.updateBill(id, updateBillDto);
         return ResponseEntity.ok(billDto);
+    }
+
+    @GetMapping("/revenue")
+    public List<Double> getRevenue() {
+        return billService.getRevenue();
+    }
+
+    @GetMapping("/revenue/monthly")
+    public ResponseEntity<List<MonthlyDataDTO>> getMonthlyRevenue(@RequestParam int year) {
+        List<MonthlyDataDTO> monthlyRevenue = billService.getRevenueByMonth(year);
+        return ResponseEntity.ok(monthlyRevenue);
     }
 }

@@ -3,6 +3,7 @@ package com.example.thecoffeehouse.service.impl.bill;
 import com.example.thecoffeehouse.Utils.DateTimeConverter;
 import com.example.thecoffeehouse.dto.BillDto;
 import com.example.thecoffeehouse.dto.BillProductDto;
+import com.example.thecoffeehouse.dto.MonthlyDataDTO;
 import com.example.thecoffeehouse.entity.bill.Bill;
 import com.example.thecoffeehouse.entity.bill.BillProduct;
 import com.example.thecoffeehouse.entity.mapper.BillMapper;
@@ -21,8 +22,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -132,5 +135,23 @@ public class BillServiceImpl implements BillService {
     @Override
     public BillDto markAsDelivered(Long orderId) {
         return null;
+    }
+
+    public List<Double> getRevenue() {
+        LocalDate currentDate = LocalDate.now();
+        int currentMonthValue = currentDate.getMonthValue(); // Current month value (1 to 12)
+        List<Double> revenues = new ArrayList<>();
+        for (int i = 1; i <= currentMonthValue; i++) {
+            if(billRepository.findRevenueByMonth(i) == null) {
+                revenues.add(0.0);
+            }
+            else revenues.add(billRepository.findRevenueByMonth(i));
+        }
+        return revenues;
+    }
+
+    @Override
+    public List<MonthlyDataDTO> getRevenueByMonth(int year) {
+        return billRepository.getMonthlyRevenue(year);
     }
 }
