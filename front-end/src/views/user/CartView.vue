@@ -199,7 +199,7 @@ const errorMessage = computed(() => store.getters.errorMessage);
 const address = computed(() => store.getters.address);
 const user = computed(() => store.getters.user);
 
-const totalQuantity = cartItems.value.reduce((total, item) => total + item.quantity, 0);
+const totalQuantity = computed(() => store.getters.cartTotalQuantity);
 
 const feeship = ref(18000);
 const discount = ref(0);
@@ -225,7 +225,7 @@ const totalValue = computed(() => {
   let cost = totalCost.value;
 
   // Adjust total cost based on voucher type
-  if (cost >= voucher.value.minimumOrderValue && totalQuantity >= voucher.value.minimumItems) {
+  if (cost >= voucher.value.minimumOrderValue && totalQuantity.value >= voucher.value.minimumItems) {
     if(voucher.value.voucherType == 'percentage') {
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
       discount.value = cost * voucher.value.discountValue;
@@ -266,7 +266,7 @@ watch(totalValue, (newValue) => {
 watch(totalCost, (newValue) => {
   formData.value.totalValue = newValue;
 
-  if (newValue > voucher.value.minimumOrderValue && totalQuantity >= voucher.value.minimumItems) {
+  if (newValue > voucher.value.minimumOrderValue && totalQuantity.value >= voucher.value.minimumItems) {
     store.dispatch('clearErrorMessage');
   } else {
     store.dispatch('setErrorMessage', voucher.value.errorMessage);
@@ -319,7 +319,7 @@ const confirmOrder = async () => {
   }
   // console.log(formData.value)
   // await axios.post('http://localhost:8082/api/bills', formData.value);
-  // await store.dispatch('clearCart')
+  await store.dispatch('clearCart')
   // console.log(formData.value.totalValue);
   if (paymentMethod.value.methodName == 'cash') {
     // await axios.post('http://localhost:8082/api/payment/cash', formData.value);
@@ -329,16 +329,17 @@ const confirmOrder = async () => {
       const endpoint = paymentMethod.value.methodName === 'momo'
           ? 'momo'
           : 'vnpay';
-      // const pay = await axios.post(`http://localhost:8082/api/payment/${endpoint}`, formData.value);
-      // if (pay.status === 200) {
-      //   setTimeout(() => {
-      //     window.location.href = pay.data.paymentUrl;
-      //   }, 2000);
-      // }
+      const pay = await axios.post(`http://localhost:8082/api/payment/${endpoint}`, formData.value);
+      if (pay.status === 200) {
+        setTimeout(() => {
+          window.location.href = pay.data.paymentUrl;
+        }, 2000);
+      }
     } catch (error) {
       console.error('Error processing payment:', error);
     }
   }
+
 }
 
 </script>

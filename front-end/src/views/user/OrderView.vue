@@ -227,7 +227,11 @@ const decreaseQuantity = (topping) => {
 // Function to increase the quantity of the selected topping
 const increaseQuantity = (topping) => {
   if (selectedTopping.value.toppingID === topping.toppingID) {
-    selectedTopping.value.quantity++;
+    if (selectedTopping.value.quantity < 2) {
+      selectedTopping.value.quantity++;
+    } else {
+      console.log("Maximum topping quantity reached.");
+    }
   } else {
     // If a new topping is selected, update selectedTopping with its data
     selectedTopping.value = {
@@ -257,7 +261,11 @@ const addToCart = () => {
     productSize: selectedSize.value,
     cost: cost.value,
     quantity: quantity.value,
-    topping: selectedTopping.value
+    topping: selectedTopping.value.quantity > 0 ? selectedTopping.value : {
+      toppingID: null,
+      toppingName: '',
+      quantity: 0
+    }
   };
   // console.log(productWithDetails)
   cart.value.push(productWithDetails);
@@ -279,6 +287,12 @@ const addToCart = () => {
   } else {
     store.dispatch('setErrorMessage', voucher.value.errorMessage);
   }
+
+  selectedTopping.value = {
+    toppingID: null,
+    toppingName: '',
+    quantity: 0
+  };
 };
 
 getTypes();

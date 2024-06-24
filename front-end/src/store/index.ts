@@ -1,12 +1,25 @@
 import { createStore } from 'vuex';
+import {ref} from "vue";
 
 interface Product {
     name: string,
     productId: number,
-    productSize: object,
+    productSize: Size,
     cost: number,
     quantity: number,
-    topping: object
+    topping: Topping
+}
+
+interface Size {
+    sizeId: null,
+    size: '',
+    surcharge: 0
+}
+
+interface Topping {
+    toppingID: number,
+    toppingName: string,
+    quantity: number
 }
 
 interface State {
@@ -38,10 +51,17 @@ const store = createStore<State>({
             state.cart = cart;
         },
         addToCart(state, product: Product) {
-            const existingProduct = state.cart.find((item: Product) => item.productId === product.productId);
+            const existingProduct = state.cart.find(item =>
+                item.productId === product.productId &&
+                item.productSize.sizeId === product.productSize.sizeId &&
+                item.topping.toppingID === product.topping.toppingID &&
+               (item.topping.quantity / item.quantity ) === product.topping.quantity
+            );
+
             if (existingProduct) {
                 existingProduct.quantity += product.quantity;
                 existingProduct.cost += product.cost;
+                existingProduct.topping.quantity += product.topping.quantity; // Corrected typo here
             } else {
                 state.cart.push(product);
             }

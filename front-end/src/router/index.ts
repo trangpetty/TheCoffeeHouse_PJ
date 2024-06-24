@@ -9,6 +9,7 @@ import CustomerView from '@/views/manager/customer/CustomerView.vue';
 import UserView from '@/views/manager/user/UserView.vue';
 import BillView from '@/views/manager/bill/BillView.vue';
 import NewsView from '@/views/manager/news/index.vue';
+import RevenueView from '@/views/manager/revenue/RevenueView.vue';
 
 import HomeUserView from '@/views/user/HomeView.vue';
 import OrderView from '@/views/user/OrderView.vue';
@@ -71,6 +72,11 @@ export const routes = [
         path: '/news',
         name: 'News',
         component: NewsView
+      },
+      {
+        path: '/revenue',
+        name: 'Revenue',
+        component: RevenueView
       }
     ]
   },
