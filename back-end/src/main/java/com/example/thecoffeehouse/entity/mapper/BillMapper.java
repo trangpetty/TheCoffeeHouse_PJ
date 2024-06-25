@@ -24,8 +24,8 @@ public class BillMapper {
                 billDto.getCode(),
                 billDto.getPaymentMethod(),
                 billDto.getPaymentStatus(),
-                billDto.getDeliveryStatus(),
                 billDto.getAddress(),
+                billDto.getDeliveryStatus(),
                 billDto.getCreateTime(),
                 billDto.getModifyTime()
         );
