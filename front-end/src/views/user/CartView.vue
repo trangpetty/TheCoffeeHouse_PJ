@@ -190,6 +190,7 @@ import vnpay from '@/assets/images/vnpay.png'
 import { ref, computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import axios from "axios";
+import router from "@/router";
 
 const store = useStore();
 
@@ -286,10 +287,16 @@ watch(errorMessage, (newErrorMessage) => {
 watch([user, voucher, totalCost, totalValue, address], ([newUser, newVoucher, newTotalCost, newTotalValue, newAddress]) => {
   formData.value.userID = newUser?.id || null;
   formData.value.voucherID = newVoucher?.id || null;
-  formData.value.ValueOfVoucher = discount.value;
+  formData.value.valueOfVoucher = discount.value;
   formData.value.totalValue = newTotalCost;
   formData.value.value = newTotalValue;
   formData.value.address = newAddress;
+});
+
+watch(cartItems, (newCartItems) => {
+  if (newCartItems.length === 0) {
+    router.push('/'); // Replace 'home' with your actual home route name
+  }
 });
 
 const handleClearVoucher = () => {
@@ -324,6 +331,7 @@ const showVoucherDialog = () => {
 };
 
 const confirmOrder = async () => {
+  ui.value.loading = true;
   for (const item of cartItems.value) {
     formData.value.products.push({
       productID: item.productId,
@@ -356,7 +364,7 @@ const confirmOrder = async () => {
 };
 
 const deleteOrder = () => {
-  store.dispatch('clearCart')
+  store.dispatch('clearCart');
 }
 </script>
 
