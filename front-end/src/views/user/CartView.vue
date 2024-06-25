@@ -58,10 +58,10 @@
                   </div>
                 </div>
                 <div class="mb-3">
-                  <input type="text" class="delivery__input form-control" placeholder="Tên người nhận">
+                  <input type="text" :value="user.name" class="delivery__input form-control" placeholder="Tên người nhận">
                 </div>
                 <div class="mb-3">
-                  <input type="text" class="delivery__input form-control" placeholder="Số điện thoại">
+                  <input type="text" :value="user.phoneNumber" class="delivery__input form-control" placeholder="Số điện thoại">
                 </div>
                 <div class="mb-3">
                   <input type="text" class="delivery__input form-control" placeholder="Thêm hướng dẫn giao hàng">
@@ -168,7 +168,7 @@
               </div>
             </div>
             <div class="ms-5 checkout-box-item float-lg-end py-4">
-              <p class="mb-0 text-center text-orange">
+              <p class="mb-0 text-center text-orange cursor-pointer" @click="deleteOrder">
                 <span class="icon me-2">
                   <font-awesome-icon icon="fa-solid fa-trash" />
                 </span>
@@ -198,7 +198,6 @@ const voucher = computed(() => store.getters.voucher);
 const errorMessage = computed(() => store.getters.errorMessage);
 const address = computed(() => store.getters.address);
 const user = computed(() => store.getters.user);
-
 const totalQuantity = computed(() => store.getters.cartTotalQuantity);
 
 const feeship = ref(18000);
@@ -215,7 +214,6 @@ onMounted(() => {
 const formatPrice = (price: number): string => {
   return price.toLocaleString('vi-VN') + 'đ';
 };
-
 
 const totalCost = computed(() => {
   return cartItems.value.reduce((total, item) => total + item.cost, 0);
@@ -236,28 +234,33 @@ const totalValue = computed(() => {
     }
     cost -= discount.value;
   }
+  else {
+    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+    discount.value = 0;
+  }
 
   cost += feeship.value; // Adding feeship
   return cost;
 })
 
 watch(voucher, (newVoucher, oldVoucher) => {
-  discount.value = 0;
+  discount.value = 0; // Reset discount when voucher changes
 });
 
 const formData = ref({
-  userID: user.value.id,
-  voucherID: voucher.value ? voucher.value.id : null,
-  ValueOfVoucher: discount.value,
+  userID: null,
+  voucherID: null,
+  ValueOfVoucher: 0,
   ValueOfCustomerPoint: 0,
-  totalValue: totalCost.value,
-  value: totalValue.value,
+  totalValue: 0,
+  value: 0,
   code: generateRandomString(),
   point: 0,
   status: 0,
-  address: address.value,
-  products: []
-})
+  address: '',
+  products: [],
+  paymentMethod: ''
+});
 
 watch(totalValue, (newValue) => {
   formData.value.value = newValue;
@@ -270,27 +273,42 @@ watch(totalCost, (newValue) => {
     store.dispatch('clearErrorMessage');
   } else {
     store.dispatch('setErrorMessage', voucher.value.errorMessage);
+    discount.value = 0;
   }
+});
+
+watch(errorMessage, (newErrorMessage) => {
+  if (newErrorMessage) {
+    formData.value.voucherID = null;
+  }
+});
+
+watch([user, voucher, totalCost, totalValue, address], ([newUser, newVoucher, newTotalCost, newTotalValue, newAddress]) => {
+  formData.value.userID = newUser?.id || null;
+  formData.value.voucherID = newVoucher?.id || null;
+  formData.value.ValueOfVoucher = discount.value;
+  formData.value.totalValue = newTotalCost;
+  formData.value.value = newTotalValue;
+  formData.value.address = newAddress;
 });
 
 const handleClearVoucher = () => {
   store.dispatch('clearVoucher');
   store.dispatch('clearErrorMessage');
-}
+};
 
 const paymentMethods = ref([
   {url: momo, label: 'MoMo', methodName: 'momo'},
   {url: vnpay, label: 'VnPay', methodName: 'vnpay'},
   {url: money, label: 'Tiền mặt', methodName: 'cash'},
-])
+]);
 
 const paymentMethod = ref(paymentMethods.value[0]);
 
 const ui = ref({
   voucherDialog: false,
   loading: false
-})
-
+});
 
 function generateRandomString(): string {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -306,43 +324,42 @@ const showVoucherDialog = () => {
 };
 
 const confirmOrder = async () => {
-  // ui.value.loading = true;
   for (const item of cartItems.value) {
     formData.value.products.push({
       productID: item.productId,
       productSizeID: item.productSize.id,
-      toppingID:  item.topping ? item.topping.toppingID : null,
+      toppingID: item.topping ? item.topping.toppingID : null,
       quantityProduct: item.quantity,
       quantityTopping: item.topping ? item.topping.quantity : null,
       cost: item.cost
-    })
+    });
   }
-  // console.log(formData.value)
-  // await axios.post('http://localhost:8082/api/bills', formData.value);
-  await store.dispatch('clearCart')
-  // console.log(formData.value.totalValue);
-  if (paymentMethod.value.methodName == 'cash') {
-    // await axios.post('http://localhost:8082/api/payment/cash', formData.value);
-  }
-  else {
+  if (paymentMethod.value.methodName === 'cash') {
+    // Handle cash payment method
+  } else {
     try {
-      const endpoint = paymentMethod.value.methodName === 'momo'
-          ? 'momo'
-          : 'vnpay';
+      const endpoint = paymentMethod.value.methodName === 'momo' ? 'momo' : 'vnpay';
+      // Example axios request
       const pay = await axios.post(`http://localhost:8082/api/payment/${endpoint}`, formData.value);
       if (pay.status === 200) {
         setTimeout(() => {
+          deleteOrder();
+          handleClearVoucher();
           window.location.href = pay.data.paymentUrl;
         }, 2000);
       }
+      console.log(formData.value)
     } catch (error) {
       console.error('Error processing payment:', error);
     }
   }
+};
 
+const deleteOrder = () => {
+  store.dispatch('clearCart')
 }
-
 </script>
+
 <style scoped>
 .checkout-header .icon{
   color: #fad207;
