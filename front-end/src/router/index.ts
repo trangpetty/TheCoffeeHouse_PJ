@@ -12,14 +12,14 @@ import NewsView from '@/views/manager/news/index.vue';
 import RevenueView from '@/views/manager/revenue/RevenueView.vue';
 
 import HomeUserView from '@/views/user/HomeView.vue';
-import OrderView from '@/views/user/OrderView.vue';
-import CartView from '@/views/user/CartView.vue';
-import BillOrderedView from '@/views/user/BillView.vue';
-import LoginView from '@/views/user/LoginView.vue';
-import RegisterView from '@/views/user/RegisterView.vue';
-import UserInfoView from '@/views/user/UserInfoView.vue';
-import BlogsView from '@/views/user/NewsView.vue';
-import BlogDetail from '@/views/user/NewsDetail.vue';
+import OrderView from '@/views/user/order/OrderView.vue';
+import CartView from '@/views/user/order/CartView.vue';
+import BillOrderedView from '@/views/user/order/BillView.vue';
+import LoginView from '@/views/user/account/LoginView.vue';
+import RegisterView from '@/views/user/account/RegisterView.vue';
+import UserInfoView from '@/views/user/layout/UserInfoView.vue';
+import BlogsView from '@/views/user/news/NewsView.vue';
+import BlogDetail from '@/views/user/news/NewsDetail.vue';
 
 export const routes = [
   {
@@ -100,7 +100,7 @@ export const routes = [
         component: BillOrderedView
       },
       {
-        path: '/login',
+        path: '/account',
         name: 'login',
         component: LoginView
       },

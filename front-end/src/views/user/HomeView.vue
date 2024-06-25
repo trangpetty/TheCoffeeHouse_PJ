@@ -7,10 +7,10 @@
 </template>
 
 <script lang="ts" setup>
-import NavBar from "@/views/user/NavBar.vue";
-import AddressDialog from '@/views/user/AddressDialog.vue';
-import VoucherDialog from '@/views/user/VoucherDialog.vue';
-import Footer from "@/views/user/Footer.vue";
+import NavBar from "@/views/user/layout/NavBar.vue";
+import AddressDialog from '@/views/user/dialog/AddressDialog.vue';
+import VoucherDialog from '@/views/user/dialog/VoucherDialog.vue';
+import Footer from "@/views/user/layout/Footer.vue";
 import {onMounted} from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
@@ -39,7 +39,7 @@ onMounted(() => {
 //     // // Store user information in localStorage
 //     // localStorage.setItem('user', JSON.stringify(user));
 //     //
-//     // // Redirect back to previous page after successful login
+//     // // Redirect back to previous page after successful account
 //     // window.history.back();
 //   } catch (error) {
 //     console.error('Error fetching user information:', error);

@@ -63,7 +63,7 @@ const login = async () => {
     } else {
       loginError.value = error.message;
     }
-    console.error('Error during login:', loginError.value);
+    console.error('Error during account:', loginError.value);
   }
 };
 </script>
