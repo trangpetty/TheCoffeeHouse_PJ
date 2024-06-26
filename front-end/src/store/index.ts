@@ -1,17 +1,21 @@
 import { createStore } from 'vuex';
-import {ref} from "vue";
 
 interface Product {
     name: string,
-    productId: number,
-    productSize: Size,
+    id: number,
+    productSizes: any[],
     cost: number,
     quantity: number,
-    topping: Topping
+    toppings: any[],
+    price: number,
+    selectedSize: Size,
+    selectedTopping: Topping,
+    description: string,
+    images: any[]
 }
 
 interface Size {
-    sizeId: null,
+    id: null,
     size: '',
     surcharge: 0
 }
@@ -52,18 +56,37 @@ const store = createStore<State>({
         },
         addToCart(state, product: Product) {
             const existingProduct = state.cart.find(item =>
-                item.productId === product.productId &&
-                item.productSize.sizeId === product.productSize.sizeId &&
-                item.topping.toppingID === product.topping.toppingID &&
-               (item.topping.quantity / item.quantity ) === product.topping.quantity
+                item.id === product.id &&
+                item.selectedSize.id === product.selectedSize.id &&
+                item.selectedTopping.toppingID === product.selectedTopping.toppingID &&
+               (item.selectedTopping.quantity / item.quantity ) === product.selectedTopping.quantity
             );
 
             if (existingProduct) {
                 existingProduct.quantity += product.quantity;
                 existingProduct.cost += product.cost;
-                existingProduct.topping.quantity += product.topping.quantity; // Corrected typo here
+                existingProduct.selectedTopping.quantity += product.selectedTopping.quantity; // Corrected typo here
             } else {
                 state.cart.push(product);
+            }
+        },
+        updateCart(state, payload: { product: Product, index: number }) {
+            const { product, index } = payload;
+
+            const existingProduct = state.cart.find(item =>
+                item.id === product.id &&
+                item.selectedSize.id === product.selectedSize.id &&
+                item.selectedTopping.toppingID === product.selectedTopping.toppingID &&
+                (item.selectedTopping.quantity / item.quantity) === product.selectedTopping.quantity
+            );
+
+            if (existingProduct) {
+                existingProduct.quantity += product.quantity;
+                existingProduct.cost += product.cost;
+                existingProduct.selectedTopping.quantity += product.selectedTopping.quantity;
+                state.cart.splice(index, 1)
+            } else {
+                state.cart[index] = product;
             }
         },
         removeFromCart(state, index: number) {
@@ -129,6 +152,12 @@ const store = createStore<State>({
         },
         addProductToCart({ commit, dispatch }, product: Product) {
             commit('addToCart', product);
+            dispatch('saveCart');
+        },
+        updateProductInCart({ commit, dispatch }, payload: { product: Product, index: number }) {
+            const { product, index } = payload;
+
+            commit('updateCart', { product, index });
             dispatch('saveCart');
         },
         removeProductFromCart({ commit, dispatch }, productId: number) {

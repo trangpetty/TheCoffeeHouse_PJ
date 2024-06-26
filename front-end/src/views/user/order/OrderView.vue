@@ -66,75 +66,12 @@
             </div>
           </div>
           <!-- Product Dialog -->
-          <el-dialog v-model="ui.dialogVisible" :show-close="false" width="30%" class="rounded custom-dialog">
-            <template #header="{close}">
-              <div class="d-flex align-items-center w-100 p-2">
-                <h4 class="mx-auto my-0 fs-6">Thêm món mới</h4>
-                <el-button class="border-0" @click="close">
-                  <el-icon class="fs-3"><Close /></el-icon>
-                </el-button>
-              </div>
-            </template>
-            <div>
-              <div class="card-product_detail d-flex flex-column">
-                <img :src="selectedProduct.image ? selectedProduct.image : selectedProduct.images[0].url" alt="" class="w-100 rounded mb-3">
-                <div class="d-flex flex-column px-1">
-                  <h5 class="h5 text-dark" style="font-weight: 600;">{{selectedProduct.name}}</h5>
-                  <p style="text-align: justify">{{selectedProduct.description}}</p>
-                  <div class="d-flex justify-content-between mt-4">
-                    <p>{{ formatPrice(selectedProduct?.price) }}</p>
-                    <div class="card-product-quantity d-flex align-items-center">
-                      <div class="btn add-to-cart d-flex align-items-center justify-content-center rounded-circle text-white" @click="quantity--" :class="quantity <= 1 ? 'disabled' :' btn--orange-1' ">
-                        <font-awesome-icon icon="fa-solid fa-minus" />
-                      </div>
-                      <span class="my-1 text-center fs-6" style="width: 40px">{{quantity}}</span>
-                      <div class="btn btn--orange-1 add-to-cart d-flex align-items-center justify-content-center rounded-circle text-white" @click="quantity++">
-                        <font-awesome-icon icon="fa-solid fa-plus" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <section class="card-product_note-item">
-                <el-icon class="card-product-note-icon fs-5"><Tickets /></el-icon>
-                <input class="card-product-text" placeholder="Ghi chú thêm cho món này" />
-              </section>
-              <section class="card-product_size">
-                <div class="card-product-option">
-                  <span class="card-product-option-text">CHỌN SIZE (BẮT BUỘC)</span>
-                </div>
-                <el-radio-group class="d-flex justify-content-between mt-3" v-model="selectedSize">
-                  <el-radio v-for="(item, index) in selectedProduct.productSizes" :key="index" :value="item">
-                    <div class="d-flex flex-column fs-6">
-                      <span>{{(item.size === 'S')? 'Nho' : (item.size === 'M')? 'Vua' : (item.size === 'L')? 'Lon' : ''}}</span>
-                      <span>+ {{formatPrice(item.surcharge)}}</span>
-                    </div>
-                  </el-radio>
-                </el-radio-group>
-              </section>
-              <section class="card-product_size">
-                <div class="card-product-option">
-                  <span class="card-product-option-text">CHỌN TOPPING (TÙY CHỌN)</span>
-                </div>
-              </section>
-              <div v-if="toppings.length">
-                <div v-for="(topping, index) in toppings" :key="index" class="card-product-option-topping">
-                  <div class="d-flex flex-column">
-                    <span class="card-product-option-topping-name">{{ topping.name }}</span>
-                    <span class="card-product-option-topping-price">+{{ formatPrice(topping.price) }}</span>
-                  </div>
-                  <div class="d-flex align-items-center">
-                    <div v-if="getToppingQuantity(topping) > 0" class="quantity-extra d-flex align-items-center justify-content-center cursor-pointer" @click="decreaseQuantity(topping)"><font-awesome-icon icon="fa-solid fa-minus" /></div>
-                    <span class="my-1 text-center fs-6" style="width: 40px">{{getToppingQuantity(topping)}}</span>
-                    <div class="quantity-extra d-flex align-items-center justify-content-center cursor-pointer" @click="increaseQuantity(topping)"><font-awesome-icon icon="fa-solid fa-plus" /></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <template #footer>
-              <button class="btn-add-item" @click="addToCart">{{formatPrice(cost)}} - Thêm vào giỏ hàng</button>
-            </template>
-          </el-dialog>
+          <ProductDialog
+              :selectedProduct="selectedProduct"
+              :visible="ui.dialogVisible"
+              :addCart="true"
+              @close="ui.dialogVisible = false"
+          />
         </div>
       </div>
     </div>
@@ -146,9 +83,9 @@
 import banner1 from '@/assets/images/banner1.webp'
 import banner2 from '@/assets/images/banner2.webp'
 import banner3 from '@/assets/images/banner3.webp'
+import ProductDialog from '@/views/user/dialog/ProductDialog.vue';
 import { ref, computed } from 'vue'
 import axios from "axios";
-import {Close, Tickets} from "@element-plus/icons-vue";
 import {useStore} from 'vuex'
 import { ElNotification } from 'element-plus'
 
@@ -162,23 +99,7 @@ const images = ref([banner1, banner2, banner3])
 const types = ref([]);
 const products = ref([]);
 const activeId = ref(1);
-const selectedProduct = ref(null);
-const quantity = ref(1);
-const selectedSize = ref({
-  sizeId: null,
-  size: '',
-  surcharge: 0
-});
-const selectedTopping = ref({
-    toppingID: null,
-    toppingName: '',
-    quantity: 0
-  });
-const toppings = ref([]);
-const cart = ref([]);
-
-const cartItems = computed(() => store.getters.cartItems);
-const voucher = computed(() => store.getters.voucher);
+const selectedProduct = ref({});
 
 const getTypes = async () => {
   const response = await axios.get('http://localhost:8082/api/product-type');
@@ -206,93 +127,8 @@ const formatPrice = (price: number): string => {
 
 const showProductModal = async (product) => {
   selectedProduct.value = product;
-  quantity.value = 1; // Reset quantity
-  // console.log(typeof(selectedProduct.value.image) !== 'string')
-  selectedSize.value = selectedProduct.value.productSizes.reduce((max, item) => (item.surcharge > max.surcharge) ? item : max);
-  toppings.value = product.toppings;
   ui.value.dialogVisible = true;
-};
-
-const getToppingQuantity = (topping) => {
-  return selectedTopping.value.toppingID === topping.toppingID ? selectedTopping.value.quantity : 0;
-};
-
-// Function to decrease the quantity of the selected topping
-const decreaseQuantity = (topping) => {
-  if (selectedTopping.value.toppingID === topping.toppingID && selectedTopping.value.quantity > 0) {
-    selectedTopping.value.quantity--;
-  }
-};
-
-// Function to increase the quantity of the selected topping
-const increaseQuantity = (topping) => {
-  if (selectedTopping.value.toppingID === topping.toppingID) {
-    if (selectedTopping.value.quantity < 2) {
-      selectedTopping.value.quantity++;
-    } else {
-      console.log("Maximum topping quantity reached.");
-    }
-  } else {
-    // If a new topping is selected, update selectedTopping with its data
-    selectedTopping.value = {
-      toppingID: topping.toppingID,
-      toppingName: topping.name,
-      price: topping.price,
-      quantity: 1
-    };
-  }
-};
-
-const cost = computed(() => {
-  let totalCost = selectedProduct.value.price * quantity.value + selectedSize.value.surcharge;
-
-  // Add the cost of the selected topping if any
-  if (selectedTopping.value.quantity > 0) {
-    totalCost += selectedTopping.value.price * selectedTopping.value.quantity;
-  }
-
-  return totalCost;
-});
-
-const addToCart = () => {
-  const productWithDetails = {
-    name: selectedProduct.value.name,
-    productId: selectedProduct.value.id,
-    productSize: selectedSize.value,
-    cost: cost.value,
-    quantity: quantity.value,
-    topping: selectedTopping.value.quantity > 0 ? selectedTopping.value : {
-      toppingID: null,
-      toppingName: '',
-      quantity: 0
-    }
-  };
-  // console.log(productWithDetails)
-  cart.value.push(productWithDetails);
-  localStorage.setItem('cart', JSON.stringify(cart.value));
-  store.dispatch('addProductToCart', productWithDetails);
-  ui.value.dialogVisible = false;
-  ElNotification({
-    title: 'Thành công',
-    message: 'Thêm sản phẩm thành công',
-    type: 'success',
-    showClose: false,
-    offset: 100,
-  })
-  const totalCost = cartItems.value.reduce((total, item) => total + item.cost, 0);
-  const totalQuantity = cartItems.value.reduce((total, item) => total + item.quantity, 0);
-
-  if (totalCost > voucher.value.minimumOrderValue && totalQuantity >= voucher.value.minimumItems) {
-    store.dispatch('clearErrorMessage');
-  } else {
-    store.dispatch('setErrorMessage', voucher.value.errorMessage);
-  }
-
-  selectedTopping.value = {
-    toppingID: null,
-    toppingName: '',
-    quantity: 0
-  };
+  console.log(product)
 };
 
 getTypes();

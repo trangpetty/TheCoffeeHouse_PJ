@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="checkout-box" v-loading="ui.loading">
+  <div v-loading="ui.loading">
+    <div class="checkout-box">
       <div class="container-lg container-fluid">
         <div class="row justify-content-center">
           <div class="col-12 col-lg-10">
@@ -76,15 +76,15 @@
                       <p class="checkout-box_btn-outline">Thêm món</p>
                     </router-link>
                   </div>
-                  <div class="order-card d-flex align-items-center justify-content-between" v-for="(item, index) in cartItems" :key="item.productId">
+                  <div class="order-card d-flex align-items-center justify-content-between" v-for="(item, index) in cartItems" :key="item.id">
                     <div class="d-flex">
-                      <span class="d-flex align-items-center order-card-icon">
+                      <span class="d-flex align-items-center order-card-icon" @click="openProductDialog(item, index)">
                         <font-awesome-icon icon="fa-solid fa-pen" />
                       </span>
                       <div class="ps-3">
                         <h5 class="delivery-card__title mb-0"> {{ item.quantity }} x {{ item.name }}</h5>
-                        <p class="delivery-card__description mb-0">{{(item.productSize.size === 'S')? 'Nho' : (item.productSize.size === 'M')? 'Vua' : (item.productSize.size === 'L')? 'Lon' : ''}}</p>
-                        <h5 class="delivery-card__description mb-0" v-if="item.topping.toppingName"> {{ item.topping.toppingName }} x {{ item.topping.quantity }}</h5>
+                        <p class="delivery-card__description mb-0">{{(item.selectedSize.size === 'S')? 'Nho' : (item.selectedSize.size === 'M')? 'Vua' : (item.selectedSize.size === 'L')? 'Lon' : ''}}</p>
+                        <h5 class="delivery-card__description mb-0" v-if="item.selectedTopping.toppingName"> {{ item.selectedTopping.toppingName }} x {{ item.selectedTopping.quantity }}</h5>
                         <p class="d-inline" style="cursor: pointer" @click="removeFromCart(index)">Xoa</p>
                       </div>
                     </div>
@@ -179,6 +179,14 @@
         </div>
       </div>
     </div>
+    <!-- Product Dialog -->
+    <ProductDialog
+        :selectedProduct="selectedProduct"
+        :visible="ui.dialogVisible"
+        :addCart="false"
+        :index="selectedIndex"
+        @close="ui.dialogVisible = false"
+    />
   </div>
 </template>
 
@@ -191,6 +199,7 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import axios from "axios";
 import router from "@/router";
+import ProductDialog from "@/views/user/dialog/ProductDialog.vue";
 
 const store = useStore();
 
@@ -203,6 +212,9 @@ const totalQuantity = computed(() => store.getters.cartTotalQuantity);
 
 const feeship = ref(18000);
 const discount = ref(0);
+
+const selectedProduct = ref({});
+const selectedIndex = ref(null);
 
 const removeFromCart = (index: number) => {
   store.dispatch('removeProductFromCart', index);
@@ -295,7 +307,10 @@ watch([user, voucher, totalCost, totalValue, address], ([newUser, newVoucher, ne
 
 watch(cartItems, (newCartItems) => {
   if (newCartItems.length === 0) {
-    router.push('/'); // Replace 'home' with your actual home route name
+    ui.value.loading = true;
+    setTimeout(() => {
+      router.push('/'); // Replace 'home' with your actual home route name
+    }, 2000);
   }
 });
 
@@ -314,7 +329,8 @@ const paymentMethod = ref(paymentMethods.value[0]);
 
 const ui = ref({
   voucherDialog: false,
-  loading: false
+  loading: false,
+  dialogVisible: false
 });
 
 function generateRandomString(): string {
@@ -365,6 +381,12 @@ const confirmOrder = async () => {
 
 const deleteOrder = () => {
   store.dispatch('clearCart');
+}
+
+const openProductDialog = (item, index) => {
+  selectedProduct.value = item;
+  selectedIndex.value = index;
+  ui.value.dialogVisible = true;
 }
 </script>
 
