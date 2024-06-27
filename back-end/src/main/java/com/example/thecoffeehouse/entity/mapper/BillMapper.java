@@ -1,7 +1,7 @@
 package com.example.thecoffeehouse.entity.mapper;
 
-import com.example.thecoffeehouse.dto.BillDto;
-import com.example.thecoffeehouse.dto.BillProductDto;
+import com.example.thecoffeehouse.dto.bill.BillDto;
+import com.example.thecoffeehouse.dto.bill.BillProductDto;
 import com.example.thecoffeehouse.entity.bill.Bill;
 import com.example.thecoffeehouse.entity.bill.BillProduct;
 import com.example.thecoffeehouse.entity.product.Product;
@@ -13,22 +13,24 @@ import java.util.stream.Collectors;
 
 public class BillMapper {
     public static Bill mapToBill(BillDto billDto) {
-        Bill bill = new Bill(
-                billDto.getId(),
-                billDto.getUserID(),
-                billDto.getVoucherID(),
-                billDto.getValue(),
-                billDto.getValueOfVoucher(),
-                billDto.getValueOfCustomerPoint(),
-                billDto.getTotalValue(),
-                billDto.getCode(),
-                billDto.getPaymentMethod(),
-                billDto.getPaymentStatus(),
-                billDto.getAddress(),
-                billDto.getDeliveryStatus(),
-                billDto.getCreateTime(),
-                billDto.getModifyTime()
-        );
+        Bill bill = new Bill();
+
+        bill.setId(billDto.getId());
+        bill.setUserID(billDto.getUserID());
+        bill.setVoucherID(billDto.getVoucherID());
+        bill.setValue(billDto.getValue());
+        bill.setValueOfVoucher(billDto.getValueOfVoucher());
+        bill.setValueOfCustomerPoint(billDto.getValueOfCustomerPoint());
+        bill.setTotalValue(billDto.getTotalValue());
+        bill.setCode(billDto.getCode());
+        bill.setPaymentMethod(billDto.getPaymentMethod());
+        bill.setPaymentStatus(billDto.getPaymentStatus());
+        bill.setAddress(billDto.getAddress());
+        bill.setDeliveryStatus(billDto.getDeliveryStatus());
+        bill.setRate(billDto.getRate());
+        bill.setComment(bill.getComment());
+        bill.setCreateTime(billDto.getCreateTime());
+        bill.setModifyTime(billDto.getModifyTime());
 
         return bill;
     }

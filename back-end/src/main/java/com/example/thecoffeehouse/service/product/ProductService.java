@@ -4,7 +4,7 @@ package com.example.thecoffeehouse.service.product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.example.thecoffeehouse.dto.ProductDto;
+import com.example.thecoffeehouse.dto.product.ProductDto;
 
 import java.io.IOException;
 import java.util.List;

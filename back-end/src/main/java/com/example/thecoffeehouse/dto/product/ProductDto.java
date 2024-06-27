@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse.dto;
+package com.example.thecoffeehouse.dto.product;
 
 import java.time.LocalDateTime;
 import java.util.List;

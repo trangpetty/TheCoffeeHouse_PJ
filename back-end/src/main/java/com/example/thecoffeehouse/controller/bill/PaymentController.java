@@ -3,12 +3,10 @@ package com.example.thecoffeehouse.controller.bill;
 import com.example.thecoffeehouse.Utils.HmacUtil;
 import com.example.thecoffeehouse.Utils.MomoConfig;
 import com.example.thecoffeehouse.Utils.VnPayConfig;
-import com.example.thecoffeehouse.dto.BillDto;
+import com.example.thecoffeehouse.dto.bill.BillDto;
 import com.example.thecoffeehouse.service.bill.BillService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 

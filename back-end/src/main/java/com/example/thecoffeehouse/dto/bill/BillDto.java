@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse.dto;
+package com.example.thecoffeehouse.dto.bill;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,4 +26,6 @@ public class BillDto {
     private String paymentMethod;
     private int paymentStatus;
     private String deliveryStatus;
+    private int rate;
+    private String comment;
 }

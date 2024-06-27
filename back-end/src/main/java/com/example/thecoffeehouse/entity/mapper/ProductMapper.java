@@ -1,9 +1,9 @@
 package com.example.thecoffeehouse.entity.mapper;
 
-import com.example.thecoffeehouse.dto.ProductDetailDto;
-import com.example.thecoffeehouse.dto.ProductDto;
-import com.example.thecoffeehouse.dto.ProductImageDto;
-import com.example.thecoffeehouse.dto.ProductToppingDto;
+import com.example.thecoffeehouse.dto.product.ProductDetailDto;
+import com.example.thecoffeehouse.dto.product.ProductDto;
+import com.example.thecoffeehouse.dto.product.ProductImageDto;
+import com.example.thecoffeehouse.dto.product.ProductToppingDto;
 import com.example.thecoffeehouse.entity.product.*;
 
 import java.util.List;

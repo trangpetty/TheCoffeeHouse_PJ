@@ -24,26 +24,42 @@ public class Bill {
 
     @Column(name = "user_id")
     private Long userID;
+
     @Column(name = "voucher_id")
     private Long voucherID;
+
     @Column(name = "value")
     private double value;
+
     @Column(name = "value_of_voucher")
     private double ValueOfVoucher;
+
     @Column(name = "value_of_customer_point")
     private double ValueOfCustomerPoint;
+
     @Column(name = "total_value")
     private double TotalValue;
+
     @Column(name = "code")
     private String code;
+
     @Column(name = "payment_method")
     private String paymentMethod;
+
     @Column(name = "payment_status")
     private int paymentStatus;
+
     @Column(name = "address")
     private String address;
+
     @Column(name = "delivery_status")
     private String deliveryStatus;
+
+    @Column(name = "rate")
+    private int rate;
+
+    @Column(name = "comment")
+    private String comment;
 
     @CreationTimestamp
     @Column(name = "create_time", nullable = false, updatable = false)

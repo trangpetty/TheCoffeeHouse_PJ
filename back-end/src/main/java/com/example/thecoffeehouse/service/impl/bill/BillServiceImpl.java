@@ -1,8 +1,8 @@
 package com.example.thecoffeehouse.service.impl.bill;
 
 import com.example.thecoffeehouse.Utils.DateTimeConverter;
-import com.example.thecoffeehouse.dto.BillDto;
-import com.example.thecoffeehouse.dto.BillProductDto;
+import com.example.thecoffeehouse.dto.bill.BillDto;
+import com.example.thecoffeehouse.dto.bill.BillProductDto;
 import com.example.thecoffeehouse.dto.MonthlyDataDTO;
 import com.example.thecoffeehouse.entity.bill.Bill;
 import com.example.thecoffeehouse.entity.bill.BillProduct;

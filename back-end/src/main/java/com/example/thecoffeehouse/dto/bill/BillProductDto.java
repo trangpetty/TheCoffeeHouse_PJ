@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse.dto;
+package com.example.thecoffeehouse.dto.bill;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

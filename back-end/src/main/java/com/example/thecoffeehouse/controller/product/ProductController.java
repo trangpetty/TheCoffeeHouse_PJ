@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.thecoffeehouse.dto.ProductDto;
+import com.example.thecoffeehouse.dto.product.ProductDto;
 import com.example.thecoffeehouse.service.product.ProductService;
 
 import java.io.IOException;

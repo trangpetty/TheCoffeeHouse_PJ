@@ -1,6 +1,6 @@
 package com.example.thecoffeehouse.controller.bill;
 
-import com.example.thecoffeehouse.dto.BillDto;
+import com.example.thecoffeehouse.dto.bill.BillDto;
 import com.example.thecoffeehouse.dto.MonthlyDataDTO;
 import com.example.thecoffeehouse.service.bill.BillService;
 import org.springframework.data.domain.Page;

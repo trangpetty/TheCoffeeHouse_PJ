@@ -3,16 +3,16 @@ package com.example.thecoffeehouse.service.impl.product;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.example.thecoffeehouse.dto.ProductDetailDto;
-import com.example.thecoffeehouse.dto.ProductImageDto;
-import com.example.thecoffeehouse.dto.ProductToppingDto;
+import com.example.thecoffeehouse.dto.product.ProductDetailDto;
+import com.example.thecoffeehouse.dto.product.ProductImageDto;
+import com.example.thecoffeehouse.dto.product.ProductToppingDto;
 import com.example.thecoffeehouse.entity.product.*;
 import com.example.thecoffeehouse.repository.product.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.example.thecoffeehouse.dto.ProductDto;
+import com.example.thecoffeehouse.dto.product.ProductDto;
 import com.example.thecoffeehouse.entity.mapper.ProductMapper;
 import com.example.thecoffeehouse.service.product.ProductService;
 

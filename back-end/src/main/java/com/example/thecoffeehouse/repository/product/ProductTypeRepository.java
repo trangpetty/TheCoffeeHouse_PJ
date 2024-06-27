@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse.repository;
+package com.example.thecoffeehouse.repository.product;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

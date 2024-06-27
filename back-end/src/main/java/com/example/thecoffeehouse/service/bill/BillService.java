@@ -1,6 +1,6 @@
 package com.example.thecoffeehouse.service.bill;
 
-import com.example.thecoffeehouse.dto.BillDto;
+import com.example.thecoffeehouse.dto.bill.BillDto;
 import com.example.thecoffeehouse.dto.MonthlyDataDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
