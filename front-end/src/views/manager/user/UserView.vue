@@ -49,7 +49,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-dialog v-model="ui.dialogVisible" width="40%" class="dialog" v-loading="ui.loading" :title="ui.addRecord?'Add user':'Update user'">
+      <el-dialog v-model="ui.dialogVisible" width="40%" class="dialog" v-loading="ui.loading" :title="ui.addRecord?'Add order':'Update order'">
         <el-form :model="formData" label-width="auto">
           <el-input v-model="user_id" class="d-none" />
           <el-form-item label="Name">

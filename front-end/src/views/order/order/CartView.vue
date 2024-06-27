@@ -199,7 +199,7 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import axios from "axios";
 import router from "@/router";
-import ProductDialog from "@/views/user/dialog/ProductDialog.vue";
+import ProductDialog from "@/views/order/dialog/ProductDialog.vue";
 
 const store = useStore();
 

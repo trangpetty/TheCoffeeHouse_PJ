@@ -11,15 +11,15 @@ import BillView from '@/views/manager/bill/BillView.vue';
 import NewsView from '@/views/manager/news/index.vue';
 import RevenueView from '@/views/manager/revenue/RevenueView.vue';
 
-import HomeUserView from '@/views/user/HomeView.vue';
-import OrderView from '@/views/user/order/OrderView.vue';
-import CartView from '@/views/user/order/CartView.vue';
-import BillOrderedView from '@/views/user/order/BillView.vue';
-import LoginView from '@/views/user/account/LoginView.vue';
-import RegisterView from '@/views/user/account/RegisterView.vue';
-import UserInfoView from '@/views/user/layout/UserInfoView.vue';
-import BlogsView from '@/views/user/news/NewsView.vue';
-import BlogDetail from '@/views/user/news/NewsDetail.vue';
+import HomeUserView from '@/views/order/HomeView.vue';
+import OrderView from '@/views/order/order/OrderView.vue';
+import CartView from '@/views/order/order/CartView.vue';
+import BillOrderedView from '@/views/order/order/BillView.vue';
+import LoginView from '@/views/order/account/LoginView.vue';
+import RegisterView from '@/views/order/account/RegisterView.vue';
+import UserInfoView from '@/views/order/layout/UserInfoView.vue';
+import BlogsView from '@/views/order/news/NewsView.vue';
+import BlogDetail from '@/views/order/news/NewsDetail.vue';
 
 export const routes = [
   {
@@ -59,7 +59,7 @@ export const routes = [
         component: CustomerView
       },
       {
-        path: '/user',
+        path: '/order',
         name: 'User',
         component: UserView
       },
@@ -110,8 +110,8 @@ export const routes = [
         component: RegisterView
       },
       {
-        path: '/user-info',
-        name: 'user-info',
+        path: '/order-info',
+        name: 'order-info',
         component: UserInfoView
       },
       {

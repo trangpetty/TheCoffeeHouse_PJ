@@ -52,7 +52,7 @@ const login = async () => {
     const response = await axios.post('http://localhost:8082/api/login', formData.value);
     const { token, refreshToken, user } = response.data;
 
-    // Save user information and tokens to Vuex store
+    // Save order information and tokens to Vuex store
     store.dispatch('login', { token, refreshToken, user });
 
     // Redirect to home page or handle success message
