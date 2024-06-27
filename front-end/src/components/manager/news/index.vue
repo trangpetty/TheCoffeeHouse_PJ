@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts" setup>
-import AddNews from '@/views/manager/news/NewsView.vue'
+import AddNews from '@/components/manager/news/NewsView.vue'
 import { ref } from 'vue';
 import axios from "axios";
 

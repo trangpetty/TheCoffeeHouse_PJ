@@ -7,10 +7,10 @@
 </template>
 
 <script lang="ts" setup>
-import NavBar from "@/views/order/layout/NavBar.vue";
-import AddressDialog from '@/views/order/dialog/AddressDialog.vue';
-import VoucherDialog from '@/views/order/dialog/VoucherDialog.vue';
-import Footer from "@/views/order/layout/Footer.vue";
+import NavBar from "@/components/order/layout/NavBar.vue";
+import AddressDialog from '@/components/order/dialog/AddressDialog.vue';
+import VoucherDialog from '@/components/order/dialog/VoucherDialog.vue';
+import Footer from "@/components/order/layout/Footer.vue";
 import {onMounted} from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';

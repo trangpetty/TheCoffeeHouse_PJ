@@ -83,7 +83,7 @@
 import banner1 from '@/assets/images/banner1.webp'
 import banner2 from '@/assets/images/banner2.webp'
 import banner3 from '@/assets/images/banner3.webp'
-import ProductDialog from '@/views/order/dialog/ProductDialog.vue';
+import ProductDialog from '@/components/order/dialog/ProductDialog.vue';
 import { ref, computed } from 'vue'
 import axios from "axios";
 import {useStore} from 'vuex'

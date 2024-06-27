@@ -1,25 +1,25 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import HomeView from '@/views/manager/HomeView.vue';
-import ProductManagerView from '@/views/manager/product/index.vue';
-import ProductView from '@/views/manager/product/ProductView.vue';
-import ProductTypeView from '@/views/manager/product/ProductTypeView.vue';
-import ToppingView from '@/views/manager/product/ToppingView.vue';
-import VoucherView from '@/views/manager/voucher/VoucherView.vue';
-import CustomerView from '@/views/manager/customer/CustomerView.vue';
-import UserView from '@/views/manager/user/UserView.vue';
-import BillView from '@/views/manager/bill/BillView.vue';
-import NewsView from '@/views/manager/news/index.vue';
-import RevenueView from '@/views/manager/revenue/RevenueView.vue';
+import ProductManagerView from '@/components/manager/product/index.vue';
+import ProductView from '@/components/manager/product/ProductView.vue';
+import ProductTypeView from '@/components/manager/product/ProductTypeView.vue';
+import ToppingView from '@/components/manager/product/ToppingView.vue';
+import VoucherView from '@/components/manager/voucher/VoucherView.vue';
+import CustomerView from '@/components/manager/customer/CustomerView.vue';
+import UserView from '@/components/manager/user/UserView.vue';
+import BillView from '@/components/manager/bill/BillView.vue';
+import NewsView from '@/components/manager/news/index.vue';
+import RevenueView from '@/components/manager/revenue/RevenueView.vue';
 
-import HomeUserView from '@/views/order/HomeView.vue';
-import OrderView from '@/views/order/order/OrderView.vue';
-import CartView from '@/views/order/order/CartView.vue';
-import BillOrderedView from '@/views/order/order/BillView.vue';
-import LoginView from '@/views/order/account/LoginView.vue';
-import RegisterView from '@/views/order/account/RegisterView.vue';
-import UserInfoView from '@/views/order/layout/UserInfoView.vue';
-import BlogsView from '@/views/order/news/NewsView.vue';
-import BlogDetail from '@/views/order/news/NewsDetail.vue';
+import HomeUserView from '@/views/OrderView.vue';
+import OrderView from '@/components/order/order/OrderView.vue';
+import CartView from '@/components/order/order/CartView.vue';
+import BillOrderedView from '@/components/order/order/BillView.vue';
+import LoginView from '@/components/order/account/LoginView.vue';
+import RegisterView from '@/components/order/account/RegisterView.vue';
+import UserInfoView from '@/components/order/layout/UserInfoView.vue';
+import BlogsView from '@/components/order/news/NewsView.vue';
+import BlogDetail from '@/components/order/news/NewsDetail.vue';
 
 export const routes = [
   {
