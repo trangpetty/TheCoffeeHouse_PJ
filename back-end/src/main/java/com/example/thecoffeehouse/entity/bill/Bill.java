@@ -55,7 +55,7 @@ public class Bill {
     @Column(name = "delivery_status")
     private String deliveryStatus;
 
-    @Column(name = "rate")
+    @Column(name = "rate", nullable = false)
     private int rate;
 
     @Column(name = "comment")
