@@ -84,7 +84,7 @@
                       <div class="ps-3">
                         <h5 class="delivery-card__title mb-0"> {{ item.quantity }} x {{ item.name }}</h5>
                         <p class="delivery-card__description mb-0">{{(item.selectedSize.size === 'S')? 'Nho' : (item.selectedSize.size === 'M')? 'Vua' : (item.selectedSize.size === 'L')? 'Lon' : ''}}</p>
-                        <h5 class="delivery-card__description mb-0" v-if="item.selectedTopping.toppingName"> {{ item.selectedTopping.toppingName }} x {{ item.selectedTopping.quantity }}</h5>
+                        <h5 class="delivery-card__description mb-0" v-if="item.selectedTopping.name"> {{ item.selectedTopping.name }} x {{ item.selectedTopping.quantity }}</h5>
                         <p class="d-inline" style="cursor: pointer" @click="removeFromCart(index)">Xoa</p>
                       </div>
                     </div>
@@ -299,7 +299,7 @@ watch(errorMessage, (newErrorMessage) => {
 watch([user, voucher, totalCost, totalValue, address], ([newUser, newVoucher, newTotalCost, newTotalValue, newAddress]) => {
   formData.value.userID = newUser?.id || null;
   formData.value.voucherID = newVoucher?.id || null;
-  formData.value.valueOfVoucher = discount.value;
+  formData.value.ValueOfVoucher = discount.value;
   formData.value.totalValue = newTotalCost;
   formData.value.value = newTotalValue;
   formData.value.address = newAddress;
@@ -350,11 +350,11 @@ const confirmOrder = async () => {
   ui.value.loading = true;
   for (const item of cartItems.value) {
     formData.value.products.push({
-      productID: item.productId,
-      productSizeID: item.productSize.id,
-      toppingID: item.topping ? item.topping.toppingID : null,
+      productID: item.id,
+      productSizeID: item.selectedSize.id,
+      toppingID: item.selectedTopping ? item.selectedTopping.toppingID : null,
       quantityProduct: item.quantity,
-      quantityTopping: item.topping ? item.topping.quantity : null,
+      quantityTopping: item.selectedTopping ? item.selectedTopping.quantity : null,
       cost: item.cost
     });
   }
@@ -387,6 +387,7 @@ const openProductDialog = (item, index) => {
   selectedProduct.value = item;
   selectedIndex.value = index;
   ui.value.dialogVisible = true;
+  console.log("edit", item)
 }
 </script>
 

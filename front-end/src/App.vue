@@ -156,6 +156,15 @@
   border-color: var(--orange-2)!important;
 }
 
+.btn.btn--orange-5,
+.btn.btn--orange-5:hover,
+.btn.btn--orange-5:active
+{
+  background: var(--orange-5)!important;
+  border-color: var(--orange-5)!important;
+  color: var(--white)!important;
+}
+
 .btn.btn--smoky-gray,
 .btn.btn--smoky-gray:hover,
 .btn.btn--smoky-gray:active {

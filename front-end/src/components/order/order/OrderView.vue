@@ -70,7 +70,7 @@
               :selectedProduct="selectedProduct"
               :visible="ui.dialogVisible"
               :addCart="true"
-              @close="ui.dialogVisible = false"
+              @close="closeDialog"
           />
         </div>
       </div>
@@ -84,13 +84,14 @@ import banner1 from '@/assets/images/banner1.webp'
 import banner2 from '@/assets/images/banner2.webp'
 import banner3 from '@/assets/images/banner3.webp'
 import ProductDialog from '@/components/order/dialog/ProductDialog.vue';
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router';
 import axios from "axios";
 import {useStore} from 'vuex'
 import { ElNotification } from 'element-plus'
 
 const ui = ref({
-  dialogVisible: false
+  dialogVisible: computed(() => store.state.dialogProduct) || false
 })
 
 const store = useStore();
@@ -99,7 +100,7 @@ const images = ref([banner1, banner2, banner3])
 const types = ref([]);
 const products = ref([]);
 const activeId = ref(1);
-const selectedProduct = ref({});
+const selectedProduct = computed(() => store.state.selectedProduct) || ref({});
 
 const getTypes = async () => {
   const response = await axios.get('http://localhost:8082/api/product-type');
@@ -126,9 +127,12 @@ const formatPrice = (price: number): string => {
 };
 
 const showProductModal = async (product) => {
-  selectedProduct.value = product;
-  ui.value.dialogVisible = true;
-  console.log(product)
+  // selectedProduct.value = product;
+  store.dispatch('setProductDialog', product);
+};
+
+const closeDialog = () => {
+  store.dispatch('closeProductDialog');
 };
 
 getTypes();

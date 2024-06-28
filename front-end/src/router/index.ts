@@ -21,6 +21,8 @@ import UserInfoView from '@/components/order/layout/UserInfoView.vue';
 import BlogsView from '@/components/order/news/NewsView.vue';
 import BlogDetail from '@/components/order/news/NewsDetail.vue';
 
+import ProductDetail from '@/components/user/ProductDetailView.vue';
+
 export const routes = [
   {
     path: '/admin',
@@ -123,6 +125,12 @@ export const routes = [
         path: '/blog-detail/:id',
         name: 'blog-detail',
         component: BlogDetail,
+        props: true
+      },
+      {
+        path: '/product/:id',
+        name: 'product',
+        component: ProductDetail,
         props: true
       },
     ]

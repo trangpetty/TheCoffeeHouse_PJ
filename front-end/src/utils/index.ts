@@ -2,6 +2,14 @@ import { ref as storageRef, uploadBytesResumable, getDownloadURL } from "firebas
 import { storage } from './firebaseConfig';
 import { ElMessage, ElMessageBox } from 'element-plus'
 
+export function formatPrice (price: number): string {
+    if (typeof price !== 'number' || isNaN(price)) {
+        console.error('Invalid price:', price);
+        return 'N/A';
+    }
+    return price.toLocaleString('vi-VN') + 'đ';
+}
+
 export async function confirm(message: string, title?: string) {
     return new Promise<boolean>((resolve, reject) => {
         ElMessageBox.confirm(

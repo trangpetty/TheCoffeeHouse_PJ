@@ -10,7 +10,7 @@
     </template>
     <div>
       <div class="card-product_detail d-flex flex-column">
-        <img :src="props.selectedProduct.image ? props.selectedProduct.image : props.selectedProduct.images[0].url" alt="" class="w-100 rounded mb-3">
+        <img :src="images ? images[0].url : null" alt="" class="w-100 rounded mb-3">
         <div class="d-flex flex-column px-1">
           <h5 class="h5 text-dark" style="font-weight: 600;">{{props.selectedProduct.name}}</h5>
           <p style="text-align: justify">{{props.selectedProduct.description}}</p>
@@ -70,26 +70,17 @@
   </el-dialog>
 </template>
 
-<script lang="ts" setup>
-import {ref, computed, onMounted, defineEmits, watch} from 'vue'
-import {Close, Tickets} from "@element-plus/icons-vue";
-import {defineProps} from "vue";
-import {ElNotification} from "element-plus";
-import {useStore} from "vuex";
+<script setup lang="ts">
+import { ref, computed, defineProps, defineEmits, watch } from 'vue';
+import { ElNotification } from 'element-plus';
+import { useStore } from 'vuex';
 
-const props = defineProps([
-    'selectedProduct',
-    'visible',
-    'addCart',
-    'index'
-]);
-
+const props = defineProps(['selectedProduct', 'visible', 'addCart', 'index']);
 const emit = defineEmits();
 
 const store = useStore();
 
 const quantity = ref(1);
-
 const selectedSize = ref({
   id: null,
   size: '',
@@ -98,8 +89,9 @@ const selectedSize = ref({
 
 const selectedTopping = ref({
   toppingID: null,
-  toppingName: '',
-  quantity: 0
+  name: '',
+  quantity: 0,
+  price: 0
 });
 
 const images = ref([]);
@@ -109,38 +101,38 @@ const cart = ref([]);
 const voucher = computed(() => store.getters.voucher);
 const cartItems = computed(() => store.getters.cartItems);
 
-const getToppingQuantity = (topping) => {
-  return selectedTopping.value.toppingID === topping.toppingID ? selectedTopping.value.quantity : 0;
-};
-
-// Function to decrease the quantity of the selected topping
-const decreaseQuantity = (topping) => {
-  if (selectedTopping.value.toppingID === topping.toppingID && selectedTopping.value.quantity > 0) {
-    selectedTopping.value.quantity--;
-  }
-};
-
-// Function to increase the quantity of the selected topping
+// Function to handle increasing topping quantity
 const increaseQuantity = (topping) => {
-  if (selectedTopping.value.toppingID === topping.toppingID) {
-    if (selectedTopping.value.quantity < 2) {
+  if (selectedTopping.value.toppingID === topping.id) {
+    if (selectedTopping.value.quantity / quantity.value < 2) {
       selectedTopping.value.quantity++;
     } else {
       console.log("Maximum topping quantity reached.");
     }
   } else {
-    // If a new topping is selected, update selectedTopping with its data
     selectedTopping.value = {
-      toppingID: topping.toppingID,
-      toppingName: topping.name,
+      toppingID: topping.id,
+      name: topping.name,
       price: topping.price,
       quantity: 1
     };
   }
 };
 
+// Function to handle decreasing topping quantity
+const decreaseQuantity = (topping) => {
+  if (selectedTopping.value.toppingID === topping.id && selectedTopping.value.quantity > 0) {
+    selectedTopping.value.quantity--;
+  }
+};
+
+// Function to get the current quantity of a topping
+const getToppingQuantity = (topping) => {
+  return selectedTopping.value.toppingID === topping.id ? selectedTopping.value.quantity : 0;
+};
+
 const cost = computed(() => {
-  let totalCost = props.selectedProduct.price * quantity.value + selectedSize.value.surcharge;
+  let totalCost = props.selectedProduct ? props.selectedProduct.price * quantity.value + selectedSize.value.surcharge : 0;
 
   // Add the cost of the selected topping if any
   if (selectedTopping.value.quantity > 0) {
@@ -151,79 +143,87 @@ const cost = computed(() => {
 });
 
 const addToCart = () => {
-  const productWithDetails = {
-    name: props.selectedProduct.name,
-    id: props.selectedProduct.id,
-    cost: cost.value,
-    quantity: quantity.value,
-    productSizes: props.selectedProduct.productSizes,
-    toppings: props.selectedProduct.toppings,
-    selectedSize: selectedSize.value,
-    selectedTopping: selectedTopping.value.quantity > 0 ? selectedTopping.value : {
+  if (props.selectedProduct) {
+    const productWithDetails = {
+      name: props.selectedProduct.name,
+      id: props.selectedProduct.id,
+      cost: cost.value,
+      quantity: quantity.value,
+      productSizes: props.selectedProduct.productSizes,
+      toppings: props.selectedProduct.toppings,
+      selectedSize: selectedSize.value,
+      selectedTopping: selectedTopping.value.quantity > 0 ? selectedTopping.value : {
+        toppingID: null,
+        name: '',
+        quantity: 0,
+        price: 0
+      },
+      description: props.selectedProduct.description,
+      price: props.selectedProduct.price,
+      images: props.selectedProduct.images
+    };
+
+    if (props.addCart) {
+      store.dispatch('addProductToCart', productWithDetails);
+    } else {
+      store.dispatch('updateProductInCart', { product: productWithDetails, index: props.index });
+    }
+
+    emit('close');
+
+    ElNotification({
+      title: 'Thành công',
+      message: 'Thêm sản phẩm thành công',
+      type: 'success',
+      showClose: false,
+      offset: 100
+    });
+
+    const totalCost = cartItems.value.reduce((total, item) => total + item.cost, 0);
+    const totalQuantity = cartItems.value.reduce((total, item) => total + item.quantity, 0);
+
+    if (totalCost > voucher.value.minimumOrderValue && totalQuantity >= voucher.value.minimumItems) {
+      store.dispatch('clearErrorMessage');
+    } else {
+      store.dispatch('setErrorMessage', voucher.value.errorMessage);
+    }
+
+    // Reset selectedTopping after adding to cart
+    selectedTopping.value = {
       toppingID: null,
-      toppingName: '',
+      name: '',
       quantity: 0
-    },
-    description: props.selectedProduct.description,
-    price: props.selectedProduct.price,
-    images: props.selectedProduct.images
-  };
-  // console.log(productWithDetails)
-  if(props.addCart) {
-    // cart.value.push(productWithDetails);
-    // localStorage.setItem('cart', JSON.stringify(cart.value));
-    store.dispatch('addProductToCart', productWithDetails);
+    };
   }
-  else {
-    store.dispatch('updateProductInCart', { product: productWithDetails, index: props.index });
-  }
-
-  emit('close');
-
-  ElNotification({
-    title: 'Thành công',
-    message: 'Thêm sản phẩm thành công',
-    type: 'success',
-    showClose: false,
-    offset: 100,
-  })
-  // const totalCost = cartItems.value.reduce((total, item) => total + item.cost, 0);
-  // const totalQuantity = cartItems.value.reduce((total, item) => total + item.quantity, 0);
-  //
-  // if (totalCost > voucher.value.minimumOrderValue && totalQuantity >= voucher.value.minimumItems) {
-  //   store.dispatch('clearErrorMessage');
-  // } else {
-  //   store.dispatch('setErrorMessage', voucher.value.errorMessage);
-  // }
-  //
-  // selectedTopping.value = {
-  //   toppingID: null,
-  //   toppingName: '',
-  //   quantity: 0
-  // };
 };
 
 watch(() => props.selectedProduct, () => {
+  // Initialize selected size
   if (props.selectedProduct && props.selectedProduct.selectedSize) {
     selectedSize.value = props.selectedProduct.selectedSize;
-    console.log(props.selectedProduct)
-  }
-  else if (props.selectedProduct && props.selectedProduct.productSizes) {
+  } else if (props.selectedProduct && props.selectedProduct.productSizes) {
     selectedSize.value = props.selectedProduct.productSizes.reduce((max, item) => {
       return item.surcharge > max.surcharge ? item : max;
     });
   }
 
-
+  // Initialize selected topping
   if (props.selectedProduct && props.selectedProduct.selectedTopping) {
     selectedTopping.value = props.selectedProduct.selectedTopping;
+    console.log(props.selectedProduct.selectedTopping)
   }
 
-  images.value = props.selectedProduct.images;
+  // Set images
+  if (props.selectedProduct && props.selectedProduct.images) {
+    images.value = props.selectedProduct.images;
+  }
 
-  if (props.selectedProduct.quantity) {
+  // Set quantity
+  if (props.selectedProduct && props.selectedProduct.quantity) {
     quantity.value = props.selectedProduct.quantity;
   }
+
+  console.log(selectedSize.value)
 }, { immediate: true });
 
 const formatPrice = (price: number): string => {

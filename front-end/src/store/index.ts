@@ -21,9 +21,10 @@ interface Size {
 }
 
 interface Topping {
-    toppingID: number,
-    toppingName: string,
-    quantity: number
+    toppingID: number | null,
+    name: string,
+    quantity: number,
+    price: number
 }
 
 interface State {
@@ -36,6 +37,8 @@ interface State {
     user: object;
     token: string;
     refreshToken: string;
+    selectedProduct: object,
+    dialogProduct: boolean
 }
 
 const store = createStore<State>({
@@ -48,7 +51,9 @@ const store = createStore<State>({
         errorMessage: '',
         user: {},
         token: '',
-        refreshToken: ''
+        refreshToken: '',
+        selectedProduct: {},
+        dialogProduct: false
     },
     mutations: {
         setCart(state, cart: Product[]) {
@@ -73,20 +78,26 @@ const store = createStore<State>({
         updateCart(state, payload: { product: Product, index: number }) {
             const { product, index } = payload;
 
-            const existingProduct = state.cart.find(item =>
-                item.id === product.id &&
-                item.selectedSize.id === product.selectedSize.id &&
-                item.selectedTopping.toppingID === product.selectedTopping.toppingID &&
-                (item.selectedTopping.quantity / item.quantity) === product.selectedTopping.quantity
-            );
+            const existingProduct = state.cart[index];
 
             if (existingProduct) {
-                existingProduct.quantity += product.quantity;
-                existingProduct.cost += product.cost;
-                existingProduct.selectedTopping.quantity += product.selectedTopping.quantity;
-                state.cart.splice(index, 1)
+                // Check if the product being updated matches the existing product's ID and size
+                if (
+                    existingProduct.id === product.id &&
+                    existingProduct.selectedSize.id === product.selectedSize.id &&
+                    existingProduct.selectedTopping.toppingID === product.selectedTopping.toppingID
+                ) {
+                    // Update the properties of the existing product
+                    existingProduct.cost = product.cost;
+                    existingProduct.quantity = product.quantity;
+                    existingProduct.selectedTopping.quantity = product.selectedTopping.quantity;
+                } else {
+                    // If not a match, replace the product at the specified index
+                    state.cart[index] = product;
+                }
             } else {
-                state.cart[index] = product;
+                // If the product does not exist at the index, handle it accordingly
+                console.error(`Product not found at index ${index}`);
             }
         },
         removeFromCart(state, index: number) {
@@ -141,6 +152,12 @@ const store = createStore<State>({
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('user');
         },
+        setSelectedProduct(state, product) {
+            state.selectedProduct = product;
+        },
+        setDialogVisible(state, visible) {
+            state.dialogProduct = visible;
+        }
     },
     actions: {
         loadCart({ commit }) {
@@ -237,6 +254,16 @@ const store = createStore<State>({
         loadUser({ commit }) {
             const localUser = JSON.parse(localStorage.getItem('user') || '{}');
             commit('setUser', localUser);
+        },
+        setProductDialog({ commit }, product) {
+            commit('setSelectedProduct', product);
+            commit('setDialogVisible', true); // Action to open dialog
+        },
+        openProductDialog({ commit }) {
+            commit('setDialogVisible', true); // Action to open dialog
+        },
+        closeProductDialog({ commit }) {
+            commit('setDialogVisible', false); // Action to close dialog
         },
     },
     getters: {
