@@ -83,6 +83,13 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    @Override
+    public UserDto getUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User with id " + id + " not found"));
+        return UserMapper.mapToUserDto(user);
+    }
+
 
     @Override
     public Page<UserDto> getUsers(String name, String phoneNumber, Pageable pageable) {

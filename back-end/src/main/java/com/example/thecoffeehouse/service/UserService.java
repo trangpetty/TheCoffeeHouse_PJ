@@ -17,4 +17,6 @@ public interface UserService {
     UserDto login(LoginDto loginDto);
 
     User saveOrUpdateGoogleUser(GoogleUserInfo userInfo);
+
+    UserDto getUser(Long id);
 }

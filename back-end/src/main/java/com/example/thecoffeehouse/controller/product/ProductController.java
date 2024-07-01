@@ -1,5 +1,7 @@
 package com.example.thecoffeehouse.controller.product;
 
+import com.example.thecoffeehouse.entity.product.ProductReview;
+import com.example.thecoffeehouse.repository.product.ProductReviewRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,9 +19,11 @@ import java.util.List;
 @RequestMapping("/api/products")
 public class ProductController {
     private final ProductService productService;
+    private final ProductReviewRepository productReviewRepository;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, ProductReviewRepository productReviewRepository) {
         this.productService = productService;
+        this.productReviewRepository = productReviewRepository;
     }
 
     @PostMapping
@@ -58,5 +62,10 @@ public class ProductController {
     public ResponseEntity<List<ProductDto>> getProductsByTypeID(@PathVariable Long typeID) {
         List<ProductDto> productDtos = productService.getProductsByTypeID(typeID);
         return ResponseEntity.ok(productDtos);
+    }
+
+    @PostMapping("/rate")
+    public ResponseEntity<ProductReview> createProductReview(@RequestBody ProductReview productReview) {
+        return new ResponseEntity<>(productReviewRepository.save(productReview), HttpStatus.CREATED);
     }
 }

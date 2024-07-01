@@ -99,15 +99,20 @@ public class BillServiceImpl implements BillService {
 
 
     @Override
-    public BillDto updateBill(Long id, BillDto billDto) {
-        Bill bill = billRepository.
-                findById(id)
-                .orElseThrow(() -> new RuntimeException("Bill not found"));
-//        bill.setStatus(billDto.getStatus());
+    public BillDto updateBill(String code, BillDto billDto) {
+        Bill bill = billRepository.getBillByCode(code);
+        bill.setComment(billDto.getComment());
+        bill.setRate(billDto.getRate());
 
         Bill savedBill = billRepository.save(bill);
-        return null;
-//        return BillMapper.mapToBillDto(savedBill);
+
+        List<Product> products = productRepository.findAll();
+        List<Topping> toppings = toppingRepository.findAll();
+        List<ProductDetail> sizes = productDetailRepository.findAll();
+
+        List<BillProduct> billProducts = billProductRepository.getBillProductByBillID(bill.getId());
+        List<BillProductDto> billProductDtos = BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
+        return BillMapper.mapToBillDto(savedBill, billProductDtos);
     }
 
     @Override
@@ -153,5 +158,18 @@ public class BillServiceImpl implements BillService {
     @Override
     public List<MonthlyDataDTO> getRevenueByMonth(int year) {
         return billRepository.getMonthlyRevenue(year);
+    }
+
+    @Override
+    public BillDto getBillByCode(String code) {
+        Bill bill = billRepository.getBillByCode(code);
+        List<BillProduct> billProducts = billProductRepository.getBillProductByBillID(bill.getId());
+
+        List<Product> products = productRepository.findAll();
+        List<Topping> toppings = toppingRepository.findAll();
+        List<ProductDetail> sizes = productDetailRepository.findAll();
+
+        List<BillProductDto> billProductDto = BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
+        return BillMapper.mapToBillDto(bill, billProductDto);
     }
 }

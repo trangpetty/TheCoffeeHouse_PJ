@@ -196,10 +196,6 @@ fetchData()
   text-decoration: underline;
 }
 
-.btn.btn--radius-100 {
-  border-radius: var(--space-100) !important;
-}
-
 @media (min-width: 992px) {
   .news-tab {
     justify-content: center;

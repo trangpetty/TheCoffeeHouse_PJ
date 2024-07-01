@@ -52,6 +52,8 @@ public class BillMapper {
         billDto.setPaymentMethod(bill.getPaymentMethod());
         billDto.setPaymentStatus(bill.getPaymentStatus());
         billDto.setDeliveryStatus(bill.getDeliveryStatus());
+        billDto.setComment(bill.getComment());
+        billDto.setRate(bill.getRate());
         return billDto;
     }
 
@@ -79,8 +81,8 @@ public class BillMapper {
         BillProductDto billProductDto = new BillProductDto();
         billProductDto.setId(billProduct.getId());
         billProductDto.setProductID(billProduct.getProductID());
-        billProductDto.setProductSizeID(billProductDto.getProductSizeID());
-        billProductDto.setToppingID(billProductDto.getToppingID());
+        billProductDto.setProductSizeID(billProduct.getProductSizeID()); // Chỉnh sửa lỗi này
+        billProductDto.setToppingID(billProduct.getToppingID()); // Chỉnh sửa lỗi này
         if(product != null) {
             billProductDto.setProductName(product.getName());
             billProductDto.setPriceProduct(product.getPrice());
@@ -99,4 +101,5 @@ public class BillMapper {
 
         return billProductDto;
     }
+
 }

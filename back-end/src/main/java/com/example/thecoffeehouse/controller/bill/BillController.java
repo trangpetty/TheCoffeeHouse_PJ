@@ -2,6 +2,7 @@ package com.example.thecoffeehouse.controller.bill;
 
 import com.example.thecoffeehouse.dto.bill.BillDto;
 import com.example.thecoffeehouse.dto.MonthlyDataDTO;
+import com.example.thecoffeehouse.entity.bill.BillProduct;
 import com.example.thecoffeehouse.service.bill.BillService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,9 +41,15 @@ public class BillController {
         return new ResponseEntity<>(billService.createBill(billDto), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<BillDto> updateBill(@PathVariable("id") long id, @RequestBody BillDto updateBillDto) {
-        BillDto billDto = billService.updateBill(id, updateBillDto);
+    @PutMapping("/{code}")
+    public ResponseEntity<BillDto> updateBill(@PathVariable("code") String code, @RequestBody BillDto updateBillDto) {
+        BillDto billDto = billService.updateBill(code, updateBillDto);
+        return ResponseEntity.ok(billDto);
+    }
+
+    @GetMapping("/{code}")
+    public ResponseEntity<BillDto> getBill(@PathVariable String code) {
+        BillDto billDto = billService.getBillByCode(code);
         return ResponseEntity.ok(billDto);
     }
 

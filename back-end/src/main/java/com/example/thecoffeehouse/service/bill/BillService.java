@@ -13,7 +13,7 @@ public interface BillService {
 
     BillDto createBill(BillDto billDto);
 
-    BillDto updateBill(Long id, BillDto billDto);
+    BillDto updateBill(String code, BillDto billDto);
 
     BillDto payWithMoMo(Long billID, String qrCodeTransactionId);
 
@@ -24,4 +24,6 @@ public interface BillService {
     List<Double> getRevenue();
 
     List<MonthlyDataDTO> getRevenueByMonth(int year);
+
+    BillDto getBillByCode(String code);
 }

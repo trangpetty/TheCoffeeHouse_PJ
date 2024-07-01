@@ -97,12 +97,13 @@ export const routes = [
         component: CartView
       },
       {
-        path: '/checkbill',
-        name: 'checkbill',
-        component: BillOrderedView
+        path: '/check-bill/:code',
+        name: 'check-bill',
+        component: BillOrderedView,
+        props: true
       },
       {
-        path: '/account',
+        path: '/login',
         name: 'login',
         component: LoginView
       },
@@ -112,8 +113,8 @@ export const routes = [
         component: RegisterView
       },
       {
-        path: '/order-info',
-        name: 'order-info',
+        path: '/user-info',
+        name: 'user-info',
         component: UserInfoView
       },
       {

@@ -22,4 +22,6 @@ public interface VoucherService {
     VoucherType createVoucherType(VoucherType voucherType);
 
     List<VoucherType> getVoucherTypes();
+
+    VoucherDto getVoucherById(Long id);
 }

@@ -19,13 +19,6 @@ public class BillProductController {
         this.billProductService = billProductService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<List<BillProduct>> getBill(@PathVariable Long id) {
-        System.out.println("Accessing /bills/" + id);
-        List<BillProduct> billProducts = billProductService.getBillProductByBillID(id);
-        return ResponseEntity.ok(billProducts);
-    }
-
     @PostMapping("/products")
     public ResponseEntity<BillProduct> createBillProduct(@RequestBody BillProduct billProduct) {
         return new ResponseEntity<>(billProductService.createBillProduct(billProduct), HttpStatus.CREATED);

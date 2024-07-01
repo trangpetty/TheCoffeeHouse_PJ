@@ -68,4 +68,9 @@ public class VoucherController {
     public ResponseEntity<List<VoucherType>> getVoucherType() {
         return ResponseEntity.ok(voucherService.getVoucherTypes());
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<VoucherDto> getVoucher(@PathVariable Long id) {
+        return ResponseEntity.ok(voucherService.getVoucherById(id));
+    }
 }

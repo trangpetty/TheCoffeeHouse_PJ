@@ -109,8 +109,7 @@ public class PaymentController {
 
     @PostMapping("/vnpay")
     public ResponseEntity<?> payWithVnPay(@RequestBody BillDto billDto) throws UnsupportedEncodingException {
-
-        long amount = (long) (billDto.getValue()*100);
+        long amount = (long) (billDto.getValue() * 100);
         String orderType = "other";
 
         String vnp_TxnRef = billDto.getCode();
@@ -130,8 +129,8 @@ public class PaymentController {
         vnp_Params.put("vnp_Locale", "vn");
         vnp_Params.put("vnp_OrderType", orderType);
 
-
-        vnp_Params.put("vnp_ReturnUrl", VnPayConfig.vnp_ReturnUrl);
+        // Ensure the return URL includes the proper hash fragment
+        vnp_Params.put("vnp_ReturnUrl", VnPayConfig.vnp_ReturnUrl + billDto.getCode());
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
@@ -143,20 +142,20 @@ public class PaymentController {
         String vnp_ExpireDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
-        List fieldNames = new ArrayList(vnp_Params.keySet());
+        List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
         Collections.sort(fieldNames);
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
-        Iterator itr = fieldNames.iterator();
+        Iterator<String> itr = fieldNames.iterator();
         while (itr.hasNext()) {
-            String fieldName = (String) itr.next();
-            String fieldValue = (String) vnp_Params.get(fieldName);
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                //Build hash data
+            String fieldName = itr.next();
+            String fieldValue = vnp_Params.get(fieldName);
+            if (fieldValue != null && fieldValue.length() > 0) {
+                // Build hash data
                 hashData.append(fieldName);
                 hashData.append('=');
                 hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                //Build query
+                // Build query
                 query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
                 query.append('=');
                 query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
@@ -178,6 +177,7 @@ public class PaymentController {
 
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
+
 
     @PutMapping("/markDelivered")
     public ResponseEntity<BillDto> markAsDelivered(@RequestParam Long orderId) {

@@ -154,6 +154,7 @@
 {
   background: var(--orange-2)!important;
   border-color: var(--orange-2)!important;
+  color: var(--white);
 }
 
 .btn.btn--orange-5,
@@ -173,6 +174,10 @@
   border-bottom-right-radius: var(--space-4) !important;
   border-top-right-radius: var(--space-4) !important;
   border: none!important;
+}
+
+.btn.btn--radius-100 {
+  border-radius: var(--space-100) !important;
 }
 
 .el-radio__input.is-checked+.el-radio__label {

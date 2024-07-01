@@ -127,4 +127,14 @@ public class VoucherServiceImpl implements VoucherService {
     public List<VoucherType> getVoucherTypes() {
         return voucherTypeRepository.findAll();
     }
+
+    @Override
+    public VoucherDto getVoucherById(Long id) {
+        Voucher voucher = voucherRepository
+                .findById(id)
+                .orElseThrow(() -> new RuntimeException("Voucher not found"));
+        Optional<VoucherType> optionalVoucherType = voucherTypeRepository.findById(voucher.getVoucherTypeID());
+        VoucherType voucherType = optionalVoucherType.orElseThrow(() -> new RuntimeException("VoucherType not found"));
+        return VoucherMapper.mapToVoucherDto(voucher, voucherType);
+    }
 }
