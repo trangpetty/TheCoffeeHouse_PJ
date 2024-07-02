@@ -36,12 +36,12 @@
         <el-table-column prop="modifyTime" label="Modify Time" />
         <el-table-column label="Image">
           <template #default="{ row }">
-            <el-image :src="row.images[0].url" class="w-50" />
+            <el-image :src="row.images[0] ? row.images[0].url : ''" class="w-50" />
           </template>
         </el-table-column>
         <el-table-column label="Action">
           <template #default="{ row }">
-            <el-button type="success" size="small" @click.stop="handleEditRow(row.id)">Update</el-button>
+            <el-button type="success" size="small" @click.stop="handleEditRow(row)">Update</el-button>
             <el-button type="danger" size="small" @click.stop="handleDeleteRow(row.id)">Delete</el-button>
           </template>
         </el-table-column>
@@ -226,11 +226,11 @@ const handleAdd = async () => {
   }));
 };
 
-const handleEditRow = async (id: number) => {
+const handleEditRow = async (row: object) => {
   ui.value.dialogVisible = true;
   ui.value.addRecord = false;
-  product_id.value = id;
-  const result = await axios.get(`http://localhost:8082/api/products/${id}`);
+  product_id.value = row.id;
+  const result = await axios.get(`http://localhost:8082/api/products/${row.id}`);
   if (result.status === 200) {
     formData.value.name = result.data.name;
     formData.value.description = result.data.description;

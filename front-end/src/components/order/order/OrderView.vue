@@ -173,27 +173,6 @@ getTypes();
   cursor: pointer;
 }
 
-.el-overlay-dialog {
-  overflow: unset!important;
-}
-
-.custom-dialog.el-overlay-dialog {
-  overflow: hidden!important;
-}
-
-.custom-dialog.el-dialog {
-  overflow-y: scroll;
-  height: 90vh;
-}
-
-.custom-dialog.el-dialog header {
-  height: auto!important;
-}
-
-.custom-dialog.el-dialog__header {
-  border-bottom: 1px solid #dee2e6;
-}
-
 .nav-link.active .category-image {
   background-color: var(--nude-2);
   background-size: cover;
@@ -203,13 +182,13 @@ getTypes();
 .category-image {
   background-color: var(--nude-1);
   border-radius: 50%;
-  height: 86px;
-  width: 86px;
+  height: 120px;
+  width: 120px;
 }
 
 .category-image img {
-  width: 45px;
-  height: 45px;
+  width: 100px;
+  height: 100px;
 }
 
 .category-text {

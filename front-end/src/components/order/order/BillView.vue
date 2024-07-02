@@ -192,11 +192,22 @@ const paymentMethodInfo = computed(() => {
 });
 
 const submitRating = async () => {
+  ui.value.loading = true;
   bill.value.rate = formData.value.rating
   bill.value.comment = formData.value.comment
   console.log(bill.value)
   const response = await axios.put(`http://localhost:8082/api/bills/${props.code}`, bill.value);
   formData.value.rated = true;
+  let confirmed = await Utils.confirm("Bạn có muốn đánh giá các sản phẩm không？", "Xác nhận");
+  if(confirmed) {
+    ui.value.loading = false;
+    return;
+  }
+  else {
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 1500);
+  }
 }
 
 onMounted (async () => {

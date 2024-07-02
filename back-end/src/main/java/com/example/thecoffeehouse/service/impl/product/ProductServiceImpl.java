@@ -178,17 +178,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private void saveOrUpdateProductImages(List<ProductImageDto> productImages, Product product) {
-        for (ProductImageDto imageUrl : productImages) {
+        for (ProductImageDto imageDto : productImages) {
             ProductImage productImage = new ProductImage();
-            productImage.setProductID(product.getId());
-            productImage.setUrl(imageUrl.getUrl());
-
-            if (imageUrl.getId() != null) {
-                productImage.setId(imageUrl.getId());
+            if (imageDto.getId() != null) {
+                productImage.setId(imageDto.getId());
             }
-
+            productImage.setProductID(product.getId());
+            productImage.setUrl(imageDto.getUrl());
             productImageRepository.save(productImage);
-
         }
     }
 
