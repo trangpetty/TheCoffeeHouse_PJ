@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class VoucherServiceImpl implements VoucherService {
+    private static final Logger log = LoggerFactory.getLogger(VoucherServiceImpl.class);
     private final VoucherRepository voucherRepository;
     private final VoucherTypeRepository voucherTypeRepository;
     private final DateTimeConverter dateTimeConverter;
@@ -61,6 +62,9 @@ public class VoucherServiceImpl implements VoucherService {
 
         LocalDateTime applyToConverted = applyTo != null ?
                 dateTimeConverter.convertToDateViaInstant(applyTo) : lastDayOfMonth;
+
+        log.info("from: {}", applyFromConverted);
+        log.info("to: {}", applyToConverted);
 
         Page<Voucher> vouchers = voucherRepository.getAllVouchers(name, status, applyFromConverted, applyToConverted, pageable);
 

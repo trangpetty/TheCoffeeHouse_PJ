@@ -2,7 +2,7 @@ package com.example.thecoffeehouse.controller;
 
 import com.example.thecoffeehouse.Utils.JwtUtils;
 import com.example.thecoffeehouse.dto.user.*;
-import com.example.thecoffeehouse.entity.User;
+import com.example.thecoffeehouse.entity.user.User;
 import com.example.thecoffeehouse.repository.RoleRepository;
 import com.example.thecoffeehouse.repository.UserRepository;
 import com.example.thecoffeehouse.repository.UserRoleRepository;
@@ -109,7 +109,8 @@ public class UserController {
         var userDto = new UserDto();
         userDto.setId(user.getId());
         userDto.setEmail(user.getEmail());
-        userDto.setName(user.getName());
+        userDto.setFirstName(user.getFirstName());
+        userDto.setLastName(user.getLastName());
 
         return userDto;
     }

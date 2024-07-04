@@ -1,13 +1,14 @@
 package com.example.thecoffeehouse.entity.mapper;
 
 import com.example.thecoffeehouse.dto.user.UserDto;
-import com.example.thecoffeehouse.entity.User;
+import com.example.thecoffeehouse.entity.user.User;
 
 public class UserMapper {
 
     public static User mapToUser(UserDto userDto) {
         User user = new User();
-        user.setName(userDto.getName());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
         user.setPhoneNumber(userDto.getPhoneNumber());
         user.setEmail(userDto.getEmail());
         user.setAvatar(userDto.getAvatar());
@@ -20,7 +21,8 @@ public class UserMapper {
     public static UserDto mapToUserDto(User user) {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
-        userDto.setName(user.getName());
+        userDto.setFirstName(user.getFirstName());
+        userDto.setLastName(user.getLastName());
         userDto.setPhoneNumber(user.getPhoneNumber());
         userDto.setEmail(user.getEmail());
         userDto.setAvatar(user.getAvatar());

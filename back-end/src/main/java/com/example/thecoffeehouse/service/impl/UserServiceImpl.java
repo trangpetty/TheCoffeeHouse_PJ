@@ -1,16 +1,18 @@
 package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.dto.user.*;
-import com.example.thecoffeehouse.entity.User;
+import com.example.thecoffeehouse.entity.user.User;
 import com.example.thecoffeehouse.entity.UserRole;
 import com.example.thecoffeehouse.entity.mapper.UserMapper;
 import com.example.thecoffeehouse.repository.RoleRepository;
 import com.example.thecoffeehouse.repository.UserRepository;
 import com.example.thecoffeehouse.repository.UserRoleRepository;
 import com.example.thecoffeehouse.service.UserService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,12 +34,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDetailsService userDetailsService() {
+        return new UserDetailsService() {
+            @Override
+            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+                return userRepository.findByEmail(username);
+            }
+        };
+    }
+
+    @Override
     public UserDto createUser(RegisterDto registerDto) {
         Long roleId = roleRepository.findIdByName(registerDto.getRoleName());
 
         // Create a new User entity and set its properties
         User user = new User();
-        user.setName(registerDto.getName());
+        user.setFirstName(registerDto.getFirstName());
+        user.setLastName(registerDto.getLastName());
         user.setPassword(passwordEncoder.encode(registerDto.getPassword())); // Encode the password
         user.setPhoneNumber(registerDto.getPhoneNumber());
         user.setEmail(registerDto.getEmail());
@@ -67,16 +80,14 @@ public class UserServiceImpl implements UserService {
             // If user does not exist, create a new user
             user = new User();
             user.setEmail(userInfo.getEmail());
-            user.setName(userInfo.getName());
+            user.setFirstName(userInfo.getName());
             user.setAvatar(userInfo.getPicture());
-            user.setProviderId(userInfo.getSub());
             user.setGender(user.getGender()); // or set based on userInfo if available
             user.setPassword(""); // Set a blank password or a generated one
         } else {
             // If user exists, update existing user details
-            user.setName(userInfo.getName());
+            user.setFirstName(userInfo.getName());
             user.setAvatar(userInfo.getPicture());
-            user.setProviderId(userInfo.getSub());
         }
 
         // Save the user in the database
@@ -100,7 +111,8 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(Long id, UserDto userDto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User with id " + id + " not found"));
-        user.setName(userDto.getName());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
         user.setPhoneNumber(userDto.getPhoneNumber());
         user.setEmail(userDto.getEmail());
         user.setGender(userDto.getGender());
