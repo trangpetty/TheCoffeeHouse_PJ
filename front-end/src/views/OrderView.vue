@@ -13,7 +13,6 @@ import VoucherDialog from '@/components/order/dialog/VoucherDialog.vue';
 import Footer from "@/components/order/layout/Footer.vue";
 import {onMounted} from 'vue';
 import { useStore } from 'vuex';
-import axios from 'axios';
 
 interface User {
   name: string;

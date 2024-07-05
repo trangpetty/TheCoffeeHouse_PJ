@@ -1,7 +1,7 @@
 <template>
   <header class="bg-header d-flex align-items-center text-white">
     <div class="container-fluid container-lg d-flex align-items-center px-3 justify-content-center">
-      <router-link to="/" class="navbar-brand fw-bolder me-5" href="#">PETTY COFFEE</router-link>
+      <router-link to="/order" class="navbar-brand fw-bolder me-5" href="#">PETTY COFFEE</router-link>
       <div class="header-delivery header-delivery--bg d-flex align-items-center" @click="showAddressDialog">
         <img :src="delivery" alt="" class="icon-delivery">
         <div class="delivery-header_text ps-2">
@@ -23,11 +23,11 @@
         </nav>
       </div>
       <div class="d-flex align-items-center ms-auto header-right">
-        <router-link to="/user-info" href="#">
+        <router-link to="/order/user-info" href="#">
           <img :src="user.avatar ? user.avatar :noAvatar" style="width: 40px;" alt="" class="rounded-circle">
         </router-link>
-        <span class="name_user">{{user.name}}</span>
-        <router-link :to="(totalQuantity > 0) ? '/checkout' : ''" class="ms-3">
+        <span class="name_user">{{user.firstName}} {{user.lastName}}</span>
+        <router-link :to="(totalQuantity > 0) ? 'order/checkout' : ''" class="ms-3">
           <div class="icon d-flex align-items-center justify-content-center" :class="(totalQuantity > 0) ? 'icon-cart-has-item' : 'icon-cart'">
             <el-icon class="fs-4 fw-bold"><Handbag /></el-icon>
             <div class="icon-quatity d-flex align-items-center justify-content-center" v-if="totalQuantity > 0">
@@ -59,7 +59,7 @@ const store = useStore();
 const totalQuantity = computed(() => store.getters.cartTotalQuantity);
 const address = computed(() => store.getters.address);
 const user = computed(() => store.getters.user);
-console.log(user.value)
+console.log("user", user.value)
 
 </script>
 

@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
+import store from '@/store/index';
 import HomeView from '@/views/manager/HomeView.vue';
 import ProductManagerView from '@/components/manager/product/index.vue';
 import ProductView from '@/components/manager/product/ProductView.vue';
@@ -22,98 +23,100 @@ import BlogsView from '@/components/order/news/NewsView.vue';
 import BlogDetail from '@/components/order/news/NewsDetail.vue';
 
 import ProductDetail from '@/components/user/ProductDetailView.vue';
+import {ElMessageBox} from "element-plus";
 
 export const routes = [
   {
     path: '/admin',
     component: HomeView,
+    meta: { requiresAuth: true },
     children: [
       {
-        path: '/product',
+        path: '/admin/product',
         name: 'Product',
         component: ProductManagerView,
         children: [
           {
-            path: '/product',
+            path: '/admin/product',
             name: 'Product',
             component: ProductView,
           },
           {
-            path: '/product-type',
+            path: '/admin/product-type',
             name: 'Product Type',
             component: ProductTypeView
           },
           {
-            path: '/topping',
+            path: '/admin/topping',
             name: 'Topping',
             component: ToppingView
           },
         ]
       },
       {
-        path: '/voucher',
+        path: '/admin/voucher',
         name: 'Voucher',
         component: VoucherView
       },
       {
-        path: '/customer',
+        path: '/admin/customer',
         name: 'Customer',
         component: CustomerView
       },
       {
-        path: '/order',
+        path: '/admin/order',
         name: 'User',
         component: UserView
       },
       {
-        path: '/bill',
+        path: '/admin/bill',
         name: 'Bill',
         component: BillView
       },
       {
-        path: '/news',
+        path: '/admin/news',
         name: 'News',
         component: NewsView
       },
       {
-        path: '/revenue',
+        path: '/admin/revenue',
         name: 'Revenue',
         component: RevenueView
       }
     ]
   },
   {
-    path: '/',
+    path: '/order',
     component: HomeUserView,
     children: [
       {
-        path: '/',
+        path: '/order',
         name: 'order',
         component: OrderView
       },
       {
-        path: '/checkout',
+        path: '/order/checkout',
         name: 'checkout',
         component: CartView
       },
       {
-        path: '/check-bill/:code',
+        path: '/order/check-bill/:code',
         name: 'check-bill',
         component: BillOrderedView,
         props: true
       },
       {
-        path: '/login',
+        path: '/order/login',
         name: 'login',
         component: LoginView
       },
       {
-        path: '/register',
+        path: '/order/register',
         name: 'register',
         component: RegisterView
       },
       {
-        path: '/user-info',
+        path: '/order/user-info',
         name: 'user-info',
         component: UserInfoView
       },
@@ -122,25 +125,61 @@ export const routes = [
         name: 'blogs',
         component: BlogsView
       },
-      {
-        path: '/blog-detail/:id',
-        name: 'blog-detail',
-        component: BlogDetail,
-        props: true
-      },
-      {
-        path: '/product/:id',
-        name: 'product',
-        component: ProductDetail,
-        props: true
-      },
     ]
+  },
+  {
+    path: '/blog-detail/:id',
+    name: 'blog-detail',
+    component: BlogDetail,
+    props: true
+  },
+  {
+    path: '/product/:id',
+    name: 'product',
+    component: ProductDetail,
+    props: true
   },
 ];
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes
+});
+
+
+// router.beforeEach(async (to, from, next) => {
+//   const isAuthenticated = await store.dispatch('checkTokenExpiration');
+//   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+//
+//   if (requiresAuth && !isAuthenticated) {
+//     next('/order/login'); // Redirect to login page if route requires authentication and user is not authenticated
+//   } else {
+//     next(); // Proceed to next route
+//   }
+// });
+
+router.beforeEach(async (to, from, next) => {
+  const isAuthenticated = await store.dispatch('checkTokenExpiration');
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+
+  if (requiresAuth && !isAuthenticated) {
+    if (to.path.startsWith('/admin')) {
+      ElMessageBox.confirm('Phiên đăng nhập đã hết hạn. Bạn có muốn đăng nhập lại?', 'Phiên Đăng Nhập Hết Hạn', {
+        confirmButtonText: 'Đăng nhập lại',
+        cancelButtonText: 'Hủy bỏ',
+        type: 'warning'
+      }).then(() => {
+        router.push('/order/login');
+      }).catch(() => {
+        next(false); // Không chuyển hướng nếu không đồng ý đăng nhập lại
+      }); // Redirect to admin login page if admin authentication is required and user is not authenticated
+    }
+    // else {
+    //   next('/order/login'); // Redirect to order login page if order authentication is required and user is not authenticated
+    // }
+  } else {
+    next(); // Proceed to next route
+  }
 });
 
 export default router;

@@ -22,11 +22,11 @@
           <div class="form-group row">
             <div class="col-6 d-flex flex-column align-items-start p-0 pe-2">
               <label>Tên khách hàng</label>
-              <input type="text" name="" id="" class="form-control">
+              <input type="text" name="" id="" class="form-control" v-model="formData.firstName">
             </div>
             <div class="col-6 d-flex flex-column align-items-start p-0 ps-2">
               <label class="text-white">.</label>
-              <input type="text" name="" id="" class="form-control">
+              <input type="text" name="" id="" class="form-control" v-model="formData.lastName">
             </div>
           </div>
           <div class="form-group row">
@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, ref} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import {useStore} from "vuex";
 
 const store = useStore();
@@ -71,7 +71,17 @@ const tabList = ref([
   {icon: "fa-solid fa-solid fa-clock-rotate-left", text: "Lịch sử mua hàng"},
 ])
 
+const formData = ref({
+  firstName: '',
+  lastName: ''
+})
+
 const user = computed(() => store.getters.user);
+
+onMounted(() => {
+  formData.value.firstName = user.value.firstName;
+  formData.value.lastName = user.value.lastName;
+})
 
 </script>
 

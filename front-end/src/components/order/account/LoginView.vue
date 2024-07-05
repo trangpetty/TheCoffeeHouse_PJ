@@ -49,14 +49,14 @@ const loginError = ref('');
 
 const login = async () => {
   try {
-    const response = await axios.post('http://localhost:8082/api/login', formData.value);
-    const { token, refreshToken, user } = response.data;
+    const response = await axios.post('http://localhost:8082/api/auth/signin', formData.value);
+    const result = response.data;
 
     // Save order information and tokens to Vuex store
-    store.dispatch('login', { token, refreshToken, user });
+    store.dispatch('login', { token: result.token, refreshToken: result.refreshToken, user: result });
 
     // Redirect to home page or handle success message
-    console.log('Login successful:', user);
+    console.log('Login successful:', result);
   } catch (error) {
     if (error.response) {
       loginError.value = error.response.data;

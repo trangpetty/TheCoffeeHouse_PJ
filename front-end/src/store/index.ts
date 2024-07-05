@@ -1,30 +1,39 @@
 import { createStore } from 'vuex';
+import axios from 'axios';
+import jwtDecode from 'jwt-decode';
+import router from '@/router/index';
+import * as Utils from '@/utils';
+
+interface JwtPayload {
+    exp: number; // Thời điểm hết hạn của token (timestamp)
+    // Thêm các trường khác nếu cần thiết
+}
 
 interface Product {
-    name: string,
-    id: number,
-    productSizes: any[],
-    cost: number,
-    quantity: number,
-    toppings: any[],
-    price: number,
-    selectedSize: Size,
-    selectedTopping: Topping,
-    description: string,
-    images: any[]
+    name: string;
+    id: number;
+    productSizes: any[];
+    cost: number;
+    quantity: number;
+    toppings: any[];
+    price: number;
+    selectedSize: Size;
+    selectedTopping: Topping;
+    description: string;
+    images: any[];
 }
 
 interface Size {
-    id: null,
-    size: '',
-    surcharge: 0
+    id: null;
+    size: string;
+    surcharge: number;
 }
 
 interface Topping {
-    toppingID: number | null,
-    name: string,
-    quantity: number,
-    price: number
+    toppingID: number | null;
+    name: string;
+    quantity: number;
+    price: number;
 }
 
 interface State {
@@ -37,8 +46,8 @@ interface State {
     user: object;
     token: string;
     refreshToken: string;
-    selectedProduct: object,
-    dialogProduct: boolean
+    selectedProduct: object;
+    dialogProduct: boolean;
 }
 
 const store = createStore<State>({
@@ -64,44 +73,39 @@ const store = createStore<State>({
                 item.id === product.id &&
                 item.selectedSize.id === product.selectedSize.id &&
                 item.selectedTopping.toppingID === product.selectedTopping.toppingID &&
-               (item.selectedTopping.quantity / item.quantity ) === product.selectedTopping.quantity
+                (item.selectedTopping.quantity / item.quantity) === product.selectedTopping.quantity
             );
 
             if (existingProduct) {
                 existingProduct.quantity += product.quantity;
                 existingProduct.cost += product.cost;
-                existingProduct.selectedTopping.quantity += product.selectedTopping.quantity; // Corrected typo here
+                existingProduct.selectedTopping.quantity += product.selectedTopping.quantity;
             } else {
                 state.cart.push(product);
             }
         },
         updateCart(state, payload: { product: Product, index: number }) {
             const { product, index } = payload;
-
             const existingProduct = state.cart[index];
 
             if (existingProduct) {
-                // Check if the product being updated matches the existing product's ID and size
                 if (
                     existingProduct.id === product.id &&
                     existingProduct.selectedSize.id === product.selectedSize.id &&
                     existingProduct.selectedTopping.toppingID === product.selectedTopping.toppingID
                 ) {
-                    // Update the properties of the existing product
                     existingProduct.cost = product.cost;
                     existingProduct.quantity = product.quantity;
                     existingProduct.selectedTopping.quantity = product.selectedTopping.quantity;
                 } else {
-                    // If not a match, replace the product at the specified index
                     state.cart[index] = product;
                 }
             } else {
-                // If the product does not exist at the index, handle it accordingly
                 console.error(`Product not found at index ${index}`);
             }
         },
         removeFromCart(state, index: number) {
-            state.cart.splice(index, 1)
+            state.cart.splice(index, 1);
         },
         clearCart(state) {
             state.cart = [];
@@ -120,11 +124,11 @@ const store = createStore<State>({
         },
         setVoucher(state, voucher: object) {
             state.voucher = voucher;
-            state.errorMessage = ''; // Clear error message when voucher is set
+            state.errorMessage = '';
         },
         clearVoucher(state) {
             state.voucher = {};
-            state.errorMessage = ''; // Clear error message when voucher is cleared
+            state.errorMessage = '';
         },
         setErrorMessage(state, errorMessage: string) {
             state.errorMessage = errorMessage;
@@ -135,6 +139,7 @@ const store = createStore<State>({
         setToken(state, token: string) {
             state.token = token;
             localStorage.setItem('token', token);
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
         },
         setRefreshToken(state, refreshToken: string) {
             state.refreshToken = refreshToken;
@@ -145,24 +150,29 @@ const store = createStore<State>({
             localStorage.setItem('user', JSON.stringify(user));
         },
         clearAuthData(state) {
+            console.log('Clearing auth data...');
             state.token = '';
-            state.refreshToken = '';
             state.user = {};
             localStorage.removeItem('token');
-            localStorage.removeItem('refreshToken');
             localStorage.removeItem('user');
+            delete axios.defaults.headers.common['Authorization'];
         },
-        setSelectedProduct(state, product) {
+        setSelectedProduct(state, product: object) {
             state.selectedProduct = product;
         },
-        setDialogVisible(state, visible) {
+        setDialogVisible(state, visible: boolean) {
             state.dialogProduct = visible;
         }
     },
     actions: {
         loadCart({ commit }) {
-            const localCart = JSON.parse(localStorage.getItem('cart') || '[]');
-            commit('setCart', localCart);
+            try {
+                const localCart = JSON.parse(localStorage.getItem('cart') || '[]');
+                commit('setCart', localCart);
+            } catch (e) {
+                console.error('Lỗi khi parse cart từ localStorage:', e);
+                commit('setCart', []);
+            }
         },
         saveCart({ state }) {
             localStorage.setItem('cart', JSON.stringify(state.cart));
@@ -172,59 +182,45 @@ const store = createStore<State>({
             dispatch('saveCart');
         },
         updateProductInCart({ commit, dispatch }, payload: { product: Product, index: number }) {
-            const { product, index } = payload;
-
-            commit('updateCart', { product, index });
+            commit('updateCart', payload);
             dispatch('saveCart');
         },
-        removeProductFromCart({ commit, dispatch }, productId: number) {
-            commit('removeFromCart', productId);
+        removeProductFromCart({ commit, dispatch }, index: number) {
+            commit('removeFromCart', index);
             dispatch('saveCart');
         },
         clearCart({ commit }) {
             commit('clearCart');
             localStorage.removeItem('cart');
         },
-        openAddressDialog({ commit, dispatch }, visible: boolean) {
+        openAddressDialog({ commit }, visible: boolean) {
             commit('openAddressDialog', visible);
         },
         loadAddress({ commit }) {
-            const localAddressString = localStorage.getItem('address');
-            let localAddress = '';
-
-            if (localAddressString) {
-                try {
-                    localAddress = JSON.parse(localAddressString);
-                } catch (e) {
-                    console.error('Error parsing address from localStorage:', e);
-                    localAddress = '';
-                }
+            try {
+                const localAddress = JSON.parse(localStorage.getItem('address') || '""');
+                commit('setAddress', localAddress);
+            } catch (e) {
+                console.error('Lỗi khi parse address từ localStorage:', e);
+                commit('setAddress', '');
             }
-
-            commit('setAddress', localAddress);
         },
-        saveAddress({state}) {
+        saveAddress({ state }) {
             localStorage.setItem('address', JSON.stringify(state.address));
         },
-        VoucherDialog({ commit, dispatch }, visible: boolean) {
+        VoucherDialog({ commit }, visible: boolean) {
             commit('VoucherDialog', visible);
         },
         loadVoucher({ commit }) {
-            const localVoucherString = localStorage.getItem('voucher');
-            let localVoucher = {};
-
-            if (localVoucherString) {
-                try {
-                    localVoucher = JSON.parse(localVoucherString);
-                } catch (e) {
-                    console.error('Error parsing voucher from localStorage:', e);
-                    localVoucher = {};
-                }
+            try {
+                const localVoucher = JSON.parse(localStorage.getItem('voucher') || '{}');
+                commit('setVoucher', localVoucher);
+            } catch (e) {
+                console.error('Lỗi khi parse voucher từ localStorage:', e);
+                commit('setVoucher', {});
             }
-
-            commit('setVoucher', localVoucher);
         },
-        saveVoucher({state}) {
+        saveVoucher({ state }) {
             localStorage.setItem('voucher', JSON.stringify(state.voucher));
         },
         clearVoucher({ commit }) {
@@ -251,31 +247,59 @@ const store = createStore<State>({
         logout({ commit }) {
             commit('clearAuthData');
         },
-        loadUser({ commit }) {
-            const localUser = JSON.parse(localStorage.getItem('user') || '{}');
-            commit('setUser', localUser);
+        async checkTokenExpiration({ state, commit }) {
+            const token = state.token;
+            if (!token) {
+                commit('clearAuthData');
+                return false;
+            }
+
+            try {
+                const decoded: JwtPayload = jwtDecode(token);
+                const currentTime = Date.now() / 1000;
+
+                if (decoded.exp < currentTime) {
+                    commit('clearAuthData');
+                    return false;
+                } else {
+                    return true;
+                }
+            } catch (error) {
+                console.error('Lỗi khi giải mã token:', error);
+                commit('clearAuthData');
+                return false;
+            }
         },
-        setProductDialog({ commit }, product) {
+        User({ commit }) {
+            try {
+                const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+                commit('setUser', localUser);
+            } catch (e) {
+                console.error('Lỗi khi parse user từ localStorage:', e);
+                commit('setUser', {});
+            }
+        },
+        setProductDialog({ commit }, product: object) {
             commit('setSelectedProduct', product);
-            commit('setDialogVisible', true); // Action to open dialog
+            commit('setDialogVisible', true);
         },
         openProductDialog({ commit }) {
-            commit('setDialogVisible', true); // Action to open dialog
+            commit('setDialogVisible', true);
         },
         closeProductDialog({ commit }) {
-            commit('setDialogVisible', false); // Action to close dialog
+            commit('setDialogVisible', false);
         },
     },
     getters: {
-        cartItems: (state) => state.cart,
-        cartTotalQuantity: (state) => state.cart.reduce((total, item) => total + item.quantity, 0),
-        addressDialog: (state) => state.addressDialog,
-        address: (state) => state.address,
-        voucherDialog: (state) => state.voucherDialog,
-        voucher: (state) => state.voucher,
-        errorMessage: (state) => state.errorMessage,
-        isLoggedIn: (state) => !!state.token,
-        user: (state) => state.user,
+        cartItems: state => state.cart,
+        cartTotalQuantity: state => state.cart.reduce((total, item) => total + item.quantity, 0),
+        addressDialog: state => state.addressDialog,
+        address: state => state.address,
+        voucherDialog: state => state.voucherDialog,
+        voucher: state => state.voucher,
+        errorMessage: state => state.errorMessage,
+        isLoggedIn: state => !!state.token,
+        user: state => state.user,
     },
 });
 

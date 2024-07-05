@@ -32,8 +32,12 @@
     <div class="box box-shadow">
       <el-table :data="tableData" stripe v-loading="ui.loading" @row-click="handleEditRow" highlight-current-row>
         <el-table-column type="index" label="#"/>.
-        <el-table-column prop="name" label="Name" />
-        <el-table-column prop="roleName" label="Role" />
+        <el-table-column label="Name" >
+          <template #default={row}>
+            {{row.firstName}} {{row.lastName}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="role" label="Role" />
         <el-table-column prop="phoneNumber" label="phoneNumber" />
         <el-table-column label="Avatar">
           <template #default={row}>
@@ -52,8 +56,11 @@
       <el-dialog v-model="ui.dialogVisible" width="40%" class="dialog" v-loading="ui.loading" :title="ui.addRecord?'Add order':'Update order'">
         <el-form :model="formData" label-width="auto">
           <el-input v-model="user_id" class="d-none" />
-          <el-form-item label="Name">
-            <el-input v-model="formData.name" />
+          <el-form-item label="First Name">
+            <el-input v-model="formData.firstName" />
+          </el-form-item>
+          <el-form-item label="Last Name">
+            <el-input v-model="formData.lastName" />
           </el-form-item>
           <el-form-item label="Password" v-if="ui.addRecord">
             <el-input v-model="formData.password" />
@@ -132,7 +139,8 @@ const queryForm = ref({
 });
 
 const formData = ref({
-  name: '',
+  firstName: '',
+  lastName: '',
   password: '',
   email: '',
   phoneNumber: '',
@@ -210,7 +218,8 @@ const resetForm = () => {
 const handleAdd = () => {
   ui.value.addRecord = true;
   ui.value.dialogVisible = true;
-  formData.value.name = '';
+  formData.value.firstName = '';
+  formData.value.lastName = '';
   formData.value.email = '';
   formData.value.phoneNumber = '';
   formData.value.roleName = 'USER';
@@ -223,7 +232,8 @@ const handleEditRow = (row: object) => {
   ui.value.dialogVisible = true;
   ui.value.addRecord = false;
   user_id.value = row.id
-  formData.value.name = row.name;
+  formData.value.firstName = row.firstName;
+  formData.value.lastName = row.lastName;
   formData.value.email = row.email;
   formData.value.phoneNumber = row.phoneNumber;
   formData.value.roleName = row.roleName;

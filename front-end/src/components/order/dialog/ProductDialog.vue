@@ -10,12 +10,12 @@
     </template>
     <div>
       <div class="card-product_detail d-flex flex-column">
-        <img :src="images ? images[0].url : null" alt="" class="w-100 rounded mb-3">
+        <img :src="image" alt="" class="w-100 rounded mb-3">
         <div class="d-flex flex-column px-1">
           <h5 class="h5 text-dark" style="font-weight: 600;">{{props.selectedProduct.name}}</h5>
           <p style="text-align: justify">{{props.selectedProduct.description}}</p>
-          <div class="d-flex justify-content-between mt-4">
-            <p>{{ formatPrice(props.selectedProduct.price) }}</p>
+          <div class="d-flex justify-content-between align-items-center mt-4">
+            <p class="mb-0 fs-5 fw-bold">{{ formatPrice(props.selectedProduct.price) }}</p>
             <div class="card-product-quantity d-flex align-items-center">
               <div class="btn add-to-cart d-flex align-items-center justify-content-center rounded-circle text-white" @click="quantity--" :class="quantity <= 1 ? 'disabled' :' btn--orange-1' ">
                 <font-awesome-icon icon="fa-solid fa-minus" />
@@ -94,7 +94,7 @@ const selectedTopping = ref({
   price: 0
 });
 
-const images = ref([]);
+const image = ref([]);
 
 const cart = ref([]);
 
@@ -132,7 +132,10 @@ const getToppingQuantity = (topping) => {
 };
 
 const cost = computed(() => {
-  let totalCost = props.selectedProduct ? props.selectedProduct.price * quantity.value + selectedSize.value.surcharge : 0;
+  let totalCost = props.selectedProduct.price * quantity.value;
+  if(selectedSize.value.surcharge) {
+    totalCost += selectedSize.value.surcharge;
+  }
 
   // Add the cost of the selected topping if any
   if (selectedTopping.value.quantity > 0) {
@@ -143,6 +146,16 @@ const cost = computed(() => {
 });
 
 const addToCart = () => {
+  if (!store.dispatch('checkTokenExpiration')) {
+    ElNotification({
+      title: 'Thông báo',
+      message: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.',
+      type: 'warning',
+      showClose: false,
+      offset: 100
+    });
+    return;
+  }
   if (props.selectedProduct) {
     const productWithDetails = {
       name: props.selectedProduct.name,
@@ -214,8 +227,13 @@ watch(() => props.selectedProduct, () => {
   }
 
   // Set images
-  if (props.selectedProduct && props.selectedProduct.images) {
-    images.value = props.selectedProduct.images;
+  if (props.selectedProduct) {
+    if(props.selectedProduct.images) {
+      image.value = props.selectedProduct.images[0].url;
+    }
+    else if (props.selectedProduct.image) {
+      image.value = props.selectedProduct.image;
+    }
   }
 
   // Set quantity
@@ -223,7 +241,7 @@ watch(() => props.selectedProduct, () => {
     quantity.value = props.selectedProduct.quantity;
   }
 
-  console.log(selectedSize.value)
+  console.log(image.value)
 }, { immediate: true });
 
 const formatPrice = (price: number): string => {
