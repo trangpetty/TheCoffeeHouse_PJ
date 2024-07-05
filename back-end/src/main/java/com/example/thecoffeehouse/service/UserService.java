@@ -9,15 +9,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public interface UserService {
     UserDetailsService userDetailsService();
 
-    UserDto createUser(RegisterDto registerDto);
-
     Page<UserDto> getUsers(String name, String phoneNumber, Pageable pageable);
 
     UserDto updateUser(Long id, UserDto userDto);
 
     void deleteUser(Long id);
-
-    UserDto login(LoginDto loginDto);
 
     User saveOrUpdateGoogleUser(GoogleUserInfo userInfo);
 

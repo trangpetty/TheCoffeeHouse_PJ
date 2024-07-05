@@ -1,7 +1,6 @@
 package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.dto.user.*;
-import com.example.thecoffeehouse.entity.mapper.UserMapper;
 import com.example.thecoffeehouse.entity.user.Role;
 import com.example.thecoffeehouse.entity.user.User;
 import com.example.thecoffeehouse.repository.UserRepository;
@@ -74,7 +73,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userDto.setGender(user.getGender());
         userDto.setCreateTime(user.getCreateTime());
         userDto.setModifyTime(user.getModifyTime());
-        userDto.setRoleName(user.getRole().name());
+        userDto.setRole(user.getRole().name());
+        log.info("role {}", user.getRole().name());
         userDto.setToken(jwt);
         userDto.setRefreshToken(refreshToken);
 

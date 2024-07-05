@@ -27,6 +27,7 @@ public class UserMapper {
         userDto.setEmail(user.getEmail());
         userDto.setAvatar(user.getAvatar());
         userDto.setGender(user.getGender());
+        userDto.setRole(user.getRole().name());
         userDto.setCreateTime(user.getCreateTime());
         userDto.setModifyTime(user.getModifyTime());
         return userDto;

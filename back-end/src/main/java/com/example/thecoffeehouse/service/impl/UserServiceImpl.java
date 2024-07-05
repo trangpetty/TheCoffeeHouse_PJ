@@ -2,34 +2,27 @@ package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.dto.user.*;
 import com.example.thecoffeehouse.entity.user.User;
-import com.example.thecoffeehouse.entity.UserRole;
 import com.example.thecoffeehouse.entity.mapper.UserMapper;
-import com.example.thecoffeehouse.repository.RoleRepository;
 import com.example.thecoffeehouse.repository.UserRepository;
 import com.example.thecoffeehouse.repository.UserRoleRepository;
 import com.example.thecoffeehouse.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService {
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
     private final UserRoleRepository userRoleRepository;
 
-    public UserServiceImpl(UserRepository userRepository,
-                           RoleRepository roleRepository,
-                           PasswordEncoder passwordEncoder,
-                           UserRoleRepository userRoleRepository) {
+    public UserServiceImpl(UserRepository userRepository, UserRoleRepository userRoleRepository) {
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
         this.userRoleRepository = userRoleRepository;
     }
 
@@ -41,35 +34,6 @@ public class UserServiceImpl implements UserService {
                 return userRepository.findByEmail(username);
             }
         };
-    }
-
-    @Override
-    public UserDto createUser(RegisterDto registerDto) {
-        Long roleId = roleRepository.findIdByName(registerDto.getRoleName());
-
-        // Create a new User entity and set its properties
-        User user = new User();
-        user.setFirstName(registerDto.getFirstName());
-        user.setLastName(registerDto.getLastName());
-        user.setPassword(passwordEncoder.encode(registerDto.getPassword())); // Encode the password
-        user.setPhoneNumber(registerDto.getPhoneNumber());
-        user.setEmail(registerDto.getEmail());
-        user.setAvatar(registerDto.getAvatar());
-        user.setGender(registerDto.getGender());
-
-        // Save the user entity
-        User savedUser = userRepository.save(user);
-
-        // Create a new UserRole entity and set its properties
-        UserRole userRole = new UserRole();
-        userRole.setUserID(savedUser.getId());
-        userRole.setRoleID(roleId);
-
-        // Save the UserRole entity
-        userRoleRepository.save(userRole);
-
-        // Map the saved user entity to a UserDto and return
-        return UserMapper.mapToUserDto(savedUser);
     }
 
     public User saveOrUpdateGoogleUser(GoogleUserInfo userInfo) {
@@ -104,7 +68,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<UserDto> getUsers(String name, String phoneNumber, Pageable pageable) {
-        return userRepository.getAllByNameAndPhoneNumber(name, phoneNumber, pageable);
+        try {
+            log.info("Searching for users with name: '{}' and phoneNumber: '{}'", name, phoneNumber);
+            Page<User> users = userRepository.getAllByNameAndPhoneNumber(name, phoneNumber, pageable);
+            log.info("Found {} users", users.getTotalElements());
+            return users.map(UserMapper::mapToUserDto);
+        } catch (Exception e) {
+            log.error("Error retrieving users: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to retrieve users", e);
+        }
     }
 
     @Override
@@ -129,23 +101,6 @@ public class UserServiceImpl implements UserService {
 
         userRoleRepository.deleteByUserID(id);
         userRepository.deleteById(id);
-    }
-
-    @Override
-    public UserDto login(LoginDto loginDto) {
-        // Find the user by email
-        User user = userRepository.findByEmail(loginDto.getEmail());
-        if (user != null) { // Check if user exists
-            // Check if the provided password matches the encoded password in the database
-            if (passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
-                String roleName = roleRepository.getRoleNameByUserID(user.getId());
-                UserDto userDto = UserMapper.mapToUserDto(user);
-                userDto.setRoleName(roleName);
-                return userDto;
-//                return Login.of(user.getId(), accessTokenSecret, refreshTokenSecret);
-            }
-        }
-        return null;
     }
 
 }

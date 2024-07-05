@@ -1,60 +1,34 @@
 package com.example.thecoffeehouse.controller;
 
-import com.example.thecoffeehouse.Utils.JwtUtils;
 import com.example.thecoffeehouse.dto.user.*;
 import com.example.thecoffeehouse.entity.user.User;
-import com.example.thecoffeehouse.repository.RoleRepository;
-import com.example.thecoffeehouse.repository.UserRepository;
-import com.example.thecoffeehouse.repository.UserRoleRepository;
 import com.example.thecoffeehouse.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
-    private final UserRepository userRepository;
-    private final UserRoleRepository userRoleRepository;
-    private final RoleRepository roleRepository;
 
-    @Value("${jwt.secret}")
-    private String jwtSecretKey;
-
-    @Value("${jwt.issuer}")
-    private String jwtIssuer;
-
-    @Autowired
-    private JwtUtils jwtUtils;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    public UserController(UserService userService, UserRepository userRepository, UserRoleRepository userRoleRepository, RoleRepository roleRepository) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userRepository = userRepository;
-        this.userRoleRepository = userRoleRepository;
-        this.roleRepository = roleRepository;
     }
 
     @GetMapping
-    public ResponseEntity<Page<UserDto>> getUsers(@RequestParam("name") String name,
-                                                  @RequestParam("phoneNumber") String phoneNumber,
-                                                  @RequestParam("pageNo") int pageNo,
-                                                  @RequestParam(defaultValue = "10") int pageSize) {
-        if (pageNo > 0) {
-            pageNo = pageNo - 1;
-        }
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+    public ResponseEntity<Page<UserDto>> getUsers(
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "phoneNumber", required = false) String phoneNumber,
+            @RequestParam(name = "pageNo", defaultValue = "1") int pageNo,
+            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
+
+        // Adjust pageNo for 0-based indexing
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+
         return ResponseEntity.ok(userService.getUsers(name, phoneNumber, pageable));
     }
 
