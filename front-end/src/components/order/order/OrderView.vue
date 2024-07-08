@@ -70,6 +70,7 @@
               :selectedProduct="selectedProduct"
               :visible="ui.dialogVisible"
               :addCart="true"
+              :userId="user.id"
               @close="closeDialog"
           />
         </div>
@@ -85,14 +86,14 @@ import banner2 from '@/assets/images/banner2.webp'
 import banner3 from '@/assets/images/banner3.webp'
 import ProductDialog from '@/components/order/dialog/ProductDialog.vue';
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router';
 import axios from "axios";
 import {useStore} from 'vuex'
-import { ElNotification } from 'element-plus'
 
 const ui = ref({
   dialogVisible: computed(() => store.state.dialogProduct) || false
 })
+
+const user = computed(() => store.getters.user);
 
 const store = useStore();
 
@@ -127,6 +128,7 @@ const formatPrice = (price: number): string => {
 };
 
 const showProductModal = async (product) => {
+  console.log("user id: ", user.value.id);
   // selectedProduct.value = product;
   store.dispatch('setProductDialog', product);
 };

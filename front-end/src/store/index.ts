@@ -247,9 +247,10 @@ const store = createStore<State>({
         logout({ commit }) {
             commit('clearAuthData');
         },
-        async checkTokenExpiration({ state, commit }) {
+        async checkTokenExpiration({ state, commit, dispatch }) {
             const token = state.token;
             if (!token) {
+                console.log('No token found. Clearing auth data.');
                 commit('clearAuthData');
                 return false;
             }
@@ -258,26 +259,41 @@ const store = createStore<State>({
                 const decoded: JwtPayload = jwtDecode(token);
                 const currentTime = Date.now() / 1000;
 
+                console.log('Decoded token:', decoded);
+
                 if (decoded.exp < currentTime) {
-                    commit('clearAuthData');
-                    return false;
+                    try {
+                        await dispatch('refreshToken');
+                        return true; // Token refreshed successfully
+                    } catch (error) {
+                        console.error('Failed to refresh token:', error);
+                        return false; // Token refresh failed
+                    }
                 } else {
+                    console.log('Token is valid.');
                     return true;
                 }
             } catch (error) {
-                console.error('Lỗi khi giải mã token:', error);
+                console.error('Error decoding token:', error);
                 commit('clearAuthData');
                 return false;
             }
         },
-        User({ commit }) {
+        async refreshToken({ commit, state }) {
             try {
-                const localUser = JSON.parse(localStorage.getItem('user') || '{}');
-                commit('setUser', localUser);
-            } catch (e) {
-                console.error('Lỗi khi parse user từ localStorage:', e);
-                commit('setUser', {});
+                const response = await axios.post('http://localhost:8082/api/auth/refresh', { refreshToken: state.refreshToken });
+                const { token } = response.data; // Assuming your response contains a new token
+
+                commit('setToken', token); // Update token in Vuex store
+                return token; // Optionally return the new token
+            } catch (error) {
+                console.error('Error refreshing token:', error);
+                throw error; // Handle error appropriately
             }
+        },
+        loadUser({ commit }) {
+            const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+            commit('setUser', localUser);
         },
         setProductDialog({ commit }, product: object) {
             commit('setSelectedProduct', product);

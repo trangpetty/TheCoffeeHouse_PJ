@@ -65,9 +65,9 @@ import {useStore} from "vuex";
 const store = useStore();
 
 const tabList = ref([
-  {icon: "fa-solid fa-order", text: "Thông tin tài khoản"},
+  {icon: "fa-solid fa-user", text: "Thông tin tài khoản"},
   {icon: "fa-solid fa-location-dot", text: "Sổ địa chỉ"},
-  {icon: "fa-solid fa-order-shield", text: "Quyền lợi thành viên"},
+  {icon: "fa-solid fa-user-shield", text: "Quyền lợi thành viên"},
   {icon: "fa-solid fa-solid fa-clock-rotate-left", text: "Lịch sử mua hàng"},
 ])
 

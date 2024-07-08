@@ -12,10 +12,17 @@
       <div class="card-product_detail d-flex flex-column">
         <img :src="image" alt="" class="w-100 rounded mb-3">
         <div class="d-flex flex-column px-1">
-          <h5 class="h5 text-dark" style="font-weight: 600;">{{props.selectedProduct.name}}</h5>
-          <p style="text-align: justify">{{props.selectedProduct.description}}</p>
-          <div class="d-flex justify-content-between align-items-center mt-4">
-            <p class="mb-0 fs-5 fw-bold">{{ formatPrice(props.selectedProduct.price) }}</p>
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <h5 class="h5 text-dark mb-0" style="font-weight: 600;">{{props.selectedProduct.name}}</h5>
+            <font-awesome-icon
+                :icon="[props.selectedProduct.liked ? 'fas' : 'far', 'heart']"
+                class="text-orange fs-4 cursor-pointer"
+                @click="toggleLike"
+            />
+          </div>
+          <p style="text-align: justify" class="m-0">{{props.selectedProduct.description}}</p>
+          <div class="d-flex justify-content-between align-items-center mt-2">
+            <p class="mb-0 fs-5 fw-bold">{{ Utils.formatPrice(props.selectedProduct.price) }}</p>
             <div class="card-product-quantity d-flex align-items-center">
               <div class="btn add-to-cart d-flex align-items-center justify-content-center rounded-circle text-white" @click="quantity--" :class="quantity <= 1 ? 'disabled' :' btn--orange-1' ">
                 <font-awesome-icon icon="fa-solid fa-minus" />
@@ -40,7 +47,7 @@
           <el-radio v-for="(item, index) in props.selectedProduct.productSizes" :key="index" :value="item">
             <div class="d-flex flex-column fs-6">
               <span>{{(item.size === 'S')? 'Nho' : (item.size === 'M')? 'Vua' : (item.size === 'L')? 'Lon' : ''}}</span>
-              <span>+ {{formatPrice(item.surcharge)}}</span>
+              <span>+ {{Utils.formatPrice(item.surcharge)}}</span>
             </div>
           </el-radio>
         </el-radio-group>
@@ -54,7 +61,7 @@
         <div v-for="(topping, index) in props.selectedProduct.toppings" :key="index" class="card-product-option-topping">
           <div class="d-flex flex-column">
             <span class="card-product-option-topping-name">{{ topping.name }}</span>
-            <span class="card-product-option-topping-price">+{{ formatPrice(topping.price) }}</span>
+            <span class="card-product-option-topping-price">+{{ Utils.formatPrice(topping.price) }}</span>
           </div>
           <div class="d-flex align-items-center">
             <div v-if="getToppingQuantity(topping) > 0" class="quantity-extra d-flex align-items-center justify-content-center cursor-pointer" @click="decreaseQuantity(topping)"><font-awesome-icon icon="fa-solid fa-minus" /></div>
@@ -65,7 +72,7 @@
       </div>
     </div>
     <template #footer>
-      <button class="btn-add-item" @click="addToCart">{{formatPrice(cost)}} - {{ props.addCart ? "Thêm vào" : "Thay đổi"}} giỏ hàng</button>
+      <button class="btn-add-item" @click="addToCart">{{Utils.formatPrice(cost)}} - {{ props.addCart ? "Thêm vào" : "Thay đổi"}} giỏ hàng</button>
     </template>
   </el-dialog>
 </template>
@@ -74,9 +81,11 @@
 import { ref, computed, defineProps, defineEmits, watch } from 'vue';
 import { ElNotification } from 'element-plus';
 import { useStore } from 'vuex';
+import * as Utils from '@/utils/index'
+import axios from "axios";
 
-const props = defineProps(['selectedProduct', 'visible', 'addCart', 'index']);
-const emit = defineEmits();
+const props = defineProps(['selectedProduct', 'visible', 'addCart', 'index', 'userId']);
+const emit = defineEmits(['updateProduct']);
 
 const store = useStore();
 
@@ -145,16 +154,11 @@ const cost = computed(() => {
   return totalCost;
 });
 
-const addToCart = () => {
-  if (!store.dispatch('checkTokenExpiration')) {
-    ElNotification({
-      title: 'Thông báo',
-      message: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.',
-      type: 'warning',
-      showClose: false,
-      offset: 100
-    });
-    return;
+const addToCart = async () => {
+  const isAuthenticated = await Utils.checkTokenAndNotify('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.');
+
+  if (!isAuthenticated) {
+    return; // Exit function if not authenticated
   }
   if (props.selectedProduct) {
     const productWithDetails = {
@@ -210,6 +214,38 @@ const addToCart = () => {
   }
 };
 
+const toggleLike = async () => {
+  const isAuthenticated = await Utils.checkTokenAndNotify('Vui lòng đăng nhập để thêm sản phẩm vào mục yêu thích.');
+
+  if (!isAuthenticated) {
+    return; // Exit function if not authenticated
+  }
+  try {
+    const response = await axios.post('http://localhost:8082/api/products/like', {
+      userId: props.userId,
+      productId: props.selectedProduct.id
+    });
+
+    props.selectedProduct.liked = !props.selectedProduct.liked;
+    emit('updateProduct', props.selectedProduct);
+
+    ElNotification({
+      title: 'Thành công',
+      message: 'Đã cập nhật mục yêu thích',
+      type: 'success',
+      showClose: false,
+      offset: 100
+    });
+  } catch (error) {
+    console.error('Failed to like/unlike product:', error.message);
+    // Optional: Handle errors, display error messages, etc.
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+    }
+  }
+}
+
 watch(() => props.selectedProduct, () => {
   // Initialize selected size
   if (props.selectedProduct && props.selectedProduct.selectedSize) {
@@ -243,10 +279,6 @@ watch(() => props.selectedProduct, () => {
 
   console.log(image.value)
 }, { immediate: true });
-
-const formatPrice = (price: number): string => {
-  return price.toLocaleString('vi-VN') + 'đ';
-};
 
 </script>
 

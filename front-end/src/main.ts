@@ -8,6 +8,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
+import { far } from '@fortawesome/free-regular-svg-icons'
 import store from './store'
 import axios from 'axios';
 import refreshToken from './utils/refreshToken';
@@ -33,6 +34,7 @@ axios.interceptors.response.use(
 );
 
 library.add(fas)
+library.add(far)
 createApp(App)
 .use(router)
 .use(ElementPlus)

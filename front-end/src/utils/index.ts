@@ -1,6 +1,29 @@
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from './firebaseConfig';
-import { ElMessage, ElMessageBox } from 'element-plus'
+import {ElMessage, ElMessageBox, ElNotification} from 'element-plus'
+import store from "@/store";
+
+export async function checkTokenAndNotify(message: string): Promise<boolean> {
+    try {
+        const isAuthenticated = await store.dispatch('checkTokenExpiration');
+
+        if (!isAuthenticated) {
+            ElNotification({
+                title: 'Thông báo',
+                message: message,
+                type: 'warning',
+                showClose: false,
+                offset: 100
+            });
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Error checking token expiration:', error);
+        return false;
+    }
+}
 
 export function formatPrice (price: number): string {
     if (typeof price !== 'number' || isNaN(price)) {

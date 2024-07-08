@@ -185,6 +185,7 @@
         :visible="ui.dialogVisible"
         :addCart="false"
         :index="selectedIndex"
+        :userId="user.id"
         @close="ui.dialogVisible = false"
     />
   </div>
@@ -384,6 +385,7 @@ const deleteOrder = () => {
 }
 
 const openProductDialog = (item, index) => {
+  console.log("user id: ", user.value.id);
   selectedProduct.value = item;
   selectedIndex.value = index;
   ui.value.dialogVisible = true;
