@@ -8,6 +8,8 @@ import com.example.thecoffeehouse.dto.product.ProductImageDto;
 import com.example.thecoffeehouse.dto.product.ProductToppingDto;
 import com.example.thecoffeehouse.entity.product.*;
 import com.example.thecoffeehouse.repository.product.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,18 +21,21 @@ import com.example.thecoffeehouse.service.product.ProductService;
 @Service
 public class ProductServiceImpl implements ProductService {
 
+    private static final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
     private final ProductRepository productRepository;
     private final ProductDetailRepository productDetailRepository;
     private final ProductImageRepository productImageRepository;
     private final ProductToppingRepository productToppingRepository;
     private final ToppingRepository toppingRepository;
+    private final UserProductRepository userProductRepository;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductDetailRepository productDetailRepository, ProductImageRepository productImageRepository, ProductToppingRepository productToppingRepository, ToppingRepository toppingRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductDetailRepository productDetailRepository, ProductImageRepository productImageRepository, ProductToppingRepository productToppingRepository, ToppingRepository toppingRepository, UserProductRepository userProductRepository) {
         this.productRepository = productRepository;
         this.productDetailRepository = productDetailRepository;
         this.productImageRepository = productImageRepository;
         this.productToppingRepository = productToppingRepository;
         this.toppingRepository = toppingRepository;
+        this.userProductRepository = userProductRepository;
     }
 
     @Override
@@ -38,80 +43,40 @@ public class ProductServiceImpl implements ProductService {
         Product product = ProductMapper.mapToProduct(productDto);
         Product savedProduct = productRepository.save(product);
 
-        // Map and save product sizes to the saved product
-        saveProductSizes(productDto.getProductSizes(), savedProduct);
-        saveProductImages(productDto.getImages(), savedProduct);
-        saveProductToppings(productDto.getToppings(), savedProduct);
-
-        List<ProductDetailDto> productDetailDtos = productDto.getProductSizes();
-        List<ProductImageDto> productImageDtos = productDto.getImages();
-        List<ProductToppingDto> productToppings = productDto.getToppings();
-        return ProductMapper.mapToProductDto(savedProduct, productDetailDtos, productImageDtos, productToppings);
-    }
-
-    private void saveProductSizes(List<ProductDetailDto> productSizes, Product product) {
-
-        for (ProductDetailDto sizeDto : productSizes) {
-            ProductDetail productDetail = new ProductDetail();
-            productDetail.setProductID(product.getId());
-            productDetail.setSize(sizeDto.getSize());
-            productDetail.setSurcharge(sizeDto.getSurcharge());
-            productDetailRepository.save(productDetail);
-        }
-    }
-
-    private void saveProductImages(List<ProductImageDto> productImages, Product product) {
-        for (ProductImageDto imageDto : productImages) {
-            ProductImage productImage = new ProductImage();
-            productImage.setProductID(product.getId());
-            productImage.setUrl(imageDto.getUrl());
-            productImageRepository.save(productImage);
-        }
-    }
-
-    private void saveProductToppings(List<ProductToppingDto> productToppingDtos, Product product) {
-
-        for (ProductToppingDto productToppingDto : productToppingDtos) {
-            ProductTopping productTopping = new ProductTopping();
-            productTopping.setProductID(product.getId());
-            productTopping.setToppingID(productToppingDto.getToppingID());
-            productToppingRepository.save(productTopping);
-        }
+        saveOrUpdateProductDetails(productDto.getProductSizes(), savedProduct);
+        saveOrUpdateProductImages(productDto.getImages(), savedProduct);
+        saveOrUpdateProductToppings(productDto.getToppings(), savedProduct);
+        return ProductMapper.mapToProductDto(savedProduct);
     }
 
     @Override
     public ProductDto getProductById(Long id) {
-        Product product = productRepository
-                .findById(id)
-                .orElseThrow(() -> new RuntimeException("Product does not exists"));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product does not exist"));
+
         List<Topping> toppings = toppingRepository.findAll();
+        List<ProductDetailDto> productDetailDtos = ProductMapper.mapToProductDetailDtoList(productDetailRepository.findAllByProductID(id));
+        List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImageRepository.findAllByProductID(id));
+        List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppingRepository.findByProductID(id), toppings);
 
-        List<ProductDetail> productDetails = productDetailRepository.findAllByProductID(id);
-        List<ProductImage> productImages = productImageRepository.findAllByProductID(id);
-        List<ProductTopping> productToppings = productToppingRepository.findByProductID(id);
-
-        // Map product details to DTOs
-        List<ProductDetailDto> productDetailDtos = ProductMapper.mapToProductDetailDtoList(productDetails);
-        List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImages);
-        List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppings, toppings);
-        return ProductMapper.mapToProductDto(product, productDetailDtos, productImageDtos, productToppingDtos);
+        return ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
     }
 
     @Override
     public Page<ProductDto> getAllProducts(String name, Long typeID, Pageable pageable) {
         Page<Product> products = productRepository.getAllProducts(name, typeID, pageable);
         List<Topping> toppings = toppingRepository.findAll();
+        List<Long> userIds = userProductRepository.findDistinctUserIds();
 
         return products.map(product -> {
-            List<ProductDetail> productDetails = productDetailRepository.findAllByProductID(product.getId());
-            List<ProductImage> productImages = productImageRepository.findAllByProductID(product.getId());
-            List<ProductTopping> productToppings = productToppingRepository.findByProductID(product.getId());
+            List<ProductDetailDto> productDetailDtos = ProductMapper.mapToProductDetailDtoList(productDetailRepository.findAllByProductID(product.getId()));
+            List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImageRepository.findAllByProductID(product.getId()));
+            List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppingRepository.findByProductID(product.getId()), toppings);
 
-            List<ProductDetailDto> productDetailDtos = ProductMapper.mapToProductDetailDtoList(productDetails);
-            List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImages);
-            List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppings, toppings);
+            ProductDto productDto = ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
+            productDto.setLiked(userIds.stream().anyMatch(userId -> isProductLikedByUser(userId, productDto.getId())));
 
-            return ProductMapper.mapToProductDto(product, productDetailDtos, productImageDtos, productToppingDtos);
+            return productDto;
         });
     }
 
@@ -119,128 +84,97 @@ public class ProductServiceImpl implements ProductService {
     public ProductDto updateProduct(Long id, ProductDto productDto) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product does not exist"));
-        List<Topping> toppings = toppingRepository.findAll();
 
-        // Update the fields of the Product entity
         product.setName(productDto.getName());
         product.setPrice(productDto.getPrice());
         product.setTypeID(productDto.getTypeID());
         product.setDescription(productDto.getDescription());
 
-        // Save the updated Product entity
         Product updatedProduct = productRepository.save(product);
 
-        // Save or update ProductDetail entities
         saveOrUpdateProductDetails(productDto.getProductSizes(), updatedProduct);
-
-        // Save or update ProductImage entities
         saveOrUpdateProductImages(productDto.getImages(), updatedProduct);
-
-        // Save or update ProductTopping entities
         saveOrUpdateProductToppings(productDto.getToppings(), updatedProduct);
 
-        removeProductImages(productDto.getRemovedImages());
-        removeProductDetails(productDto.getRemovedProductSizes());
-        removeProductToppings(productDto.getRemovedToppings());
+        removeProductEntities(productDto.getRemovedProductSizes(), productDto.getRemovedImages(), productDto.getRemovedToppings());
 
-        // Retrieve updated ProductDetail entities
-        List<ProductDetail> productDetails = productDetailRepository.findAllByProductID(id);
-        // Map ProductDetail entities to DTOs
-        List<ProductDetailDto> productDetailDtos = ProductMapper.mapToProductDetailDtoList(productDetails);
+        List<Topping> toppings = toppingRepository.findAll();
+        List<ProductDetailDto> productDetailDtos = ProductMapper.mapToProductDetailDtoList(productDetailRepository.findAllByProductID(id));
+        List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImageRepository.findAllByProductID(id));
+        List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppingRepository.findByProductID(id), toppings);
 
-        // Retrieve updated ProductImage URLs
-        List<ProductImage> productImages = productImageRepository.findAllByProductID(id);
-        List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImages);
-
-        // Retrieve updated ProductTopping entities
-        List<ProductTopping> productToppings = productToppingRepository.findByProductID(id);
-        List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppings, toppings);
-
-
-        // Map Product and associated entities to a ProductDto
-        return ProductMapper.mapToProductDto(updatedProduct, productDetailDtos, productImageDtos, productToppingDtos);
+        return ProductMapper.mapToProductDtoWithDetails(updatedProduct, productDetailDtos, productImageDtos, productToppingDtos);
     }
 
-    private void saveOrUpdateProductDetails(List<ProductDetailDto> productDetailDtos, Product product) {
-        for (ProductDetailDto productDetailDto : productDetailDtos) {
-            ProductDetail productDetail = new ProductDetail();
-            productDetail.setProductID(product.getId());
-            productDetail.setSize(productDetailDto.getSize());
-            productDetail.setSurcharge(productDetailDto.getSurcharge());
-
-            if (productDetailDto.getId() != null) {
-                productDetail.setId(productDetailDto.getId());
-            }
-
-            productDetailRepository.save(productDetail);
-
-        }
-    }
-
-    private void saveOrUpdateProductImages(List<ProductImageDto> productImages, Product product) {
-        for (ProductImageDto imageDto : productImages) {
-            ProductImage productImage = new ProductImage();
-            if (imageDto.getId() != null) {
-                productImage.setId(imageDto.getId());
-            }
-            productImage.setProductID(product.getId());
-            productImage.setUrl(imageDto.getUrl());
-            productImageRepository.save(productImage);
-        }
-    }
-
-    private void saveOrUpdateProductToppings(List<ProductToppingDto> productToppingDtos, Product product) {
-        for (ProductToppingDto topping : productToppingDtos) {
-            ProductTopping productTopping = new ProductTopping();
-            productTopping.setProductID(product.getId());
-            productTopping.setToppingID(topping.getToppingID());
-
-            if (productTopping.getId() != null) {
-                productTopping.setId(topping.getId());
-            }
-
-            productToppingRepository.save(productTopping);
-
-        }
-    }
-
-    private void removeProductImages(List<ProductImageDto> removedImageDtos) {
-        for (ProductImageDto image: removedImageDtos) {
-            productImageRepository.deleteById(image.getId());
-        }
-    }
-
-    private void removeProductToppings(List<ProductToppingDto> removedToppings) {
-        for (ProductToppingDto productToppingDto: removedToppings) {
-            productToppingRepository.deleteById(productToppingDto.getId());
-        }
-    }
-
-    private void removeProductDetails(List<ProductDetailDto> removedDetailDtos) {
-        for (ProductDetailDto size: removedDetailDtos) {
-            productDetailRepository.deleteById(size.getId());
-        }
-    }
-
-
-    @Override
     public List<ProductDto> getProductsByTypeID(Long typeID) {
         List<Product> products = productRepository.getProductsByTypeID(typeID);
         List<Topping> toppings = toppingRepository.findAll();
+        List<Long> userIds = userProductRepository.findDistinctUserIds();
 
         return products.stream()
                 .map(product -> {
-                    List<ProductDetail> productDetails = productDetailRepository.findAllByProductID(product.getId());
-                    List<ProductDetailDto> productDetailDtos = ProductMapper.mapToProductDetailDtoList(productDetails);
+                    List<ProductDetailDto> productDetailDtos = ProductMapper.mapToProductDetailDtoList(productDetailRepository.findAllByProductID(product.getId()));
+                    List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImageRepository.findAllByProductID(product.getId()));
+                    List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppingRepository.findByProductID(product.getId()), toppings);
 
-                    List<ProductImage> productImages = productImageRepository.findAllByProductID(product.getId());
-                    List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImages);
+                    ProductDto productDto = ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
+                    productDto.setLiked(userIds.stream().anyMatch(userId -> isProductLikedByUser(userId, productDto.getId())));
 
-                    List<ProductTopping> productToppings = productToppingRepository.findByProductID(product.getId());
-                    List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppings, toppings);
-                    return ProductMapper.mapToProductDto(product, productDetailDtos, productImageDtos, productToppingDtos);
+                    return productDto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public UserProduct likeProduct(Long userId, Long productId) {
+        UserProduct userProduct = userProductRepository.findByUserIdAndProductId(userId, productId);
+
+        if (userProduct == null) {
+            userProduct = new UserProduct();
+            userProduct.setUserId(userId);
+            userProduct.setProductId(productId);
+            userProduct.setLiked(true); // Set liked status to true
+        } else {
+            userProduct.setLiked(!userProduct.getLiked()); // Toggle liked status
+        }
+
+        return userProductRepository.save(userProduct);
+    }
+
+    @Override
+    public boolean isProductLikedByUser(Long userId, Long productId) {
+        UserProduct userProduct = userProductRepository.findByUserIdAndProductId(userId, productId);
+        return userProduct != null && userProduct.getLiked();
+    }
+
+    @Override
+    public ProductDto getMostFavoriteProduct() {
+        Product product = productRepository.getTotalLikes();
+        List<ProductDetailDto> productDetailDtos = getProductDetails(product.getId());
+        List<ProductImageDto> productImageDtos = getProductImages(product.getId());
+        List<ProductToppingDto> productToppingDtos = getProductToppings(product.getId());
+
+        return ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
+    }
+
+    @Override
+    public ProductDto getBestSellingProduct() {
+        Product product = productRepository.getTotalQuantity();
+        List<ProductDetailDto> productDetailDtos = getProductDetails(product.getId());
+        List<ProductImageDto> productImageDtos = getProductImages(product.getId());
+        List<ProductToppingDto> productToppingDtos = getProductToppings(product.getId());
+
+        return ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
+    }
+
+    @Override
+    public ProductDto getHighestRatedProduct() {
+        Product product = productRepository.getAvgRating();
+        List<ProductDetailDto> productDetailDtos = getProductDetails(product.getId());
+        List<ProductImageDto> productImageDtos = getProductImages(product.getId());
+        List<ProductToppingDto> productToppingDtos = getProductToppings(product.getId());
+
+        return ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
     }
 
 
@@ -256,5 +190,104 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
     }
 
+    private List<ProductDetailDto> getProductDetails(Long productId) {
+        List<ProductDetail> productDetails = productDetailRepository.findAllByProductID(productId);
+        return ProductMapper.mapToProductDetailDtoList(productDetails);
+    }
+
+    private List<ProductImageDto> getProductImages(Long productId) {
+        List<ProductImage> productImages = productImageRepository.findAllByProductID(productId);
+        return ProductMapper.mapProductImagesToDto(productImages);
+    }
+
+    private List<ProductToppingDto> getProductToppings(Long productId) {
+        List<Topping> toppings = toppingRepository.findAll();
+        List<ProductTopping> productToppings = productToppingRepository.findByProductID(productId);
+        return ProductMapper.mapProductToppingsDto(productToppings, toppings);
+    }
+
+    private void saveOrUpdateProductDetails(List<ProductDetailDto> productDetailDtos, Product product) {
+        List<ProductDetail> existingDetails = productDetailRepository.findAllByProductID(product.getId());
+
+        for (ProductDetailDto dto : productDetailDtos) {
+            ProductDetail detail = existingDetails.stream()
+                    .filter(d -> d.getId().equals(dto.getId()))
+                    .findFirst()
+                    .orElse(new ProductDetail());
+
+            detail.setProductID(product.getId());
+            detail.setSize(dto.getSize());
+            detail.setSurcharge(dto.getSurcharge());
+
+            productDetailRepository.save(detail);
+        }
+
+        List<Long> updatedDetailIds = productDetailDtos.stream()
+                .map(ProductDetailDto::getId)
+                .toList();
+        existingDetails.stream()
+                .filter(detail -> !updatedDetailIds.contains(detail.getId()))
+                .forEach(productDetailRepository::delete);
+    }
+
+    private void saveOrUpdateProductImages(List<ProductImageDto> productImages, Product product) {
+        List<ProductImage> existingImages = productImageRepository.findAllByProductID(product.getId());
+
+        for (ProductImageDto dto : productImages) {
+            ProductImage image = existingImages.stream()
+                    .filter(i -> i.getId().equals(dto.getId()))
+                    .findFirst()
+                    .orElse(new ProductImage());
+
+            image.setProductID(product.getId());
+            image.setUrl(dto.getUrl());
+
+            productImageRepository.save(image);
+        }
+
+        List<Long> updatedImageIds = productImages.stream()
+                .map(ProductImageDto::getId)
+                .toList();
+        existingImages.stream()
+                .filter(image -> !updatedImageIds.contains(image.getId()))
+                .forEach(productImageRepository::delete);
+    }
+
+    private void saveOrUpdateProductToppings(List<ProductToppingDto> productToppingDtos, Product product) {
+        List<ProductTopping> existingToppings = productToppingRepository.findByProductID(product.getId());
+
+        for (ProductToppingDto dto : productToppingDtos) {
+            ProductTopping topping = existingToppings.stream()
+                    .filter(t -> t.getId().equals(dto.getId()))
+                    .findFirst()
+                    .orElse(new ProductTopping());
+
+            topping.setProductID(product.getId());
+            topping.setToppingID(dto.getToppingID());
+
+            productToppingRepository.save(topping);
+        }
+
+        List<Long> updatedToppingIds = productToppingDtos.stream()
+                .map(ProductToppingDto::getId)
+                .toList();
+        existingToppings.stream()
+                .filter(topping -> !updatedToppingIds.contains(topping.getId()))
+                .forEach(productToppingRepository::delete);
+    }
+
+    private void removeProductEntities(List<ProductDetailDto> removedProductSizes, List<ProductImageDto> removedImages, List<ProductToppingDto> removedToppings) {
+        for (ProductDetailDto detail : removedProductSizes) {
+            productDetailRepository.deleteById(detail.getId());
+        }
+
+        for (ProductImageDto image : removedImages) {
+            productImageRepository.deleteById(image.getId());
+        }
+
+        for (ProductToppingDto topping : removedToppings) {
+            productToppingRepository.deleteById(topping.getId());
+        }
+    }
 
 }

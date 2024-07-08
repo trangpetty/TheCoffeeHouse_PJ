@@ -5,12 +5,12 @@ import com.example.thecoffeehouse.dto.product.ProductDto;
 import com.example.thecoffeehouse.dto.product.ProductImageDto;
 import com.example.thecoffeehouse.dto.product.ProductToppingDto;
 import com.example.thecoffeehouse.entity.product.*;
+import com.example.thecoffeehouse.service.product.ProductService;
 
 import java.util.List;
 import java.util.stream.Collectors;
 public class ProductMapper {
-
-    public static ProductDto mapToProductDto(Product product, List<ProductDetailDto> productDetailDtos, List<ProductImageDto> productImages, List<ProductToppingDto> productToppingDtos) {
+    public static ProductDto mapToProductDto(Product product) {
         ProductDto productDto = new ProductDto();
         productDto.setId(product.getId());
         productDto.setTypeID(product.getTypeID());
@@ -19,6 +19,11 @@ public class ProductMapper {
         productDto.setPrice(product.getPrice());
         productDto.setCreateTime(product.getCreateTime());
         productDto.setModifyTime(product.getModifyTime());
+        return productDto;
+    }
+
+    public static ProductDto mapToProductDtoWithDetails(Product product, List<ProductDetailDto> productDetailDtos, List<ProductImageDto> productImages, List<ProductToppingDto> productToppingDtos) {
+        ProductDto productDto = mapToProductDto(product);
         productDto.setImages(productImages);
         productDto.setProductSizes(productDetailDtos);
         productDto.setToppings(productToppingDtos);

@@ -1,6 +1,8 @@
 package com.example.thecoffeehouse.controller.product;
 
+import com.example.thecoffeehouse.dto.LikeProductRequest;
 import com.example.thecoffeehouse.entity.product.ProductReview;
+import com.example.thecoffeehouse.entity.product.UserProduct;
 import com.example.thecoffeehouse.repository.product.ProductReviewRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -67,5 +69,25 @@ public class ProductController {
     @PostMapping("/rate")
     public ResponseEntity<ProductReview> createProductReview(@RequestBody ProductReview productReview) {
         return new ResponseEntity<>(productReviewRepository.save(productReview), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/like")
+    public UserProduct likeProduct(@RequestBody LikeProductRequest request) {
+        return productService.likeProduct(request.getUserId(), request.getProductId());
+    }
+
+    @GetMapping("/most-like")
+    public ResponseEntity<ProductDto> getMostFavoriteProduct() {
+        return ResponseEntity.ok(productService.getMostFavoriteProduct());
+    }
+
+    @GetMapping("/bestseller")
+    public ResponseEntity<ProductDto> getBestSellingProduct() {
+        return ResponseEntity.ok(productService.getBestSellingProduct());
+    }
+
+    @GetMapping("/highest-rate")
+    public ResponseEntity<ProductDto> getHighestRatedProduct() {
+        return ResponseEntity.ok(productService.getHighestRatedProduct());
     }
 }

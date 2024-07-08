@@ -22,6 +22,7 @@ public class ProductDto {
     private List<ProductDetailDto> removedProductSizes;
     private List<ProductToppingDto> toppings;
     private List<ProductToppingDto> removedToppings;
+    private boolean liked;
     private LocalDateTime createTime;
     private LocalDateTime modifyTime;
 }

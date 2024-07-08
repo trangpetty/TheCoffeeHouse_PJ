@@ -25,4 +25,26 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
     @Query("SELECT p FROM Product p WHERE p.TypeID = :typeID")
     List<Product> getProductsByTypeID(@Param("typeID") Long typeID);
 
+    @Query("SELECT p, AVG(pr.rate) as avg_rating " +
+            "FROM Product p " +
+            "JOIN ProductReview pr ON p.id = pr.productId " +
+            "GROUP BY p.id, p.name " +
+            "ORDER BY avg_rating DESC LIMIT 1")
+    Product getAvgRating();
+
+    @Query("SELECT p, SUM(bp.quantityProduct) as total_quantity " +
+            "FROM Product p " +
+            "JOIN BillProduct bp ON p.id = bp.productID " +
+            "GROUP BY p.id, p.name " +
+            "ORDER BY total_quantity DESC LIMIT 1")
+    Product getTotalQuantity();
+
+    @Query("SELECT p, COUNT(up.id) as total_likes " +
+            "FROM Product p " +
+            "JOIN UserProduct up ON p.id = up.productId " +
+            "WHERE up.liked = true " +
+            "GROUP BY p.id, p.name " +
+            "ORDER BY total_likes DESC LIMIT 1")
+    Product getTotalLikes();
+
 }

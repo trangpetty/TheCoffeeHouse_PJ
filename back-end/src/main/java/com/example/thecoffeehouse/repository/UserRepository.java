@@ -1,5 +1,6 @@
 package com.example.thecoffeehouse.repository;
 
+import com.example.thecoffeehouse.entity.user.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,6 +17,8 @@ public interface UserRepository extends JpaRepository<User, Long>{
     Page<User> getAllByNameAndPhoneNumber(@Param("name") String name, @Param("phoneNumber") String phoneNumber, Pageable pageable);
 
     User findByEmail(@Param("email") String email);
+
+    User findByRole(Role role);
 
     boolean existsByEmail(String email);
 
