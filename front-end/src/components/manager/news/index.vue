@@ -69,7 +69,7 @@ const currentNews = ref<object | null>(null);
 const fetchData = async () => {
   try {
     ui.value.loading = true;
-    const response = await axios.get(`http://localhost:8082/api/news`, {
+    const response = await axios.get(`http://10.30.100.178:8082/api/news`, {
       params: {
         type: type.value,
         pageNo: currentPage.value

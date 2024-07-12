@@ -3,7 +3,7 @@ import store from '@/store/index';
 
 const refreshToken = async () => {
     try {
-        const response = await axios.post('http://localhost:8082/api/auth/refresh', {
+        const response = await axios.post('http://10.30.100.178:8082/api/auth/refresh', {
             refreshToken: store.state.refreshToken,
         });
         const result = response.data;

@@ -92,7 +92,7 @@ const productType_id = ref(null);
 const fetchData = async () => {
   try {
     ui.value.loading = true;
-    const response = await axios.get('http://localhost:8082/api/product-type');
+    const response = await axios.get('http://10.30.100.178:8082/api/product-type');
     tableData.value = response.data;
     ui.value.loading = false;
   } catch (error) {
@@ -112,9 +112,9 @@ const handleConfirm = async () => {
       }
     }
     console.log(typeof(formData.value.applyFrom))
-    await axios.post('http://localhost:8082/api/product-type', formData.value);
+    await axios.post('http://10.30.100.178:8082/api/product-type', formData.value);
   } else {
-    await axios.put(`http://localhost:8082/api/product-type/${productType_id.value}`, formData.value);
+    await axios.put(`http://10.30.100.178:8082/api/product-type/${productType_id.value}`, formData.value);
   }
   ui.value.loading = false;
   await fetchData();
@@ -179,7 +179,7 @@ const handleEditRow = async (row: object) => {
 };
 
 const handleDeleteRow = async (id: number) => {
-  await axios.delete(`http://localhost:8082/api/product-type/${id}`);
+  await axios.delete(`http://10.30.100.178:8082/api/product-type/${id}`);
   await fetchData();
 };
 

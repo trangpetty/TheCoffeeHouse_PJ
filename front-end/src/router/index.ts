@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import store from '@/store/index';
-import HomeView from '@/views/manager/HomeView.vue';
+import HomeAdminView from '@/views/manager/HomeView.vue';
 import ProductManagerView from '@/components/manager/product/index.vue';
 import ProductView from '@/components/manager/product/ProductView.vue';
 import ProductTypeView from '@/components/manager/product/ProductTypeView.vue';
@@ -23,12 +23,14 @@ import BlogsView from '@/components/order/news/NewsView.vue';
 import BlogDetail from '@/components/order/news/NewsDetail.vue';
 
 import ProductDetail from '@/components/user/ProductDetailView.vue';
+import MainPage from '@/components/user/main/MainPage.vue';
+import HomeView from '@/views/HomeView.vue';
 import {ElMessageBox} from "element-plus";
 
 export const routes = [
   {
     path: '/admin',
-    component: HomeView,
+    component: HomeAdminView,
     meta: { requiresAuth: true },
     children: [
       {
@@ -134,29 +136,32 @@ export const routes = [
     props: true
   },
   {
-    path: '/product/:id',
-    name: 'product',
-    component: ProductDetail,
-    props: true
-  },
+    path: '/',
+    name: 'home',
+    component: HomeView,
+    meta: { breadcrumb: 'Home' },
+    children: [
+      {
+        path: '',
+        name: 'main',
+        component: MainPage,
+        meta: { breadcrumb: 'Main Page' }
+      },
+      {
+        path: 'product/:id',
+        name: 'product',
+        component: ProductDetail,
+        props: true,
+        meta: { breadcrumb: 'Product Detail' }
+      },
+    ],
+  }
 ];
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes
 });
-
-
-// router.beforeEach(async (to, from, next) => {
-//   const isAuthenticated = await store.dispatch('checkTokenExpiration');
-//   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
-//
-//   if (requiresAuth && !isAuthenticated) {
-//     next('/order/login'); // Redirect to login page if route requires authentication and user is not authenticated
-//   } else {
-//     next(); // Proceed to next route
-//   }
-// });
 
 router.beforeEach(async (to, from, next) => {
   const isAuthenticated = await store.dispatch('checkTokenExpiration');
@@ -171,14 +176,14 @@ router.beforeEach(async (to, from, next) => {
       }).then(() => {
         router.push('/order/login');
       }).catch(() => {
-        next(false); // Không chuyển hướng nếu không đồng ý đăng nhập lại
-      }); // Redirect to admin login page if admin authentication is required and user is not authenticated
+        next(false);
+      });
     }
     // else {
     //   next('/order/login'); // Redirect to order login page if order authentication is required and user is not authenticated
     // }
   } else {
-    next(); // Proceed to next route
+    next();
   }
 });
 

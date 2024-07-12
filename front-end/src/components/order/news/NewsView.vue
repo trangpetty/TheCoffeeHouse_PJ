@@ -62,7 +62,7 @@ const setActiveTab = (tabName) => {
 
 const fetchData = async () => {
   try {
-    const response = await axios.get(`http://localhost:8082/api/news/all`, {
+    const response = await axios.get(`http://10.30.100.178:8082/api/news/all`, {
       params: {
         type: type.value
       }

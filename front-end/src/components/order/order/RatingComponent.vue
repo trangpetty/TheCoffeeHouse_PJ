@@ -62,7 +62,7 @@ const setRating = (index: number, star: number) => {
 
 const submitRating = async (index: number) => {
   const item = props.items[index];
-  const response = await axios.post('http://localhost:8082/api/products/rate', {
+  const response = await axios.post('http://10.30.100.178:8082/api/products/rate', {
     productId: item.id,
     userId: props.userId,
     rate: item.rating,

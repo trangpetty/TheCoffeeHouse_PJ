@@ -158,7 +158,7 @@ const fetchData = async () => {
   try {
     ui.value.loading = true;
     let response: object
-    response = await axios.get('http://localhost:8082/api/users', {
+    response = await axios.get('http://10.30.100.178:8082/api/users', {
       params: {
         name: queryForm.value.name,
         phoneNumber: queryForm.value.phoneNumber,
@@ -198,9 +198,9 @@ const handleConfirm = async () => {
       }
     }
     console.log(formData.value)
-    await axios.post('http://localhost:8082/api/users', formData.value);
+    await axios.post('http://10.30.100.178:8082/api/users', formData.value);
   } else {
-    await axios.put(`http://localhost:8082/api/users/${user_id.value}`, formData.value);
+    await axios.put(`http://10.30.100.178:8082/api/users/${user_id.value}`, formData.value);
   }
   ui.value.loading = false;
   await fetchData();
@@ -249,7 +249,7 @@ const handleDeleteRow = async (id: number) => {
   if(!confirmed) {
     return;
   }
-  await axios.delete(`http://localhost:8082/api/users/${id}`);
+  await axios.delete(`http://10.30.100.178:8082/api/users/${id}`);
   await fetchData();
 }
 

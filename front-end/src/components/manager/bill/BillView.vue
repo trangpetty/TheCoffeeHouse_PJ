@@ -128,7 +128,7 @@ const fetchData = async () => {
   try {
     ui.value.loading = true;
     let response: object
-    response = await axios.get('http://localhost:8082/api/bills', {
+    response = await axios.get('http://10.30.100.178:8082/api/bills', {
       params: {
         code: queryForm.value.code,
         status: queryForm.value.status,
@@ -159,7 +159,7 @@ const handleDetail = async (row: object) => {
   bill.value = row
   console.log(bill.value)
   // for(const item of bill.value.products) {
-  //   let product = await axios.get(`http://localhost:8082/api/products/${item.productID}`);
+  //   let product = await axios.get(`http://10.30.100.178:8082/api/products/${item.productID}`);
   //   item.productName = product.data.name;
   //   item.price = product.data.price;
   // }

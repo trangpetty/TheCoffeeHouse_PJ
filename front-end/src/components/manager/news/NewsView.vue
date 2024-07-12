@@ -215,13 +215,13 @@ const submitNews = async () => {
       }
     }
     if (props.news) {
-      await axios.put(`http://localhost:8082/api/news/${props.news.id}`, formData.value);
+      await axios.put(`http://10.30.100.178:8082/api/news/${props.news.id}`, formData.value);
       ElMessage({
         message: 'News updated successfully!',
         type: 'success',
       })
     } else {
-      await axios.post('http://localhost:8082/api/news', formData.value);
+      await axios.post('http://10.30.100.178:8082/api/news', formData.value);
       ElMessage({
         message: 'News submitted successfully!',
         type: 'success',

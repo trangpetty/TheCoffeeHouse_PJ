@@ -29,7 +29,7 @@ const news = ref(null); // Use 'any' for flexibility in typing
 onMounted(async () => {
   if (props.id) {
     try {
-      const response = await axios.get(`http://localhost:8082/api/news/${props.id}`);
+      const response = await axios.get(`http://10.30.100.178:8082/api/news/${props.id}`);
       news.value = response.data;
     } catch (error) {
       console.error('Error fetching news detail:', error);

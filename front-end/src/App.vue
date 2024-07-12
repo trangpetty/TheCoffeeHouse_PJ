@@ -23,6 +23,7 @@
   --radial-gradient-orange-10: radial-gradient(100% 828.83% at 0% 100%,#e87800 0%,#fa8c16 100%);
   --nude-1: #fff7e6;
   --nude-2: #ffe7ba;
+  --nude-3: #FCF6F1;
   --smoky-gray-2: #b2b2b2;
   --smoky-gray-3: rgba(0, 0, 0, .6);
   --smoky-gray-4: #ededee;

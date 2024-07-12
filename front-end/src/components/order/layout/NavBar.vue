@@ -24,7 +24,7 @@
       </div>
       <div class="d-flex align-items-center ms-auto header-right">
         <router-link to="/order/user-info" href="#">
-          <img :src="user.avatar ? user.avatar :noAvatar" style="width: 40px;" alt="" class="rounded-circle">
+          <img :src="user.avatar ? user.avatar :noAvatar" style="width: 40px;height: 40px" alt="" class="rounded-circle object-fit-cover">
         </router-link>
         <span class="name_user">{{user.firstName}} {{user.lastName}}</span>
         <router-link :to="(totalQuantity > 0) ? 'order/checkout' : ''" class="ms-3">

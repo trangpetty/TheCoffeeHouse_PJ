@@ -365,7 +365,7 @@ const confirmOrder = async () => {
     try {
       const endpoint = paymentMethod.value.methodName === 'momo' ? 'momo' : 'vnpay';
       // Example axios request
-      const pay = await axios.post(`http://localhost:8082/api/payment/${endpoint}`, formData.value);
+      const pay = await axios.post(`http://10.30.100.178:8082/api/payment/${endpoint}`, formData.value);
       if (pay.status === 200) {
         setTimeout(() => {
           deleteOrder();

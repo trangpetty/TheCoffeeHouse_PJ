@@ -1,23 +1,6 @@
 <template>
   <main>
-    <div id="mainBanner" class="carousel slide" data-bs-ride="carousel" data-bs-interval="7000">
-      <ul class="carousel-indicators" style="list-style-type: none;">
-        <li v-for="index in images" :key="index" :data-bs-target="'#mainBanner'" :data-bs-slide-to="index" :class="{ 'active': index === 0 }"></li>
-      </ul>
-      <div class="carousel-inner">
-        <div v-for="(item, index) in images" :key="index" :class="{ 'carousel-item': true, 'active': index === 0 }" style="height: 550px;">
-          <div class="bounceIn">
-            <img :src="item" class="d-block w-100" alt="...">
-          </div>
-        </div>
-      </div>
-      <a class="carousel-control-prev" href="#mainBanner" role="button" data-bs-slide="prev">
-        <font-awesome-icon icon="fa-solid fa-chevron-left" class="fs-3 text-brown"/>
-      </a>
-      <a class="carousel-control-next" href="#mainBanner" role="button" data-bs-slide="next">
-        <font-awesome-icon icon="fa-solid fa-chevron-right" class="fs-3 text-brown"/>
-      </a>
-    </div>
+    <Carousel />
 <!--    Main -->
     <div class="box">
       <div class="container-fluid container-lg">
@@ -81,13 +64,11 @@
 </template>
 
 <script lang="ts" setup>
-import banner1 from '@/assets/images/banner1.webp'
-import banner2 from '@/assets/images/banner2.webp'
-import banner3 from '@/assets/images/banner3.webp'
 import ProductDialog from '@/components/order/dialog/ProductDialog.vue';
 import { ref, computed, onMounted } from 'vue'
 import axios from "axios";
-import {useStore} from 'vuex'
+import {useStore} from 'vuex';
+import Carousel from '@/components/Carousel.vue'
 
 const ui = ref({
   dialogVisible: computed(() => store.state.dialogProduct) || false
@@ -97,16 +78,15 @@ const user = computed(() => store.getters.user);
 
 const store = useStore();
 
-const images = ref([banner1, banner2, banner3])
 const types = ref([]);
 const products = ref([]);
 const activeId = ref(1);
 const selectedProduct = computed(() => store.state.selectedProduct) || ref({});
 
 const getTypes = async () => {
-  const response = await axios.get('http://localhost:8082/api/product-type');
+  const response = await axios.get('http://10.30.100.178:8082/api/product-type');
   types.value = response.data;
-  const response2 = await axios.get(`http://localhost:8082/api/products/type/1`);
+  const response2 = await axios.get(`http://10.30.100.178:8082/api/products/type/1?userID=`);
   products.value = response2.data;
 };
 
@@ -114,11 +94,11 @@ const handleChangeType = async (id: number, name: string, event: Event) => {
   event.preventDefault();
   activeId.value = id;
   if(name == 'Topping') {
-    const response = await axios.get(`http://localhost:8082/api/topping`);
+    const response = await axios.get(`http://10.30.100.178:8082/api/topping`);
     products.value = response.data;
   }
   else {
-    const response = await axios.get(`http://localhost:8082/api/products/type/${id}`);
+    const response = await axios.get(`http://10.30.100.178:8082/api/products/type/${id}?userID=`);
     products.value = response.data;
   }
 }

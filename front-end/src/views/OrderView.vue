@@ -31,7 +31,7 @@ onMounted(() => {
 });
 // const fetchUserInformation = async () => {
 //   try {
-//     const response = await axios.get('http://localhost:8082/api/users/login/google');
+//     const response = await axios.get('http://10.30.100.178:8082/api/users/login/google');
 //     console.log(response)
 //     // const order = response.data as User;
 //     //

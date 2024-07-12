@@ -43,7 +43,7 @@ const chartOptions = ref({
 
 const fetchMonthlyRevenue = async () => {
   try {
-    const response = await axios.get('http://localhost:8082/api/bills/revenue');
+    const response = await axios.get('http://10.30.100.178:8082/api/bills/revenue');
     const monthlyData = response.data;
 
     // Assuming your API returns an array of revenues for each month in correct order

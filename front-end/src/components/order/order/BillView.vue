@@ -196,7 +196,7 @@ const submitRating = async () => {
   bill.value.rate = formData.value.rating
   bill.value.comment = formData.value.comment
   console.log(bill.value)
-  const response = await axios.put(`http://localhost:8082/api/bills/${props.code}`, bill.value);
+  const response = await axios.put(`http://10.30.100.178:8082/api/bills/${props.code}`, bill.value);
   formData.value.rated = true;
   let confirmed = await Utils.confirm("Bạn có muốn đánh giá các sản phẩm không？", "Xác nhận");
   if(confirmed) {
@@ -211,13 +211,13 @@ const submitRating = async () => {
 }
 
 onMounted (async () => {
-  const response = await axios.get(`http://localhost:8082/api/bills/${props.code}`);
+  const response = await axios.get(`http://10.30.100.178:8082/api/bills/${props.code}`);
   bill.value = response.data;
   if(bill.value.voucherID) {
-    const response1 = await axios.get(`http://localhost:8082/api/vouchers/${bill.value.voucherID}`);
+    const response1 = await axios.get(`http://10.30.100.178:8082/api/vouchers/${bill.value.voucherID}`);
     voucher.value = response1.data;
   }
-  const response2 = await axios.get(`http://localhost:8082/api/users/${bill.value.userID}`);
+  const response2 = await axios.get(`http://10.30.100.178:8082/api/users/${bill.value.userID}`);
   user.value = response2.data;
   processBillData()
 

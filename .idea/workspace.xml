@@ -2,27 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="cea78356-92c5-4ee5-a4d6-36f2643c7f16" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/front-end/src/types/jwt-decode.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/front-end/src/utils/refreshToken.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/entity/mapper/UserMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/entity/mapper/UserMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/service/impl/AuthenticationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/service/impl/AuthenticationServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/service/impl/JWTServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/service/impl/JWTServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/service/impl/UserServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/src/components/manager/user/UserView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/components/manager/user/UserView.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/src/components/order/account/LoginView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/components/order/account/LoginView.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/src/components/order/dialog/ProductDialog.vue" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/components/order/dialog/ProductDialog.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front-end/src/assets/images/banner-newest.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front-end/src/components/Carousel.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front-end/src/components/user/main/ListProduct.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front-end/src/views/HomeView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/controller/product/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/controller/product/ProductController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/repository/product/ProductRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/repository/product/ProductRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/service/impl/product/ProductServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/service/impl/product/ProductServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/service/product/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/com/example/thecoffeehouse/service/product/ProductService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/App.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/front-end/src/components/order/layout/NavBar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/components/order/layout/NavBar.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/src/components/order/layout/UserInfoView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/components/order/layout/UserInfoView.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/src/components/order/order/OrderView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/components/order/order/OrderView.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/front-end/src/router/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/router/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/src/store/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/store/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/src/views/OrderView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/views/OrderView.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,6 +60,7 @@
       <workItem from="1719557805119" duration="94000" />
       <workItem from="1720153956734" duration="10000" />
       <workItem from="1720153994677" duration="19000" />
+      <workItem from="1720594163249" duration="114000" />
     </task>
     <servers />
   </component>

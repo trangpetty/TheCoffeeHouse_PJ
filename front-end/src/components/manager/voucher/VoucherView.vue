@@ -249,7 +249,7 @@ const fetchData = async () => {
   try {
     ui.value.loading = true;
     let response: object
-    response = await axios.get('http://localhost:8082/api/vouchers', {
+    response = await axios.get('http://10.30.100.178:8082/api/vouchers', {
       params: {
         name: queryForm.value.name,
         status: queryForm.value.status,
@@ -267,7 +267,7 @@ const fetchData = async () => {
 };
 
 const getTypes = async () => {
-  const result =  await axios.get('http://localhost:8082/api/vouchers/type')
+  const result =  await axios.get('http://10.30.100.178:8082/api/vouchers/type')
   if(result.status == 200) {
     types.value = result.data;
   }
@@ -307,9 +307,9 @@ const handleConfirm = async () => {
       }
     }
     console.log(typeof(formData.value.applyFrom))
-    await axios.post('http://localhost:8082/api/vouchers', formData.value);
+    await axios.post('http://10.30.100.178:8082/api/vouchers', formData.value);
   } else {
-    await axios.put(`http://localhost:8082/api/vouchers/${voucher_id.value}`, formData.value);
+    await axios.put(`http://10.30.100.178:8082/api/vouchers/${voucher_id.value}`, formData.value);
   }
   ui.value.loading = false;
   await fetchData();
@@ -317,7 +317,7 @@ const handleConfirm = async () => {
 
 const handleConfirmType = async () => {
   ui.value.typeDialog = false;
-  await axios.post('http://localhost:8082/api/vouchers/type', formType.value);
+  await axios.post('http://10.30.100.178:8082/api/vouchers/type', formType.value);
 }
 
 const resetForm = () => {
@@ -381,7 +381,7 @@ const handleDeleteRow = async (id: number) => {
   if(!confirmed) {
     return;
   }
-  await axios.delete(`http://localhost:8082/api/vouchers/${id}`);
+  await axios.delete(`http://10.30.100.178:8082/api/vouchers/${id}`);
   await fetchData();
 }
 

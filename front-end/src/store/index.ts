@@ -281,7 +281,7 @@ const store = createStore<State>({
         },
         async refreshToken({ commit, state }) {
             try {
-                const response = await axios.post('http://localhost:8082/api/auth/refresh', { refreshToken: state.refreshToken });
+                const response = await axios.post('http://10.30.100.178:8082/api/auth/refresh', { refreshToken: state.refreshToken });
                 const { token } = response.data; // Assuming your response contains a new token
 
                 commit('setToken', token); // Update token in Vuex store

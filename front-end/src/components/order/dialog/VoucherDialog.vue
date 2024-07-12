@@ -89,7 +89,7 @@ const closeDialog = () => {
 }
 
 const getVouchers = async () => {
-  const response = await axios.get('http://localhost:8082/api/vouchers/all');
+  const response = await axios.get('http://10.30.100.178:8082/api/vouchers/all');
   if(response.status == 200) {
     vouchers.value = response.data;
   }
