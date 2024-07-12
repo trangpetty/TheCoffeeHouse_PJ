@@ -1,6 +1,6 @@
 package com.example.thecoffeehouse.service.impl.product;
 
-import com.example.thecoffeehouse.entity.ProductType;
+import com.example.thecoffeehouse.entity.product.ProductType;
 import com.example.thecoffeehouse.repository.product.ProductTypeRepository;
 import com.example.thecoffeehouse.service.product.ProductTypeService;
 import org.springframework.stereotype.Service;
@@ -35,6 +35,13 @@ public class ProductTypeServiceImpl implements ProductTypeService {
         productType.setName(savedProductType.getName());
         productType.setImage(savedProductType.getImage());
         return productTypeRepository.save(productType);
+    }
+
+    @Override
+    public ProductType getProductType(Long id) {
+        return productTypeRepository
+                .findById(id)
+                .orElseThrow(() -> new RuntimeException("ProductType does not exists"));
     }
 
     @Override

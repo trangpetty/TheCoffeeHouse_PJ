@@ -1,6 +1,6 @@
 package com.example.thecoffeehouse.controller.product;
 
-import com.example.thecoffeehouse.entity.ProductType;
+import com.example.thecoffeehouse.entity.product.ProductType;
 import com.example.thecoffeehouse.service.product.ProductTypeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +26,12 @@ public class ProductTypeController {
     @PostMapping
     public ResponseEntity<ProductType> createProductType(@RequestBody ProductType productType) {
         return new ResponseEntity<>(productTypeService.createProductType(productType), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductType> getProductType(@PathVariable Long id) {
+        ProductType productType = productTypeService.getProductType(id);
+        return ResponseEntity.ok(productType);
     }
 
     @PutMapping("/{id}")

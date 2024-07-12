@@ -1,6 +1,7 @@
 package com.example.thecoffeehouse.service.product;
 
 
+import com.example.thecoffeehouse.entity.product.Product;
 import com.example.thecoffeehouse.entity.product.UserProduct;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,15 +22,18 @@ public interface ProductService {
 
     ProductDto updateProduct(Long id, ProductDto productDto) throws IOException;
 
-    List<ProductDto> getProductsByTypeID(Long typeID);
+    List<ProductDto> getProductsByTypeIDAndUserID(Long typeID, Long userID);
 
     UserProduct likeProduct(Long userId, Long productId);
 
     boolean isProductLikedByUser(Long userId, Long productId);
 
-    ProductDto getMostFavoriteProduct();
+    List<ProductDto> getMostFavoriteProducts();
 
-    ProductDto getBestSellingProduct();
+    List<ProductDto> getBestSellingProducts();
 
-    ProductDto getHighestRatedProduct();
+    List<ProductDto> getHighestRatedProducts();
+
+    List<ProductDto> getNewestProducts();
+
 }

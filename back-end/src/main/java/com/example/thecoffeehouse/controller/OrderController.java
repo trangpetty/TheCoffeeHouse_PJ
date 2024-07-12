@@ -1,7 +1,7 @@
 package com.example.thecoffeehouse.controller;
 
 import com.example.thecoffeehouse.dto.VoucherDto;
-import com.example.thecoffeehouse.entity.ProductType;
+import com.example.thecoffeehouse.entity.product.ProductType;
 import com.example.thecoffeehouse.service.VoucherService;
 import com.example.thecoffeehouse.service.product.ProductService;
 import com.example.thecoffeehouse.service.product.ProductTypeService;

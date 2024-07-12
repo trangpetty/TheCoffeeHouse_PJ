@@ -1,5 +1,13 @@
 <template>
   <div class="container container-fluid pt-5">
+    <el-breadcrumb separator="/" class="mb-4">
+      <el-breadcrumb-item :to="{ path: '/' }">Menu</el-breadcrumb-item>
+      <el-breadcrumb-item>
+        <a href="/">{{productType.name}}</a>
+      </el-breadcrumb-item>
+      <el-breadcrumb-item>{{product.name}}</el-breadcrumb-item>
+    </el-breadcrumb>
+
     <div class="row">
       <div class="col-lg-6 col-md-6 col-sm-12">
         <el-carousel ref="carouselRef" trigger="click" :autoplay="false" @change="handleChange">
@@ -103,13 +111,13 @@ import {Coffee} from "@element-plus/icons-vue";
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
-
 const store = useStore();
 const router = useRouter();
 
 const props = defineProps(['id']);
 const product = ref({});
 const productRelated = ref([]);
+const productType = ref({});
 
 const carouselRef = ref(null);
 const activeIndex = ref(0);
@@ -130,7 +138,7 @@ const selectedTopping = ref({
 onMounted(async () => {
   if (props.id) {
     try {
-      const response = await axios.get(`http://localhost:8082/api/products/${props.id}`);
+      const response = await axios.get(`http://10.30.100.178:8082/api/products/${props.id}`);
       product.value = response.data;
     } catch (error) {
       console.error('Error fetching product detail:', error);
@@ -138,8 +146,10 @@ onMounted(async () => {
   }
   if (product.value.typeID) {
     try {
-      const response = await axios.get(`http://localhost:8082/api/products/type/${product.value.typeID}`);
+      const response = await axios.get(`http://10.30.100.178:8082/api/products/type/${product.value.typeID}?userID=`);
       productRelated.value = response.data;
+      const response2 = await axios.get(`http://10.30.100.178:8082/api/product-type/${product.value.typeID}?userID=`);
+      productType.value = response2.data;
     } catch (error) {
       console.error('Error fetching product detail:', error);
     }
@@ -209,7 +219,7 @@ const navigateToOrder = () => {
   };
 
   store.dispatch('setProductDialog', selectedProduct);
-  router.push('/');
+  router.push('/order');
 };
 
 </script>

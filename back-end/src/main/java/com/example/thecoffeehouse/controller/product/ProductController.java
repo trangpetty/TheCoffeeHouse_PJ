@@ -16,6 +16,7 @@ import com.example.thecoffeehouse.service.product.ProductService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
@@ -61,10 +62,12 @@ public class ProductController {
     }
 
     @GetMapping("/type/{typeID}")
-    public ResponseEntity<List<ProductDto>> getProductsByTypeID(@PathVariable Long typeID) {
-        List<ProductDto> productDtos = productService.getProductsByTypeID(typeID);
+    public ResponseEntity<List<ProductDto>> getProductsByTypeID(@PathVariable Long typeID, @RequestParam(name = "userID", required = false) Optional<Long> userID) {
+        Long userIdValue = userID.orElse(null);
+        List<ProductDto> productDtos = productService.getProductsByTypeIDAndUserID(typeID, userIdValue);
         return ResponseEntity.ok(productDtos);
     }
+
 
     @PostMapping("/rate")
     public ResponseEntity<ProductReview> createProductReview(@RequestBody ProductReview productReview) {
@@ -77,17 +80,22 @@ public class ProductController {
     }
 
     @GetMapping("/most-like")
-    public ResponseEntity<ProductDto> getMostFavoriteProduct() {
-        return ResponseEntity.ok(productService.getMostFavoriteProduct());
+    public ResponseEntity<List<ProductDto>> getMostFavoriteProducts() {
+        return ResponseEntity.ok(productService.getMostFavoriteProducts());
     }
 
-    @GetMapping("/bestseller")
-    public ResponseEntity<ProductDto> getBestSellingProduct() {
-        return ResponseEntity.ok(productService.getBestSellingProduct());
+    @GetMapping("/best-seller")
+    public ResponseEntity<List<ProductDto>> getBestSellingProducts() {
+        return ResponseEntity.ok(productService.getBestSellingProducts());
     }
 
     @GetMapping("/highest-rate")
-    public ResponseEntity<ProductDto> getHighestRatedProduct() {
-        return ResponseEntity.ok(productService.getHighestRatedProduct());
+    public ResponseEntity<List<ProductDto>> getHighestRatedProducts() {
+        return ResponseEntity.ok(productService.getHighestRatedProducts());
+    }
+
+    @GetMapping("/newest")
+    public ResponseEntity<List<ProductDto>> getNewestProducts() {
+        return ResponseEntity.ok(productService.getNewestProducts());
     }
 }

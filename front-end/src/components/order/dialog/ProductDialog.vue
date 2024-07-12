@@ -221,7 +221,7 @@ const toggleLike = async () => {
     return; // Exit function if not authenticated
   }
   try {
-    const response = await axios.post('http://localhost:8082/api/products/like', {
+    const response = await axios.post('http://10.30.100.178:8082/api/products/like', {
       userId: props.userId,
       productId: props.selectedProduct.id
     });
