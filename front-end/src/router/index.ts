@@ -17,8 +17,7 @@ import OrderView from '@/components/order/order/OrderView.vue';
 import CartView from '@/components/order/order/CartView.vue';
 import BillOrderedView from '@/components/order/order/BillView.vue';
 import LoginView from '@/components/order/account/LoginView.vue';
-import RegisterView from '@/components/order/account/RegisterView.vue';
-import UserInfoView from '@/components/order/layout/UserInfoView.vue';
+import UserInfoView from '@/components/order/account/user-info/index.vue';
 import BlogsView from '@/components/order/news/NewsView.vue';
 import BlogDetail from '@/components/order/news/NewsDetail.vue';
 
@@ -113,14 +112,10 @@ export const routes = [
         component: LoginView
       },
       {
-        path: '/order/register',
-        name: 'register',
-        component: RegisterView
-      },
-      {
-        path: '/order/user-info',
+        path: '/order/user-info/:tabName',
         name: 'user-info',
-        component: UserInfoView
+        component: UserInfoView,
+        props: true
       },
       {
         path: '/blogs',

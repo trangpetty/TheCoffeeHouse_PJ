@@ -1,7 +1,7 @@
 <template>
   <main>
     <Carousel />
-<!--    Main -->
+    <!-- Products -->
     <div class="box">
       <div class="container-fluid container-lg">
         <div class="box-title d-flex justify-content-center align-items-center">
@@ -59,6 +59,33 @@
         </div>
       </div>
     </div>
+
+    <!-- News -->
+    <div class="box">
+      <div class="container-fluid container-lg">
+        <div class="box-title d-flex justify-content-center align-items-center">
+          <span class="icon"><font-awesome-icon icon="fa-solid fa-newspaper"/></span>
+          <span class="text">Tin Tức</span>
+        </div>
+        <div class="row">
+          <div v-for="(item, index) in news" :key="index" class="col-12 col-sm-6 col-lg-3 mb-3 custom-item">
+            <div class="blog-card d-flex flex-column">
+              <div class="blog-card__image" :style="{ backgroundImage: `url('${item.image}')` }"></div>
+              <div class="blog-card__content d-flex flex-column">
+                <div class="blog-card__content__header d-flex flex-column">
+                  <h5 class="blog-card__title text-uppercase">{{item.title}}</h5>
+                </div>
+                <div class="mt-auto">
+                  <router-link :to="{ name: 'blog-detail', params: { id: item.id } }" class="btn btn--orange-1 btn--radius-100 d-inline-block align-items-center float-end">
+                    <span class="text">ĐỌC TIẾP</span>
+                  </router-link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
 </template>
@@ -69,6 +96,7 @@ import { ref, computed, onMounted } from 'vue'
 import axios from "axios";
 import {useStore} from 'vuex';
 import Carousel from '@/components/Carousel.vue'
+import axiosClient from '@/utils/axiosConfig'
 
 const ui = ref({
   dialogVisible: computed(() => store.state.dialogProduct) || false
@@ -80,13 +108,14 @@ const store = useStore();
 
 const types = ref([]);
 const products = ref([]);
+const news = ref([]);
 const activeId = ref(1);
 const selectedProduct = computed(() => store.state.selectedProduct) || ref({});
 
 const getTypes = async () => {
-  const response = await axios.get('http://10.30.100.178:8082/api/product-type');
+  const response = await axiosClient.get('/product-type');
   types.value = response.data;
-  const response2 = await axios.get(`http://10.30.100.178:8082/api/products/type/1?userID=`);
+  const response2 = await axiosClient.get(`/products/type/1?userID=`);
   products.value = response2.data;
 };
 
@@ -94,11 +123,11 @@ const handleChangeType = async (id: number, name: string, event: Event) => {
   event.preventDefault();
   activeId.value = id;
   if(name == 'Topping') {
-    const response = await axios.get(`http://10.30.100.178:8082/api/topping`);
+    const response = await axiosClient.get(`/topping`);
     products.value = response.data;
   }
   else {
-    const response = await axios.get(`http://10.30.100.178:8082/api/products/type/${id}?userID=`);
+    const response = await axiosClient.get(`/products/type/${id}?userID=`);
     products.value = response.data;
   }
 }
@@ -117,7 +146,12 @@ const closeDialog = () => {
   store.dispatch('closeProductDialog');
 };
 
-getTypes();
+onMounted(async () => {
+  getTypes();
+  console.log('Base URL:', process.env.VUE_APP_API_BASE_URL);
+  const response = await axiosClient.get(`/news/newest`);
+  news.value = response.data;
+})
 
 </script>
 
@@ -309,6 +343,60 @@ getTypes();
 
 .el-notification {
   align-items: center!important;
+}
+
+.custom-item {
+  margin-top: 40px;
+}
+
+.blog-card {
+  background-color: var(--white);
+  border-radius: var(--space-8);
+  box-shadow: var(--product-box-shadow);
+  height: 100%;
+  width: 100%;
+}
+
+.blog-card .blog-card__image {
+  background-size: cover !important;
+  border-top-left-radius: var(--space-8);
+  border-top-right-radius: var(--space-8);
+  flex-shrink: 0;
+  height: 150px;
+  padding-top: 53%;
+  width: 100%;
+}
+
+.blog-card .blog-card__content {
+  flex: 1;
+  padding: var(--space-16);
+  padding-top: var(--space-12);
+}
+
+.blog-card .blog-card__content .blog-card__content__header {
+  flex: 1;
+}
+
+.blog-card .blog-card__content .blog-card__title {
+  color: var(--black-3);
+  display: -webkit-box;
+  font-size: var(--space-16);
+  height: calc(var(--space-24)* 2);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-weight: 600;
+  line-height: var(--space-24);
+  overflow: hidden;
+}
+
+.btn .text {
+  line-height: var(--space-20);
+  font-size: var(--space-12);
+  color: var(--white);
+}
+
+.btn .text:hover {
+  text-decoration: underline;
 }
 
 @media(min-width:768px)

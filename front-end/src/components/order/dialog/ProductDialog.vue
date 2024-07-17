@@ -52,7 +52,7 @@
           </el-radio>
         </el-radio-group>
       </section>
-      <section class="card-product_size">
+      <section class="card-product_size" v-if="selectedProduct.toppings.length > 0">
         <div class="card-product-option">
           <span class="card-product-option-text">CHỌN TOPPING (TÙY CHỌN)</span>
         </div>
@@ -83,6 +83,7 @@ import { ElNotification } from 'element-plus';
 import { useStore } from 'vuex';
 import * as Utils from '@/utils/index'
 import axios from "axios";
+import {Close} from "@element-plus/icons-vue";
 
 const props = defineProps(['selectedProduct', 'visible', 'addCart', 'index', 'userId']);
 const emit = defineEmits(['updateProduct']);

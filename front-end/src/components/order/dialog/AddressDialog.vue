@@ -16,7 +16,7 @@
     </ul>
     <div class="d-flex align-items-stretch flex-wrap w-100 box-shadow-1">
       <el-autocomplete
-          v-model="address"
+          v-model="newInputAddress"
           :fetch-suggestions="querySearch"
           placeholder="Vui lòng nhập địa chỉ"
           @select="handleSelect"
@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import delivery from "@/assets/images/Delivery2.png";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useStore } from 'vuex';
 import axios from 'axios';
 
@@ -50,9 +50,14 @@ const ui = ref({
 });
 
 const store = useStore();
+const newInputAddress = ref('');
 
 const isDialogVisible = computed(() => store.getters.addressDialog);
 const address = computed(() => store.getters.address);
+
+watch(address, (newAddress) => {
+  newInputAddress.value = newAddress;
+});
 
 const closeDialog = () => {
   store.dispatch('openAddressDialog', false);
@@ -65,12 +70,14 @@ const newAddress = () => {
 }
 
 const backAddress = () => {
+  store.commit('setAddress', newInputAddress.value);
+  localStorage.setItem('address', newInputAddress.value); // Lưu địa chỉ cũ vào localStorage
   ui.value.changeAddress = false;
   ui.value.backAddress = false;
 }
 
 const handleChange = () => {
-    ui.value.changeAddress = true;
+  ui.value.changeAddress = true;
 }
 
 const querySearch = async (queryString, cb) => {
@@ -84,7 +91,10 @@ const querySearch = async (queryString, cb) => {
       params: {
         q: queryString,
         format: 'json',
-        addressdetails: 1
+        addressdetails: 1,
+        countrycodes: 'VN',
+        viewbox: '105.764641,21.090274,105.969697,20.885329',
+        bounded: 1
       }
     });
 
@@ -100,7 +110,10 @@ const querySearch = async (queryString, cb) => {
 
 const handleSelect = (item) => {
   console.log("Selected place:", item.value);
-  localStorage.setItem('address', JSON.stringify(item.value));
+  store.dispatch('updateAddress', item.value);
+  newInputAddress.value = item.value;
+  ui.value.backAddress = false;
+  localStorage.setItem('address', item.value); // Lưu địa chỉ mới vào localStorage
 };
 
 </script>

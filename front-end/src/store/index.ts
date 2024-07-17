@@ -205,8 +205,8 @@ const store = createStore<State>({
                 commit('setAddress', '');
             }
         },
-        saveAddress({ state }) {
-            localStorage.setItem('address', JSON.stringify(state.address));
+        updateAddress({ commit }, address) {
+            commit('setAddress', address);
         },
         VoucherDialog({ commit }, visible: boolean) {
             commit('VoucherDialog', visible);
