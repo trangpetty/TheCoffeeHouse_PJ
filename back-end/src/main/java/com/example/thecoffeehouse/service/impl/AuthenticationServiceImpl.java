@@ -1,6 +1,7 @@
 package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.dto.user.*;
+import com.example.thecoffeehouse.entity.mapper.UserMapper;
 import com.example.thecoffeehouse.entity.user.Role;
 import com.example.thecoffeehouse.entity.user.User;
 import com.example.thecoffeehouse.repository.UserRepository;
@@ -33,7 +34,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         this.jwtService = jwtService;
     }
 
-    public User signup(RegisterDto registerDto) {
+    public UserDto signup(RegisterDto registerDto) {
         if (userRepository.existsByEmail(registerDto.getEmail())) {
             throw new RuntimeException("Email đã tồn tại");
         }
@@ -53,7 +54,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setRole(Role.USER);
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
-        return userRepository.save(user);
+        var jwt = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
+
+        UserDto userDto = UserMapper.mapToUserDto(user);
+        userDto.setRole(user.getRole().name());
+        userDto.setToken(jwt);
+        userDto.setRefreshToken(refreshToken);
+
+        return userDto;
     }
 
 
@@ -74,7 +83,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userDto.setCreateTime(user.getCreateTime());
         userDto.setModifyTime(user.getModifyTime());
         userDto.setRole(user.getRole().name());
-        log.info("role {}", user.getRole().name());
         userDto.setToken(jwt);
         userDto.setRefreshToken(refreshToken);
 

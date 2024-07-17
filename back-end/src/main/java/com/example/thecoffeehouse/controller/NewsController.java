@@ -56,4 +56,9 @@ public class NewsController {
         newsService.deleteNews(id);
         return ResponseEntity.ok("success");
     }
+
+    @GetMapping("/newest")
+    public ResponseEntity<List<News>> getNewestNews() {
+        return ResponseEntity.ok(newsService.getNewestNews());
+    }
 }

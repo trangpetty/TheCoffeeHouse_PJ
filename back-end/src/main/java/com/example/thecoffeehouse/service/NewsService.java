@@ -19,4 +19,6 @@ public interface NewsService {
     List<News> getListNews(String type);
 
     Optional<News> getNewsById(Long id);
+
+    List<News> getNewestNews();
 }

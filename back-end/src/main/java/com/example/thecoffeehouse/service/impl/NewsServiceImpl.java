@@ -59,4 +59,9 @@ public class NewsServiceImpl implements NewsService {
     public Optional<News> getNewsById(Long id) {
         return newsRepository.findById(id);
     }
+
+    @Override
+    public List<News> getNewestNews() {
+        return newsRepository.getNewestNews();
+    }
 }

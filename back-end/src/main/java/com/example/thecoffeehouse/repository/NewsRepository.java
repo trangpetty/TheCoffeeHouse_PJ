@@ -16,4 +16,9 @@ public interface NewsRepository extends JpaRepository<News, Long>{
 
     @Query("SELECT n FROM News n WHERE (:type IS NULL OR n.type LIKE %:type%)")
     List<News> findListByType(@Param("type") String type);
+
+    @Query("SELECT n " +
+            "FROM News n " +
+            "ORDER BY n.createTime DESC LIMIT 4")
+    List<News> getNewestNews();
 }
