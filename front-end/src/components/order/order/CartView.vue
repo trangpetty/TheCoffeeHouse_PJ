@@ -27,10 +27,10 @@
                   <div class="delivery-card__image">
                     <img :src="delivery" style="width: 40px;" alt="">
                   </div>
-                  <div class="d-flex align-items-md-start justify-content-between ps-3">
+                  <div class="d-flex align-items-md-start justify-content-between ps-3 w-100">
                     <div>
                       <h5 class="delivery-card__title m-0">
-                        4 Ngõ 15 Phố Duy Tân
+                        {{ address.split(',')[0] }}
                       </h5>
                       <p class="delivery-card__description mb-0">
                         {{ address }}
@@ -198,9 +198,10 @@ import momo from '@/assets/images/momo.png';
 import vnpay from '@/assets/images/vnpay.png'
 import { ref, computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
-import axios from "axios";
+import axiosClient from '@/utils/axiosConfig';
 import router from "@/router";
 import ProductDialog from "@/components/order/dialog/ProductDialog.vue";
+import {ElMessage} from "element-plus";
 
 const store = useStore();
 
@@ -348,6 +349,14 @@ const showVoucherDialog = () => {
 };
 
 const confirmOrder = async () => {
+  if (!user.value.name || !address.value || !user.value.phoneNumber) {
+    ElMessage({
+      message: 'Tên, địa chỉ và số điện thoại không được để trống.',
+      type: 'danger',
+    })
+    return;
+  }
+
   ui.value.loading = true;
   for (const item of cartItems.value) {
     formData.value.products.push({
@@ -365,7 +374,7 @@ const confirmOrder = async () => {
     try {
       const endpoint = paymentMethod.value.methodName === 'momo' ? 'momo' : 'vnpay';
       // Example axios request
-      const pay = await axios.post(`http://10.30.100.178:8082/api/payment/${endpoint}`, formData.value);
+      const pay = await axiosClient.post(`/payment/${endpoint}`, formData.value);
       if (pay.status === 200) {
         setTimeout(() => {
           deleteOrder();

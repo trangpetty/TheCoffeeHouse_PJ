@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, defineProps } from 'vue';
-import axios from 'axios';
+import axiosClient from '@/utils/axiosConfig';
 
 // Define props if needed
 const props = defineProps(['id']);
@@ -29,7 +29,7 @@ const news = ref(null); // Use 'any' for flexibility in typing
 onMounted(async () => {
   if (props.id) {
     try {
-      const response = await axios.get(`http://10.30.100.178:8082/api/news/${props.id}`);
+      const response = await axiosClient.get(`/news/${props.id}`);
       news.value = response.data;
     } catch (error) {
       console.error('Error fetching news detail:', error);

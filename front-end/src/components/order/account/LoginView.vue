@@ -83,7 +83,6 @@ import facebook from '@/assets/images/facebook.png';
 import Logo from '@/assets/images/logo.png';
 import router from "@/router";
 import axiosClient from '@/utils/axiosConfig';
-import noAvatar from "@/assets/images/no-avatar.png";
 
 const activeTab = ref('login');
 const formLogin = ref({

@@ -46,7 +46,7 @@ import banner from "@/assets/images/banner-newest.jpg";
 import * as Utils from "@/utils";
 import Carousel from "@/components/Carousel.vue";
 import {ref, watch} from "vue";
-import axios from "axios";
+import axiosClient from '@/utils/axiosConfig';
 
 const tabs = ref([
   { name: 'most-like', label: 'Yêu thích' },
@@ -67,7 +67,7 @@ const setActiveTab = (tabName) => {
 
 const fetchData = async () => {
   try {
-    const response = await axios.get(`http://10.30.100.178:8082/api/products/${type.value}`);
+    const response = await axiosClient.get(`/products/${type.value}`);
     products.value = response.data;
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -75,7 +75,7 @@ const fetchData = async () => {
 };
 
 const getNewestProducts = async () => {
-  const response = await axios.get(`http://10.30.100.178:8082/api/products/newest`);
+  const response = await axiosClient.get(`/products/newest`);
   newestProducts.value = response.data;
 }
 

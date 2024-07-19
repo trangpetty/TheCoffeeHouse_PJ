@@ -115,7 +115,7 @@
 
 <script lang="ts" setup>
 import {  ref } from 'vue';
-import axios from 'axios';
+import axiosClient from '@/utils/axiosConfig';
 import { Edit, Plus, ZoomIn} from "@element-plus/icons-vue";
 import {uploadFileToFirebaseAndGetURL} from "@/utils";
 import * as Utils from '@/utils';
@@ -158,7 +158,7 @@ const fetchData = async () => {
   try {
     ui.value.loading = true;
     let response: object
-    response = await axios.get('http://10.30.100.178:8082/api/users', {
+    response = await axiosClient.get('/users', {
       params: {
         name: queryForm.value.name,
         phoneNumber: queryForm.value.phoneNumber,
@@ -198,9 +198,9 @@ const handleConfirm = async () => {
       }
     }
     console.log(formData.value)
-    await axios.post('http://10.30.100.178:8082/api/users', formData.value);
+    await axiosClient.post('/users', formData.value);
   } else {
-    await axios.put(`http://10.30.100.178:8082/api/users/${user_id.value}`, formData.value);
+    await axiosClient.put(`/users/${user_id.value}`, formData.value);
   }
   ui.value.loading = false;
   await fetchData();
@@ -249,7 +249,7 @@ const handleDeleteRow = async (id: number) => {
   if(!confirmed) {
     return;
   }
-  await axios.delete(`http://10.30.100.178:8082/api/users/${id}`);
+  await axiosClient.delete(`/users/${id}`);
   await fetchData();
 }
 

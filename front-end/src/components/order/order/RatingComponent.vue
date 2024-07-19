@@ -42,7 +42,7 @@
 
 <script setup lang="ts">
 import { defineProps, ref } from 'vue';
-import axios from 'axios';
+import axiosClient from '@/utils/axiosConfig';
 
 const props = defineProps(['title', 'items', 'userId']); // Added userId to props
 
@@ -62,7 +62,7 @@ const setRating = (index: number, star: number) => {
 
 const submitRating = async (index: number) => {
   const item = props.items[index];
-  const response = await axios.post('http://10.30.100.178:8082/api/products/rate', {
+  const response = await axiosClient.post('/products/rate', {
     productId: item.id,
     userId: props.userId,
     rate: item.rating,

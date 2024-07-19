@@ -14,12 +14,6 @@ import Footer from "@/components/order/layout/Footer.vue";
 import {onMounted} from 'vue';
 import { useStore } from 'vuex';
 
-interface User {
-  name: string;
-  email: string;
-  token: string;
-}
-
 const store = useStore();
 
 onMounted(() => {
@@ -31,7 +25,7 @@ onMounted(() => {
 });
 // const fetchUserInformation = async () => {
 //   try {
-//     const response = await axios.get('http://10.30.100.178:8082/api/users/login/google');
+//     const response = await axiosClient.get('/users/login/google');
 //     console.log(response)
 //     // const order = response.data as User;
 //     //

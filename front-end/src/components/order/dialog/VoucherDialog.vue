@@ -67,15 +67,16 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useStore } from 'vuex';
-import axios from "axios";
+import axiosClient from "@/utils/axiosConfig";
 import { ElMessage } from 'element-plus'
 
 const store = useStore();
 
 const isDialogVisible = computed(() => store.getters.voucherDialog);
 const cartItems = computed(() => store.getters.cartItems);
+const user = computed(() => store.getters.user);
 
 const vouchers = ref([]);
 const selectedVoucher = ref({});
@@ -89,7 +90,7 @@ const closeDialog = () => {
 }
 
 const getVouchers = async () => {
-  const response = await axios.get('http://10.30.100.178:8082/api/vouchers/all');
+  const response = await axiosClient.get(`/vouchers/all?userID=${user.value.id}`);
   if(response.status == 200) {
     vouchers.value = response.data;
   }
@@ -143,7 +144,12 @@ const copyToClipboard = (text) => {
   ElMessage('Copied')
 }
 
-getVouchers();
+onMounted(() => {
+  console.log(user)
+  if (user.value.id) {
+    getVouchers();
+  }
+});
 
 </script>
 

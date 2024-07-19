@@ -41,7 +41,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import axios from "axios";
+import axiosClient from "@/utils/axiosConfig";
 
 const tabs = ref([
   {name: '#CoffeeLover', label: '#CoffeeLover'},
@@ -62,7 +62,7 @@ const setActiveTab = (tabName) => {
 
 const fetchData = async () => {
   try {
-    const response = await axios.get(`http://10.30.100.178:8082/api/news/all`, {
+    const response = await axiosClient.get(`/news/all`, {
       params: {
         type: type.value
       }

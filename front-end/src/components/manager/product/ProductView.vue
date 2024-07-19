@@ -134,7 +134,7 @@
 </template>
 <script lang="ts" setup>
 import { ref } from 'vue';
-import axios from 'axios';
+import axiosClient from '@/utils/axiosConfig';
 import { uploadFileToFirebaseAndGetURL } from "@/utils";
 import { Delete, Edit, Plus, ZoomIn } from '@element-plus/icons-vue';
 
@@ -188,7 +188,7 @@ const tableData = ref([]);
 const fetchData = async () => {
   try {
     ui.value.loading = true;
-    const response = await axios.get('http://10.30.100.178:8082/api/products', {
+    const response = await axiosClient.get('/products', {
       params: {
         name: queryForm.value.name,
         typeID: queryForm.value.typeID,
@@ -204,7 +204,7 @@ const fetchData = async () => {
 };
 
 const getTypes = async () => {
-  const response = await axios.get('http://10.30.100.178:8082/api/product-type');
+  const response = await axiosClient.get('/product-type');
   types.value = response.data;
 };
 
@@ -218,7 +218,7 @@ const handleAdd = async () => {
   formData.value.productSizes = [];
   formData.value.typeID = 1;
   fileList.value = []; // Clear the fileList when adding a new product
-  const result = await axios.get(`http://10.30.100.178:8082/api/topping`);
+  const result = await axiosClient.get(`/topping`);
   productToppings.value = result.data.map(item => ({
     ...item,
     productID: null,
@@ -230,7 +230,7 @@ const handleEditRow = async (row: object) => {
   ui.value.dialogVisible = true;
   ui.value.addRecord = false;
   product_id.value = row.id;
-  const result = await axios.get(`http://10.30.100.178:8082/api/products/${row.id}`);
+  const result = await axiosClient.get(`/products/${row.id}`);
   if (result.status === 200) {
     formData.value.name = result.data.name;
     formData.value.description = result.data.description;
@@ -248,7 +248,7 @@ const handleEditRow = async (row: object) => {
         size.id = productSize.id;
       }
     });
-    const getTopping = await axios.get(`http://10.30.100.178:8082/api/topping`);
+    const getTopping = await axiosClient.get(`/topping`);
     productToppings.value = getTopping.data.map(item => ({
       name: item.name,
       price: item.price,
@@ -281,7 +281,7 @@ const handleEditRow = async (row: object) => {
 };
 
 const handleDeleteRow = async (id: number) => {
-  await axios.delete(`http://10.30.100.178:8082/api/products/${id}`);
+  await axiosClient.delete(`/products/${id}`);
   await fetchData();
 };
 
@@ -329,7 +329,7 @@ const handleConfirm = async () => {
       surcharge: row.surcharge
     }));
     console.log(formData.value)
-    await axios.post('http://10.30.100.178:8082/api/products', formData.value);
+    await axiosClient.post('/products', formData.value);
   } else {
     for (const file of fileList.value) {
       if (file.status === "ready") {
@@ -360,7 +360,7 @@ const handleConfirm = async () => {
       surcharge: row.surcharge
     }));
 
-    await axios.put(`http://10.30.100.178:8082/api/products/${product_id.value}`, {
+    await axiosClient.put(`/products/${product_id.value}`, {
       ...formData.value,
       removedImages: removedImages.value,
       removedProductSizes: removedProductSizes.value,

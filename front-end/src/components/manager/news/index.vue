@@ -53,7 +53,7 @@
 <script lang="ts" setup>
 import AddNews from '@/components/manager/news/NewsView.vue'
 import { ref } from 'vue';
-import axios from "axios";
+import axiosClient from '@/utils/axiosConfig';
 
 const ui = ref({
   addRecord: false,
@@ -69,7 +69,7 @@ const currentNews = ref<object | null>(null);
 const fetchData = async () => {
   try {
     ui.value.loading = true;
-    const response = await axios.get(`http://10.30.100.178:8082/api/news`, {
+    const response = await axiosClient.get(`/news`, {
       params: {
         type: type.value,
         pageNo: currentPage.value

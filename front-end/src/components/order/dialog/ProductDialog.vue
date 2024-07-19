@@ -82,8 +82,8 @@ import { ref, computed, defineProps, defineEmits, watch } from 'vue';
 import { ElNotification } from 'element-plus';
 import { useStore } from 'vuex';
 import * as Utils from '@/utils/index'
-import axios from "axios";
 import {Close} from "@element-plus/icons-vue";
+import axiosClient from '@/utils/axiosConfig';
 
 const props = defineProps(['selectedProduct', 'visible', 'addCart', 'index', 'userId']);
 const emit = defineEmits(['updateProduct']);
@@ -222,7 +222,7 @@ const toggleLike = async () => {
     return; // Exit function if not authenticated
   }
   try {
-    const response = await axios.post('http://10.30.100.178:8082/api/products/like', {
+    const response = await axiosClient.post('/products/like', {
       userId: props.userId,
       productId: props.selectedProduct.id
     });

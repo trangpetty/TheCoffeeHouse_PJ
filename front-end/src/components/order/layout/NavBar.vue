@@ -25,7 +25,7 @@
         </nav>
       </div>
       <div class="d-flex align-items-center ms-auto header-right">
-        <el-dropdown trigger="click" v-if="user" ref="dropdown">
+        <el-dropdown trigger="click" v-if="user.avatar" ref="dropdown">
           <div>
             <img :src="user.avatar ? user.avatar : noAvatar" style="width: 40px; height: 40px" alt="" class="rounded-circle object-fit-cover">
           </div>
@@ -78,10 +78,10 @@
 <script setup lang="ts">
 import delivery from "@/assets/images/Delivery2.png";
 import noAvatar from "@/assets/images/no-avatar.png";
-import {Handbag} from "@element-plus/icons-vue";
-import {computed, ref} from 'vue';
+import { Handbag } from "@element-plus/icons-vue";
+import { computed, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
-import {useRoute, useRouter} from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const showAddressDialog = () => {
   store.dispatch('openAddressDialog', true);
@@ -92,10 +92,9 @@ const showVoucherDialog = () => {
 };
 
 const store = useStore();
-
 const totalQuantity = computed(() => store.getters.cartTotalQuantity);
-const address = computed(() => store.getters.address);
 const user = computed(() => store.getters.user);
+const address = computed(() => store.getters.address);
 const dropdown = ref(null);
 const route = useRoute();
 const router = useRouter();
@@ -112,12 +111,15 @@ const isActive = (path: string) => {
 };
 
 const logout = () => {
-  // Call logout API if needed
-  store.dispatch('logout'); // Dispatch logout action
-  router.push('/order/login'); // Redirect to login page
+  store.dispatch('logout');
+  store.dispatch('clearCart');
+  router.push('/order/login');
 };
 
-
+onMounted(() => {
+  store.dispatch('loadAddress');
+  console.log("address", address.value);
+});
 </script>
 
 <style scoped>
@@ -127,7 +129,7 @@ a {
 }
 
 .navbar-expand-lg {
-  justify-content: center!important;;
+  justify-content: center!important;
 }
 
 header {

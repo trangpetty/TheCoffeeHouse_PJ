@@ -93,10 +93,9 @@
 <script lang="ts" setup>
 import ProductDialog from '@/components/order/dialog/ProductDialog.vue';
 import { ref, computed, onMounted } from 'vue'
-import axios from "axios";
+import axiosClient from '@/utils/axiosConfig';
 import {useStore} from 'vuex';
 import Carousel from '@/components/Carousel.vue'
-import axiosClient from '@/utils/axiosConfig'
 
 const ui = ref({
   dialogVisible: computed(() => store.state.dialogProduct) || false
@@ -148,7 +147,6 @@ const closeDialog = () => {
 
 onMounted(async () => {
   getTypes();
-  console.log('Base URL:', process.env.VUE_APP_API_BASE_URL);
   const response = await axiosClient.get(`/news/newest`);
   news.value = response.data;
 })

@@ -105,7 +105,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, defineProps, computed } from 'vue';
-import axios from 'axios';
+import axiosClient from '@/utils/axiosConfig';
 import * as Utils from '@/utils';
 import {Coffee} from "@element-plus/icons-vue";
 import { useRouter } from 'vue-router';
@@ -138,7 +138,7 @@ const selectedTopping = ref({
 onMounted(async () => {
   if (props.id) {
     try {
-      const response = await axios.get(`http://10.30.100.178:8082/api/products/${props.id}`);
+      const response = await axiosClient.get(`/products/${props.id}`);
       product.value = response.data;
     } catch (error) {
       console.error('Error fetching product detail:', error);
@@ -146,9 +146,9 @@ onMounted(async () => {
   }
   if (product.value.typeID) {
     try {
-      const response = await axios.get(`http://10.30.100.178:8082/api/products/type/${product.value.typeID}?userID=`);
+      const response = await axiosClient.get(`/products/type/${product.value.typeID}?userID=`);
       productRelated.value = response.data;
-      const response2 = await axios.get(`http://10.30.100.178:8082/api/product-type/${product.value.typeID}?userID=`);
+      const response2 = await axiosClient.get(`/product-type/${product.value.typeID}?userID=`);
       productType.value = response2.data;
     } catch (error) {
       console.error('Error fetching product detail:', error);

@@ -42,7 +42,6 @@
 import delivery from "@/assets/images/Delivery2.png";
 import { computed, ref, watch } from "vue";
 import { useStore } from 'vuex';
-import axios from 'axios';
 
 const ui = ref({
   changeAddress: false,
@@ -87,7 +86,7 @@ const querySearch = async (queryString, cb) => {
   }
 
   try {
-    const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+    const response = await axiosClient.get('https://nominatim.openstreetmap.org/search', {
       params: {
         q: queryString,
         format: 'json',

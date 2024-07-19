@@ -1,8 +1,7 @@
 import { createStore } from 'vuex';
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
-import router from '@/router/index';
-import * as Utils from '@/utils';
+import axiosClient from '@/utils/axiosConfig';
 
 interface JwtPayload {
     exp: number; // Thời điểm hết hạn của token (timestamp)
@@ -43,7 +42,7 @@ interface State {
     voucherDialog: boolean;
     voucher: object;
     errorMessage: string;
-    user: object;
+    user: any;
     token: string;
     refreshToken: string;
     selectedProduct: object;
@@ -138,23 +137,23 @@ const store = createStore<State>({
         },
         setToken(state, token: string) {
             state.token = token;
-            localStorage.setItem('token', token);
+            sessionStorage.setItem('token', token);
             axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
         },
         setRefreshToken(state, refreshToken: string) {
             state.refreshToken = refreshToken;
-            localStorage.setItem('refreshToken', refreshToken);
+            sessionStorage.setItem('refreshToken', refreshToken);
         },
         setUser(state, user: object) {
             state.user = user;
-            localStorage.setItem('user', JSON.stringify(user));
+            sessionStorage.setItem('user', JSON.stringify(user));
         },
         clearAuthData(state) {
             console.log('Clearing auth data...');
             state.token = '';
             state.user = {};
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('user');
             delete axios.defaults.headers.common['Authorization'];
         },
         setSelectedProduct(state, product: object) {
@@ -198,15 +197,39 @@ const store = createStore<State>({
         },
         loadAddress({ commit }) {
             try {
-                const localAddress = JSON.parse(localStorage.getItem('address') || '""');
-                commit('setAddress', localAddress);
+                // Check for user data in sessionStorage
+                const sessionUserRaw = sessionStorage.getItem('user');
+                let sessionUser = null;
+
+                if (sessionUserRaw) {
+                    sessionUser = JSON.parse(sessionUserRaw);
+                }
+
+                // If user data is present, get address from user data
+                if (sessionUser && sessionUser.address) {
+                    commit('setAddress', sessionUser.address);
+                } else {
+                    // If no user data or address in sessionStorage, fallback to localStorage
+                    const localAddressRaw = localStorage.getItem('address');
+                    let localAddress = '';
+
+                    if (localAddressRaw) {
+                        localAddress = JSON.parse(localAddressRaw);
+                    }
+
+                    commit('setAddress', localAddress);
+                }
             } catch (e) {
-                console.error('Lỗi khi parse address từ localStorage:', e);
+                console.error('Lỗi khi parse address từ localStorage hoặc sessionStorage:', e);
                 commit('setAddress', '');
             }
         },
         updateAddress({ commit }, address) {
             commit('setAddress', address);
+        },
+        clearAddress({ commit }) {
+            commit('clearAddress');
+            localStorage.removeItem('address');
         },
         VoucherDialog({ commit }, visible: boolean) {
             commit('VoucherDialog', visible);
@@ -239,10 +262,13 @@ const store = createStore<State>({
             commit('clearErrorMessage');
             localStorage.removeItem('errorMessage');
         },
-        login({ commit }, { token, refreshToken, user }: { token: string; refreshToken: string; user: object }) {
+        login({ commit }, { token, refreshToken, user }: { token: string; refreshToken: string; user: any }) {
             commit('setToken', token);
             commit('setRefreshToken', refreshToken);
             commit('setUser', user);
+            if (user.address) {
+                commit('setAddress', user.address);
+            }
         },
         logout({ commit }) {
             commit('clearAuthData');
@@ -259,18 +285,16 @@ const store = createStore<State>({
                 const decoded: JwtPayload = jwtDecode(token);
                 const currentTime = Date.now() / 1000;
 
-                console.log('Decoded token:', decoded);
-
                 if (decoded.exp < currentTime) {
                     try {
                         await dispatch('refreshToken');
                         return true; // Token refreshed successfully
                     } catch (error) {
                         console.error('Failed to refresh token:', error);
+                        commit('clearAuthData');
                         return false; // Token refresh failed
                     }
                 } else {
-                    console.log('Token is valid.');
                     return true;
                 }
             } catch (error) {
@@ -281,7 +305,7 @@ const store = createStore<State>({
         },
         async refreshToken({ commit, state }) {
             try {
-                const response = await axios.post('http://10.30.100.178:8082/api/auth/refresh', { refreshToken: state.refreshToken });
+                const response = await axiosClient.post('/auth/refresh', { refreshToken: state.refreshToken });
                 const { token } = response.data; // Assuming your response contains a new token
 
                 commit('setToken', token); // Update token in Vuex store
@@ -292,7 +316,7 @@ const store = createStore<State>({
             }
         },
         loadUser({ commit }) {
-            const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+            const localUser = JSON.parse(sessionStorage.getItem('user') || '{}');
             commit('setUser', localUser);
         },
         setProductDialog({ commit }, product: object) {
@@ -316,6 +340,7 @@ const store = createStore<State>({
         errorMessage: state => state.errorMessage,
         isLoggedIn: state => !!state.token,
         user: state => state.user,
+        userRole: state => state.user.role,
     },
 });
 

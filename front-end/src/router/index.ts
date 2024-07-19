@@ -11,6 +11,7 @@ import UserView from '@/components/manager/user/UserView.vue';
 import BillView from '@/components/manager/bill/BillView.vue';
 import NewsView from '@/components/manager/news/index.vue';
 import RevenueView from '@/components/manager/revenue/RevenueView.vue';
+import LoginAdminView from '@/components/manager/LoginView.vue';
 
 import HomeUserView from '@/views/OrderView.vue';
 import OrderView from '@/components/order/order/OrderView.vue';
@@ -24,13 +25,14 @@ import BlogDetail from '@/components/order/news/NewsDetail.vue';
 import ProductDetail from '@/components/user/ProductDetailView.vue';
 import MainPage from '@/components/user/main/MainPage.vue';
 import HomeView from '@/views/HomeView.vue';
+import Page404 from '@/components/Page404.vue'
 import {ElMessageBox} from "element-plus";
 
 export const routes = [
   {
     path: '/admin',
     component: HomeAdminView,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, requiresAdmin: true },
     children: [
       {
         path: '/admin/product',
@@ -84,7 +86,7 @@ export const routes = [
         name: 'Revenue',
         component: RevenueView
       }
-    ]
+    ],
   },
   {
     path: '/order',
@@ -131,6 +133,16 @@ export const routes = [
     props: true
   },
   {
+    path: '/admin/login',
+    name: 'login-admin',
+    component: LoginAdminView
+  },
+  {
+    path: '/unauthorized',
+    name: 'page-404',
+    component: Page404
+  },
+  {
     path: '/',
     name: 'home',
     component: HomeView,
@@ -160,26 +172,31 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const isAuthenticated = await store.dispatch('checkTokenExpiration');
-  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+  const userRole = store.getters.userRole;
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
 
-  if (requiresAuth && !isAuthenticated) {
-    if (to.path.startsWith('/admin')) {
-      ElMessageBox.confirm('Phiên đăng nhập đã hết hạn. Bạn có muốn đăng nhập lại?', 'Phiên Đăng Nhập Hết Hạn', {
-        confirmButtonText: 'Đăng nhập lại',
-        cancelButtonText: 'Hủy bỏ',
-        type: 'warning'
-      }).then(() => {
-        router.push('/order/login');
-      }).catch(() => {
-        next(false);
-      });
+  if (requiresAuth) {
+    if (!isAuthenticated) {
+      if (to.path.startsWith('/admin')) {
+        await ElMessageBox.confirm('Phiên đăng nhập đã hết hạn. Bạn có muốn đăng nhập lại?', 'Phiên Đăng Nhập Hết Hạn', {
+          confirmButtonText: 'Đăng nhập lại',
+          cancelButtonText: 'Hủy bỏ',
+          type: 'warning'
+        })
+        next(('/admin/login'));
+      } else {
+        next('/order/login'); // Chuyển hướng đến trang đăng nhập order nếu cần
+      }
+    } else if (requiresAdmin && userRole !== 'ADMIN') {
+      next('/unauthorized'); // Chuyển hướng đến trang không có quyền
+    } else {
+      next(); // Cho phép truy cập trang nếu không cần quyền admin
     }
-    // else {
-    //   next('/order/login'); // Redirect to order login page if order authentication is required and user is not authenticated
-    // }
   } else {
-    next();
+    next(); // Tiếp tục điều hướng nếu không yêu cầu xác thực
   }
 });
+
 
 export default router;
