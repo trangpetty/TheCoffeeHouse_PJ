@@ -31,4 +31,8 @@ public interface BillRepository extends JpaRepository<Bill, Long>{
             + "WHERE YEAR(b.createTime) = :year "
             + "GROUP BY MONTH(b.createTime)")
     List<MonthlyDataDTO> getMonthlyRevenue(@Param("year") int year);
+
+    List<Bill> findByUserID(Long userID);
+
+    boolean existsByUserIDAndVoucherID(Long userID, Long voucherID);
 }

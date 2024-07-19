@@ -1,9 +1,9 @@
-import axios from 'axios';
+import axiosClient from '@/utils/axiosConfig';
 import store from '@/store/index';
 
 const refreshToken = async () => {
     try {
-        const response = await axios.post('http://10.30.100.178:8082/api/auth/refresh', {
+        const response = await axiosClient.post('/auth/refresh', {
             refreshToken: store.state.refreshToken,
         });
         const result = response.data;

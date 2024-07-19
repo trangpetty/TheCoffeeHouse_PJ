@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import Highcharts from 'vue3-highcharts';
-import axios from 'axios';
+import axiosClient from '@/utils/axiosConfig';
 
 const chartOptions = ref({
   chart: {
@@ -43,7 +43,7 @@ const chartOptions = ref({
 
 const fetchMonthlyRevenue = async () => {
   try {
-    const response = await axios.get('http://10.30.100.178:8082/api/bills/revenue');
+    const response = await axiosClient.get('/bills/revenue');
     const monthlyData = response.data;
 
     // Assuming your API returns an array of revenues for each month in correct order

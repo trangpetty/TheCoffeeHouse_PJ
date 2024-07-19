@@ -28,7 +28,9 @@ public class BillMapper {
         bill.setAddress(billDto.getAddress());
         bill.setDeliveryStatus(billDto.getDeliveryStatus());
         bill.setRate(billDto.getRate());
-        bill.setComment(bill.getComment());
+        bill.setComment(billDto.getComment());
+        bill.setName(billDto.getName());
+        bill.setPhoneNumber(billDto.getPhoneNumber());
         bill.setCreateTime(billDto.getCreateTime());
         bill.setModifyTime(billDto.getModifyTime());
 
@@ -54,6 +56,8 @@ public class BillMapper {
         billDto.setDeliveryStatus(bill.getDeliveryStatus());
         billDto.setComment(bill.getComment());
         billDto.setRate(bill.getRate());
+        billDto.setName(bill.getName());
+        billDto.setPhoneNumber(bill.getPhoneNumber());
         return billDto;
     }
 

@@ -20,6 +20,8 @@ public class BillDto {
     private double TotalValue;
     private String code;
     private String address;
+    private String name;
+    private String phoneNumber;
     private LocalDateTime createTime;
     private LocalDateTime modifyTime;
     private List<BillProductDto> products;

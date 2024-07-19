@@ -7,6 +7,7 @@ import com.example.thecoffeehouse.entity.mapper.VoucherMapper;
 import com.example.thecoffeehouse.entity.voucher.VoucherType;
 import com.example.thecoffeehouse.repository.VoucherRepository;
 import com.example.thecoffeehouse.repository.VoucherTypeRepository;
+import com.example.thecoffeehouse.repository.bill.BillRepository;
 import com.example.thecoffeehouse.service.VoucherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +28,13 @@ public class VoucherServiceImpl implements VoucherService {
     private final VoucherRepository voucherRepository;
     private final VoucherTypeRepository voucherTypeRepository;
     private final DateTimeConverter dateTimeConverter;
+    private final BillRepository billRepository;
 
-    public VoucherServiceImpl(VoucherRepository voucherRepository, VoucherTypeRepository voucherTypeRepository, DateTimeConverter dateTimeConverter) {
+    public VoucherServiceImpl(VoucherRepository voucherRepository, VoucherTypeRepository voucherTypeRepository, DateTimeConverter dateTimeConverter, BillRepository billRepository) {
         this.voucherRepository = voucherRepository;
         this.voucherTypeRepository = voucherTypeRepository;
         this.dateTimeConverter = dateTimeConverter;
+        this.billRepository = billRepository;
     }
 
     @Override
@@ -120,7 +123,38 @@ public class VoucherServiceImpl implements VoucherService {
         }).collect(Collectors.toList());
     }
 
+    public List<VoucherDto> getVouchers(Long userId) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime firstDayOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime lastDayOfMonth = now.withDayOfMonth(YearMonth.from(now).lengthOfMonth()).withHour(23).withMinute(59).withSecond(59);
 
+        List<Voucher> vouchers = voucherRepository.getVouchers(firstDayOfMonth, lastDayOfMonth);
+
+        if (userId != null) {
+            return vouchers.stream().filter(voucher -> {
+                // Check if the user has already used this voucher
+                boolean alreadyUsed = billRepository.existsByUserIDAndVoucherID(userId, voucher.getId());
+
+                // Check other conditions like voucher validity
+                boolean valid = now.isBefore(voucher.getApplyTo()) && now.isAfter(voucher.getApplyFrom());
+
+                return !alreadyUsed && valid;
+            }).map(voucher -> {
+                Optional<VoucherType> optionalVoucherType = voucherTypeRepository.findById(voucher.getVoucherTypeID());
+                VoucherType voucherType = optionalVoucherType.orElse(null); // Return null if VoucherType is not found
+                assert voucherType != null;
+                return VoucherMapper.mapToVoucherDto(voucher, voucherType);
+            }).collect(Collectors.toList());
+        } else {
+            // Handle case when userId is null
+            return vouchers.stream().map(voucher -> {
+                Optional<VoucherType> optionalVoucherType = voucherTypeRepository.findById(voucher.getVoucherTypeID());
+                VoucherType voucherType = optionalVoucherType.orElse(null); // Return null if VoucherType is not found
+                assert voucherType != null;
+                return VoucherMapper.mapToVoucherDto(voucher, voucherType);
+            }).collect(Collectors.toList());
+        }
+    }
 
     @Override
     public VoucherType createVoucherType(VoucherType voucherType) {

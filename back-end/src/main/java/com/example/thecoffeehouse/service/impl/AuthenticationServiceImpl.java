@@ -4,6 +4,8 @@ import com.example.thecoffeehouse.dto.user.*;
 import com.example.thecoffeehouse.entity.mapper.UserMapper;
 import com.example.thecoffeehouse.entity.user.Role;
 import com.example.thecoffeehouse.entity.user.User;
+import com.example.thecoffeehouse.entity.user.UserAddress;
+import com.example.thecoffeehouse.repository.UserAddressRepository;
 import com.example.thecoffeehouse.repository.UserRepository;
 import com.example.thecoffeehouse.service.AuthenticationService;
 import com.example.thecoffeehouse.service.JWTService;
@@ -27,11 +29,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final JWTService jwtService;
 
-    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JWTService jwtService) {
+    private final UserAddressRepository userAddressRepository;
+
+    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JWTService jwtService, UserAddressRepository userAddressRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.userAddressRepository = userAddressRepository;
     }
 
     public UserDto signup(RegisterDto registerDto) {
@@ -85,6 +90,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userDto.setRole(user.getRole().name());
         userDto.setToken(jwt);
         userDto.setRefreshToken(refreshToken);
+
+        UserAddress userAddress = userAddressRepository.findLastByUserId(user.getId());
+        if (userAddress != null && userAddress.getAddress() != null) {
+            userDto.setAddress(userAddress.getAddress());
+        }
 
         return userDto;
     }

@@ -38,8 +38,16 @@ public class VoucherController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<VoucherDto>> getVouchers() {
-        return ResponseEntity.ok(voucherService.getVouchers());
+    public ResponseEntity<List<VoucherDto>> getVouchers(@RequestParam(required = false) Long userId) {
+        List<VoucherDto> vouchers;
+
+        if (userId != null) {
+            vouchers = voucherService.getVouchers(userId);
+        } else {
+            vouchers = voucherService.getVouchers();
+        }
+
+        return ResponseEntity.ok(vouchers);
     }
 
     @PostMapping

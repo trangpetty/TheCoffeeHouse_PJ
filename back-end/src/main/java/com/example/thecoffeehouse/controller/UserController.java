@@ -1,7 +1,11 @@
 package com.example.thecoffeehouse.controller;
 
 import com.example.thecoffeehouse.dto.user.*;
+import com.example.thecoffeehouse.entity.bill.Bill;
 import com.example.thecoffeehouse.entity.user.User;
+import com.example.thecoffeehouse.entity.user.UserAddress;
+import com.example.thecoffeehouse.repository.UserAddressRepository;
+import com.example.thecoffeehouse.repository.bill.BillRepository;
 import com.example.thecoffeehouse.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
@@ -10,13 +14,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    private final UserAddressRepository userAddressRepository;
+
+    private final BillRepository billRepository;
+
+    public UserController(UserService userService, UserAddressRepository userAddressRepository, BillRepository billRepository) {
         this.userService = userService;
+        this.userAddressRepository = userAddressRepository;
+        this.billRepository = billRepository;
     }
 
     @GetMapping
@@ -92,5 +104,15 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUser(id));
+    }
+
+    @GetMapping("/address/{id}")
+    public ResponseEntity<List<UserAddress>> getAddresses(@PathVariable Long id) {
+        return ResponseEntity.ok(userAddressRepository.findByUserId(id));
+    }
+
+    @GetMapping("/bills/{id}")
+    public ResponseEntity<List<Bill>> getBills(@PathVariable Long id) {
+        return ResponseEntity.ok(billRepository.findByUserID(id));
     }
 }

@@ -69,7 +69,7 @@
 <script setup lang="ts">
 import {Edit, Plus, ZoomIn} from "@element-plus/icons-vue";
 import {ref} from "vue";
-import axios from "axios";
+import axiosClient from '@/utils/axiosConfig';
 import {uploadFileToFirebaseAndGetURL} from "@/utils";
 
 const dialogImageUrl = ref('');
@@ -97,7 +97,7 @@ const topping_id = ref(null);
 const fetchData = async () => {
   try {
     ui.value.loading = true;
-    const response = await axios.get('http://10.30.100.178:8082/api/topping');
+    const response = await axiosClient.get('/topping');
     tableData.value = response.data;
     ui.value.loading = false;
   } catch (error) {
@@ -116,9 +116,9 @@ const handleConfirm = async () => {
         console.error('Error uploading file:', error);
       }
     }
-    await axios.post('http://10.30.100.178:8082/api/topping', formData.value);
+    await axiosClient.post('/topping', formData.value);
   } else {
-    await axios.put(`http://10.30.100.178:8082/api/topping/${topping_id.value}`, formData.value);
+    await axiosClient.put(`/topping/${topping_id.value}`, formData.value);
   }
   ui.value.loading = false;
   await fetchData();
@@ -183,7 +183,7 @@ const handleEditRow = async (row: object) => {
 };
 
 const handleDeleteRow = async (id: number) => {
-  await axios.delete(`http://10.30.100.178:8082/api/topping/${id}`);
+  await axiosClient.delete(`/topping/${id}`);
   await fetchData();
 };
 

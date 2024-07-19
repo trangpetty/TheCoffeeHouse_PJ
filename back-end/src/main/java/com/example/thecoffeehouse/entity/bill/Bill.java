@@ -61,6 +61,12 @@ public class Bill {
     @Column(name = "comment")
     private String comment;
 
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "phone_number", length = 10)
+    private String phoneNumber;
+
     @CreationTimestamp
     @Column(name = "create_time", nullable = false, updatable = false)
     private LocalDateTime createTime;
