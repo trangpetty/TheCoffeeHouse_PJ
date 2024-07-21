@@ -22,11 +22,11 @@
                     <div class="d-flex border-bottom align-items-center mt-4 pb-3">
                       <div class="w-50 border-end">
                         <p class="mb-1">Người nhận</p>
-                        <h5 class="m-0">{{user.name}}</h5>
+                        <h5 class="m-0">{{bill.name}}</h5>
                       </div>
                       <div class="w-50 px-3">
                         <p class="mb-1">Số điện thoại</p>
-                        <h5 class="m-0">{{user.phoneNumber}}</h5>
+                        <h5 class="m-0">{{bill.phoneNumber}}</h5>
                       </div>
                     </div>
                     <div class="border-bottom mt-4 pb-3">

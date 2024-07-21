@@ -58,10 +58,10 @@
                   </div>
                 </div>
                 <div class="mb-3">
-                  <input type="text" :value="user.name" class="delivery__input form-control" placeholder="Tên người nhận">
+                  <input type="text" v-model="formData.name" class="delivery__input form-control" placeholder="Tên người nhận">
                 </div>
                 <div class="mb-3">
-                  <input type="text" :value="user.phoneNumber" class="delivery__input form-control" placeholder="Số điện thoại">
+                  <input type="text" v-model="formData.phoneNumber" class="delivery__input form-control" placeholder="Số điện thoại">
                 </div>
                 <div class="mb-3">
                   <input type="text" class="delivery__input form-control" placeholder="Thêm hướng dẫn giao hàng">
@@ -273,6 +273,8 @@ const formData = ref({
   point: 0,
   status: 0,
   address: '',
+  name: (user.value.lastName) ? (user.value.firstName + ' ' + user.value.lastName) : '',
+  phoneNumber: (user.value.phoneNumber) ? user.value.phoneNumber : '',
   products: [],
   paymentMethod: ''
 });
@@ -349,7 +351,10 @@ const showVoucherDialog = () => {
 };
 
 const confirmOrder = async () => {
-  if (!user.value.name || !address.value || !user.value.phoneNumber) {
+  console.log("name: ", formData.value.name)
+  console.log("address: ", address.value)
+  console.log("phone: ", formData.value.phoneNumber)
+  if (!formData.value.name || !address.value || !formData.value.phoneNumber) {
     ElMessage({
       message: 'Tên, địa chỉ và số điện thoại không được để trống.',
       type: 'danger',

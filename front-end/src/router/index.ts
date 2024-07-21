@@ -21,6 +21,8 @@ import LoginView from '@/components/order/account/LoginView.vue';
 import UserInfoView from '@/components/order/account/user-info/index.vue';
 import BlogsView from '@/components/order/news/NewsView.vue';
 import BlogDetail from '@/components/order/news/NewsDetail.vue';
+import PaymentSuccess from '@/components/order/payment/PaymentSuccess.vue';
+import PaymentFailure from '@/components/order/payment/PaymentFailure.vue';
 
 import ProductDetail from '@/components/user/ProductDetailView.vue';
 import MainPage from '@/components/user/main/MainPage.vue';
@@ -67,7 +69,7 @@ export const routes = [
         component: CustomerView
       },
       {
-        path: '/admin/order',
+        path: '/admin/user',
         name: 'User',
         component: UserView
       },
@@ -124,6 +126,16 @@ export const routes = [
         name: 'blogs',
         component: BlogsView
       },
+      {
+        path: '/order/payment-success',
+        name: 'payment-success',
+        component: PaymentSuccess
+      },
+      {
+        path: '/order/payment-failure',
+        name: 'payment-failure',
+        component: PaymentFailure
+      }
     ]
   },
   {

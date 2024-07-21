@@ -42,6 +42,7 @@
 import delivery from "@/assets/images/Delivery2.png";
 import { computed, ref, watch } from "vue";
 import { useStore } from 'vuex';
+import axiosClient from '@/utils/axiosConfig'
 
 const ui = ref({
   changeAddress: false,

@@ -25,7 +25,7 @@
         </nav>
       </div>
       <div class="d-flex align-items-center ms-auto header-right">
-        <el-dropdown trigger="click" v-if="user.avatar" ref="dropdown">
+        <el-dropdown trigger="click" v-if="user.phoneNumber" ref="dropdown">
           <div>
             <img :src="user.avatar ? user.avatar : noAvatar" style="width: 40px; height: 40px" alt="" class="rounded-circle object-fit-cover">
           </div>
@@ -62,14 +62,14 @@
           <img :src="noAvatar" style="width: 40px;height: 40px" alt="" class="rounded-circle object-fit-cover">
         </router-link>
         <span class="name_user">{{user.firstName}} {{user.lastName}}</span>
-        <router-link :to="(totalQuantity > 0) ? 'order/checkout' : ''" class="ms-3">
+        <div class="ms-3" @click="navigateToCheckout">
           <div class="icon d-flex align-items-center justify-content-center" :class="(totalQuantity > 0) ? 'icon-cart-has-item' : 'icon-cart'">
             <el-icon class="fs-4 fw-bold"><Handbag /></el-icon>
             <div class="icon-quatity d-flex align-items-center justify-content-center" v-if="totalQuantity > 0">
               <span>{{ totalQuantity }}</span>
             </div>
           </div>
-        </router-link>
+        </div>
       </div>
     </div>
   </header>
@@ -116,9 +116,14 @@ const logout = () => {
   router.push('/order/login');
 };
 
+const navigateToCheckout = () => {
+  if (totalQuantity.value > 0) {
+    router.push('order/checkout');
+  }
+};
+
 onMounted(() => {
   store.dispatch('loadAddress');
-  console.log("address", address.value);
 });
 </script>
 

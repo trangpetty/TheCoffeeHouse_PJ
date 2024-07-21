@@ -14,8 +14,9 @@
           <el-col :span="8">
             <el-form-item label="Status">
               <el-select v-model="queryForm.status" class="input">
-                <el-option label="Active" :value="0"/>
-                <el-option label="Inactive" :value="1"/>
+                <el-option label="All" value=""/>
+                <el-option label="Success" value="success"/>
+                <el-option label="Fail" value="fail"/>
               </el-select>
             </el-form-item>
           </el-col>
@@ -54,10 +55,17 @@
         <el-table-column prop="code" label="Code" />
         <el-table-column prop="totalValue" label="Total" />
         <el-table-column prop="value" label="Value" />
-        <el-table-column label="status">
+<!--        <el-table-column label="status">-->
+<!--          <template #default={row}>-->
+<!--            <span :style="row.status === 0 ? 'color:#5daf34' : 'color:red'">-->
+<!--              {{ row.status === 0 ? 'Active' : 'Done' }}-->
+<!--            </span>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
+        <el-table-column label="payment">
           <template #default={row}>
-            <span :style="row.status === 0 ? 'color:#5daf34':'color:red'">
-              {{ row.status === 0 ? 'Active' : 'Done' }}
+            <span :style="(row.paymentStatus === 0) ? 'color:#5daf34' : 'color:red'">
+              {{ (row.paymentStatus === 0) ? 'Success' : 'Fail' }}
             </span>
           </template>
         </el-table-column>
@@ -113,7 +121,7 @@ const ui = ref({
 
 const queryForm = ref({
   code: '',
-  status: 0,
+  status: '',
   applyFrom: null,
   applyTo: null
 });
