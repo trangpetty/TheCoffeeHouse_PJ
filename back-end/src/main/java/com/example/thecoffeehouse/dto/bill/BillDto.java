@@ -19,6 +19,7 @@ public class BillDto {
     private double ValueOfCustomerPoint;
     private double TotalValue;
     private String code;
+    private String status;
     private String address;
     private String name;
     private String phoneNumber;

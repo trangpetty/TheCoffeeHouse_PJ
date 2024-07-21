@@ -47,6 +47,7 @@ public class BillMapper {
         billDto.setValueOfCustomerPoint(bill.getValueOfCustomerPoint());
         billDto.setTotalValue(bill.getTotalValue());
         billDto.setCode(bill.getCode());
+        billDto.setStatus(bill.getStatus());
         billDto.setAddress(bill.getAddress());
         billDto.setCreateTime(bill.getCreateTime());
         billDto.setModifyTime(bill.getModifyTime());

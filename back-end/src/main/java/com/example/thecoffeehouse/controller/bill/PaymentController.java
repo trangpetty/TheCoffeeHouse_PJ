@@ -9,8 +9,11 @@ import com.example.thecoffeehouse.repository.UserAddressRepository;
 import com.example.thecoffeehouse.service.bill.BillService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -29,8 +32,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/payment")
 public class PaymentController {
+    private static final Logger log = LoggerFactory.getLogger(PaymentController.class);
     private final BillService billService;
     private final UserAddressRepository userAddressRepository;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     public PaymentController(BillService billService, UserAddressRepository userAddressRepository) {
         this.billService = billService;
@@ -141,7 +148,7 @@ public class PaymentController {
         vnp_Params.put("vnp_OrderType", orderType);
 
         // Ensure the return URL includes the proper hash fragment
-        vnp_Params.put("vnp_ReturnUrl", VnPayConfig.vnp_ReturnUrl + billDto.getCode());
+        vnp_Params.put("vnp_ReturnUrl", VnPayConfig.vnp_ReturnUrl);
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
@@ -161,15 +168,15 @@ public class PaymentController {
         while (itr.hasNext()) {
             String fieldName = itr.next();
             String fieldValue = vnp_Params.get(fieldName);
-            if (fieldValue != null && fieldValue.length() > 0) {
+            if (fieldValue != null && !fieldValue.isEmpty()) {
                 // Build hash data
                 hashData.append(fieldName);
                 hashData.append('=');
-                hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
                 // Build query
-                query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
+                query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII));
                 query.append('=');
-                query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
                 if (itr.hasNext()) {
                     query.append('&');
                     hashData.append('&');
@@ -196,11 +203,55 @@ public class PaymentController {
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
-
     @PutMapping("/markDelivered")
     public ResponseEntity<BillDto> markAsDelivered(@RequestParam Long orderId) {
         BillDto updatedBill = billService.markAsDelivered(orderId);
         return ResponseEntity.ok(updatedBill);
     }
 
+    @GetMapping("/momo/result")
+    public ResponseEntity<Void> handleMomoResult(@RequestParam Map<String, String> queryParams) {
+        String resultCode = queryParams.get("resultCode");
+        String orderId = queryParams.get("orderId"); // đảm bảo rằng orderId có trong queryParams
+        String redirectUrl = "";
+
+        if ("0".equals(resultCode)) {
+            // Giao dịch thành công
+            billService.updatePaymentStatus(orderId, 0); // 0: success
+            log.info("code success: {}", orderId);
+            redirectUrl = frontendUrl + "order/payment-success";
+        } else {
+            // Giao dịch thất bại
+            billService.updatePaymentStatus(orderId, 1); // 1: fail
+            log.info("code fail: {}", orderId);
+            redirectUrl = frontendUrl + "order/payment-failure";
+        }
+
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION, redirectUrl)
+                .build();
+    }
+
+    @GetMapping("/vnpay/result")
+    public ResponseEntity<Void> handleVnPayResult(@RequestParam Map<String, String> queryParams) {
+        String vnp_ResponseCode = queryParams.get("vnp_ResponseCode");
+        String orderId = queryParams.get("vnp_TxnRef");
+        String redirectUrl = "";
+
+        if ("00".equals(vnp_ResponseCode)) {
+            // Giao dịch thành công
+            billService.updatePaymentStatus(orderId, 0);
+            log.info("code success: {}", orderId);
+            redirectUrl = frontendUrl + "order/payment-success";
+        } else {
+            // Giao dịch thất bại
+            billService.updatePaymentStatus(orderId, 1);
+            log.info("code fail: {}", orderId);
+            redirectUrl = frontendUrl + "order/payment-failure";
+        }
+
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION, redirectUrl)
+                .build();
+    }
 }

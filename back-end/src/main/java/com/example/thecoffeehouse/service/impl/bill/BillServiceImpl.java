@@ -49,7 +49,7 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public Page<BillDto> getAllBills(String code, int status, Date from, Date to, Pageable pageable) {
+    public Page<BillDto> getAllBills(String code, String status, Date from, Date to, Pageable pageable) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime firstDayOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
         LocalDateTime lastDayOfMonth = now.withDayOfMonth(YearMonth.from(now).lengthOfMonth()).withHour(23).withMinute(59).withSecond(59);
@@ -116,23 +116,6 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public BillDto payWithMoMo(Long billID, String qrCodeTransactionId) {
-        Bill bill = billRepository.findById(billID).orElse(null);
-        if (bill == null) {
-            // Handle case where bill is not found
-            return null;
-        }
-
-        List<Product> products = productRepository.findAll();
-        List<Topping> toppings = toppingRepository.findAll();
-        List<ProductDetail> sizes = productDetailRepository.findAll();
-
-        List<BillProduct> billProducts = billProductRepository.getBillProductByBillID(bill.getId());
-        List<BillProductDto> billProductDtos = BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
-        return BillMapper.mapToBillDto(bill, billProductDtos);
-    }
-
-    @Override
     public BillDto payWithCash(Long billID, String cashTransactionId) {
         return null;
     }
@@ -172,4 +155,19 @@ public class BillServiceImpl implements BillService {
         List<BillProductDto> billProductDto = BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
         return BillMapper.mapToBillDto(bill, billProductDto);
     }
+
+    @Override
+    public void updatePaymentStatus(String code, int status) {
+        Bill bill = billRepository.findByCode(code);
+        if (bill != null) {
+            bill.setPaymentStatus(status);
+            if(status == 0 ){
+                bill.setStatus("success");
+            } else if (status == 1) {
+                bill.setStatus("fail");
+            }
+            billRepository.save(bill);
+        }
+    }
+
 }

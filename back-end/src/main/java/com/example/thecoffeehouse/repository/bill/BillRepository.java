@@ -14,9 +14,9 @@ import java.util.List;
 
 public interface BillRepository extends JpaRepository<Bill, Long>{
     @Query("select b from Bill b " +
-            "where (:code is null or lower(b.code) like %:code%) and (:status is null or b.paymentStatus = :status) " +
+            "where (:code is null or lower(b.code) like %:code%) and (:status is null or lower(b.status) like %:status%) " +
             "and (:applyFrom IS NULL or :applyTo IS NULL or b.createTime between :applyFrom and :applyTo) order by b.id desc")
-    Page<Bill> getAllBills(@Param("code") String code, @Param("status") int status, @Param("applyFrom") LocalDateTime applyFrom, @Param("applyTo") LocalDateTime applyTo, Pageable pageable);
+    Page<Bill> getAllBills(@Param("code") String code, @Param("status") String status, @Param("applyFrom") LocalDateTime applyFrom, @Param("applyTo") LocalDateTime applyTo, Pageable pageable);
 
     @Query("select b from Bill b where (lower(b.code) like %:code%)")
     Bill getBillByCode(@Param("code") String code);
@@ -35,4 +35,6 @@ public interface BillRepository extends JpaRepository<Bill, Long>{
     List<Bill> findByUserID(Long userID);
 
     boolean existsByUserIDAndVoucherID(Long userID, Long voucherID);
+
+    Bill findByCode(String code);
 }

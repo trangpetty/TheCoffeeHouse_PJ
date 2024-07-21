@@ -9,13 +9,11 @@ import java.util.Date;
 import java.util.List;
 
 public interface BillService {
-    Page<BillDto> getAllBills(String code, int status, Date from, Date to, Pageable pageable);
+    Page<BillDto> getAllBills(String code, String status, Date from, Date to, Pageable pageable);
 
     BillDto createBill(BillDto billDto);
 
     BillDto updateBill(String code, BillDto billDto);
-
-    BillDto payWithMoMo(Long billID, String qrCodeTransactionId);
 
     BillDto payWithCash(Long billID, String cashTransactionId);
 
@@ -26,4 +24,6 @@ public interface BillService {
     List<MonthlyDataDTO> getRevenueByMonth(int year);
 
     BillDto getBillByCode(String code);
+
+    void updatePaymentStatus(String code, int status);
 }

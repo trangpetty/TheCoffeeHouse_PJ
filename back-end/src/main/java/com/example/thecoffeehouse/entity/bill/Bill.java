@@ -43,6 +43,9 @@ public class Bill {
     @Column(name = "code")
     private String code;
 
+    @Column(name = "status")
+    private String status;
+
     @Column(name = "payment_method")
     private String paymentMethod;
 

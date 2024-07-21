@@ -2,7 +2,6 @@ package com.example.thecoffeehouse.controller.bill;
 
 import com.example.thecoffeehouse.dto.bill.BillDto;
 import com.example.thecoffeehouse.dto.MonthlyDataDTO;
-import com.example.thecoffeehouse.entity.bill.BillProduct;
 import com.example.thecoffeehouse.service.bill.BillService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,7 +24,7 @@ public class BillController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<BillDto>> getAllBills(@RequestParam("code") String code, @RequestParam("status") int status,
+    public ResponseEntity<Page<BillDto>> getAllBills(@RequestParam("code") String code, @RequestParam("status") String status,
                                                      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date applyFrom,
                                                      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date applyTo,
                                                      @RequestParam("pageNo") int pageNo, @RequestParam(defaultValue = "10") int pageSize) {
