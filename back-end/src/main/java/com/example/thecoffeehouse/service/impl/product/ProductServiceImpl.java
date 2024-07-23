@@ -128,6 +128,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<ProductDto> getProductsByTypeName(String name) {
+        List<Product> products = productRepository.getProductsByTypeName(name);
+        List<Topping> toppings = toppingRepository.findAll();
+
+        return products.stream()
+                .map(product -> {
+                    List<ProductDetailDto> productDetailDtos = ProductMapper.mapToProductDetailDtoList(productDetailRepository.findAllByProductID(product.getId()));
+                    List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImageRepository.findAllByProductID(product.getId()));
+                    List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppingRepository.findByProductID(product.getId()), toppings);
+
+                    ProductDto productDto = ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
+
+                    return productDto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public UserProduct likeProduct(Long userId, Long productId) {
         UserProduct userProduct = userProductRepository.findByUserIdAndProductId(userId, productId);
 

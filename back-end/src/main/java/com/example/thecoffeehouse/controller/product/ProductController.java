@@ -68,6 +68,11 @@ public class ProductController {
         return ResponseEntity.ok(productDtos);
     }
 
+    @GetMapping("/type")
+    public ResponseEntity<List<ProductDto>> getProductsByTypeName(@RequestParam(name = "name", required = false) String name) {
+        List<ProductDto> productDtos = productService.getProductsByTypeName(name);
+        return ResponseEntity.ok(productDtos);
+    }
 
     @PostMapping("/rate")
     public ResponseEntity<ProductReview> createProductReview(@RequestBody ProductReview productReview) {

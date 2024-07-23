@@ -24,6 +24,8 @@ public interface ProductService {
 
     List<ProductDto> getProductsByTypeIDAndUserID(Long typeID, Long userID);
 
+    List<ProductDto> getProductsByTypeName(String name);
+
     UserProduct likeProduct(Long userId, Long productId);
 
     boolean isProductLikedByUser(Long userId, Long productId);

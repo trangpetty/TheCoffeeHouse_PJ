@@ -25,6 +25,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
     @Query("SELECT p FROM Product p WHERE p.TypeID = :typeID")
     List<Product> getProductsByTypeID(@Param("typeID") Long typeID);
 
+    @Query("SELECT p FROM Product p JOIN ProductType pt ON p.TypeID = pt.id WHERE (:name IS NULL OR pt.name = :name)")
+    List<Product> getProductsByTypeName(@Param("name") String name);
+
     @Query("SELECT p, AVG(pr.rate) as avg_rating " +
             "FROM Product p " +
             "JOIN ProductReview pr ON p.id = pr.productId " +
