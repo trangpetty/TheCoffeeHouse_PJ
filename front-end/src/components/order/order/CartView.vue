@@ -58,10 +58,11 @@
                   </div>
                 </div>
                 <div class="mb-3">
-                  <input type="text" v-model="formData.name" class="delivery__input form-control" placeholder="Tên người nhận">
+                  <input type="text" v-model="formData.contactDetail.name" class="delivery__input form-control" placeholder="Tên người nhận">
                 </div>
                 <div class="mb-3">
-                  <input type="text" v-model="formData.phoneNumber" class="delivery__input form-control" placeholder="Số điện thoại">
+                  <input type="text" v-model="formData.contactDetail.phoneNumber" @blur="handleBlur" class="delivery__input form-control" placeholder="Số điện thoại">
+                  <el-text type="danger" v-if="ui.showError">Số điện thoại không hợp lệ</el-text>
                 </div>
                 <div class="mb-3">
                   <input type="text" class="delivery__input form-control" placeholder="Thêm hướng dẫn giao hàng">
@@ -121,22 +122,37 @@
                   </div>
                   <div class="d-flex pt-3 order-card flex-column">
                     <div>
-                      <p class="text-orange order-card__text mb-0" @click="showVoucherDialog">Khuyến mãi</p>
-                    </div>
-                    <div class="d-flex flex-row justify-content-between" v-if="!errorMessage && voucher.name">
-                      <div class="d-flex flex-column">
-                        <span>{{voucher.name}}</span>
-                        <p class="d-inline cursor-pointer" @click="handleClearVoucher">Xoa</p>
+                      <div>
+                        <p class="text-orange order-card__text mb-0" @click="showVoucherDialog">Khuyến mãi</p>
                       </div>
-                      <p v-if="!discount">
-                        -{{formatPrice(parseInt(voucher.discountValue))}}
-                      </p>
-                      <p v-else>
-                        -{{formatPrice(discount)}}
-                      </p>
+                      <div class="d-flex flex-row justify-content-between" v-if="!errorMessage && voucher.name">
+                        <div class="d-flex flex-column">
+                          <span>{{voucher.name}}</span>
+                          <p class="d-inline cursor-pointer" @click="handleClearVoucher">Xoa</p>
+                        </div>
+                        <p v-if="!discount">
+                          -{{formatPrice(parseInt(voucher.discountValue))}}
+                        </p>
+                        <p v-else>
+                          -{{formatPrice(discount)}}
+                        </p>
+                      </div>
+                      <div v-if="errorMessage" class="error-message">
+                        <p>{{ errorMessage }}</p>
+                      </div>
                     </div>
-                    <div v-if="errorMessage" class="error-message">
-                      <p>{{ errorMessage }}</p>
+                    <div v-if="user.point || customerPoint">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <p class="text-orange order-card__text mb-0 w-50">Điểm tích lũy hiện tại: {{user.point ? user.point : customerPoint}}</p>
+                        <el-form-item v-if="user.point >= 10 || customerPoint >= 10" label="Su dung diem" class="text-orange order-card-icon mb-0 w-50">
+                          <el-select v-model="formData.usedCustomerPoints">
+                            <el-option label="0" :value="0"/>
+                            <el-option label="10%" :value="10"/>
+                            <el-option label="15%" :value="15" v-if="user.point >= 15 || customerPoint >= 15"/>
+                            <el-option label="20%" :value="20" v-if="user.point >= 20 || customerPoint >= 20"/>
+                          </el-select>
+                        </el-form-item>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -218,6 +234,8 @@ const discount = ref(0);
 const selectedProduct = ref({});
 const selectedIndex = ref(null);
 
+const customerPoint = ref(0);
+
 const removeFromCart = (index: number) => {
   store.dispatch('removeProductFromCart', index);
 };
@@ -234,7 +252,7 @@ const totalCost = computed(() => {
   return cartItems.value.reduce((total, item) => total + item.cost, 0);
 });
 
-const totalValue = computed(() => {
+var totalValue = computed(() => {
   let cost = totalCost.value;
 
   // Adjust total cost based on voucher type
@@ -254,29 +272,54 @@ const totalValue = computed(() => {
     discount.value = 0;
   }
 
+  discount.value += cost * (formData.value.usedCustomerPoints / 100);
+  cost = totalCost.value - discount.value;
   cost += feeship.value; // Adding feeship
   return cost;
 })
+
+const validatePhoneNumber = (phoneNumber) => {
+  return /^[0]{1}[0-9]{9}$/.test(phoneNumber);
+};
+
+const handleBlur = async () => {
+  const phoneNumber = formData.value.contactDetail.phoneNumber;
+  if (validatePhoneNumber(phoneNumber)) {
+    ui.value.showError = false;
+    if(!user.value) {
+      const response = await axiosClient.get(`/customers/get-point?phoneNumber=${phoneNumber}`);
+      customerPoint.value = response.data;
+      console.log("point ", customerPoint.value);
+    }
+  } else {
+    ui.value.showError = true;
+  }
+};
 
 watch(voucher, (newVoucher, oldVoucher) => {
   discount.value = 0; // Reset discount when voucher changes
 });
 
 const formData = ref({
-  userID: null,
+  userID: (user.value.id) ? user.value.id : null,
   voucherID: null,
-  ValueOfVoucher: 0,
-  ValueOfCustomerPoint: 0,
+  valueOfVoucher: 0,
+  valueOfCustomerPoint: 0,
   totalValue: 0,
   value: 0,
   code: generateRandomString(),
-  point: 0,
+  usedCustomerPoints: 0,
   status: 0,
-  address: '',
-  name: (user.value.lastName) ? (user.value.firstName + ' ' + user.value.lastName) : '',
-  phoneNumber: (user.value.phoneNumber) ? user.value.phoneNumber : '',
   products: [],
-  paymentMethod: ''
+  paymentMethod: '',
+  contactDetail: {
+    id: null,
+    ownerID: (user.value.id) ? user.value.id : null,
+    ownerType: '',
+    phoneNumber: (user.value.phoneNumber) ? user.value.phoneNumber : '',
+    name: (user.value.lastName) ? (user.value.firstName + ' ' + user.value.lastName) : '',
+    address: ''
+  }
 });
 
 watch(totalValue, (newValue) => {
@@ -334,7 +377,8 @@ const paymentMethod = ref(paymentMethods.value[0]);
 const ui = ref({
   voucherDialog: false,
   loading: false,
-  dialogVisible: false
+  dialogVisible: false,
+  showError: false
 });
 
 function generateRandomString(): string {
@@ -351,10 +395,7 @@ const showVoucherDialog = () => {
 };
 
 const confirmOrder = async () => {
-  console.log("name: ", formData.value.name)
-  console.log("address: ", address.value)
-  console.log("phone: ", formData.value.phoneNumber)
-  if (!formData.value.name || !address.value || !formData.value.phoneNumber) {
+  if (!formData.value.contactDetail.name || !address.value || !formData.value.contactDetail.phoneNumber || ui.value.showError) {
     ElMessage({
       message: 'Tên, địa chỉ và số điện thoại không được để trống.',
       type: 'danger',
@@ -363,6 +404,7 @@ const confirmOrder = async () => {
   }
 
   ui.value.loading = true;
+
   for (const item of cartItems.value) {
     formData.value.products.push({
       productID: item.id,
@@ -373,6 +415,21 @@ const confirmOrder = async () => {
       cost: item.cost
     });
   }
+
+  formData.value.contactDetail.address = address.value;
+
+  const isAuthenticated = await store.dispatch('checkTokenExpiration');
+
+  if(isAuthenticated) {
+    formData.value.contactDetail.ownerID = user.value.id;
+    formData.value.contactDetail.ownerType = 'USER';
+  }
+  else  {
+    formData.value.contactDetail.ownerType = 'CUSTOMER';
+  }
+
+  formData.value.valueOfCustomerPoint = Math.floor(totalValue.value / 100000);
+
   if (paymentMethod.value.methodName === 'cash') {
     // Handle cash payment method
   } else {

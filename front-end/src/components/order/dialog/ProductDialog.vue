@@ -156,11 +156,7 @@ const cost = computed(() => {
 });
 
 const addToCart = async () => {
-  const isAuthenticated = await Utils.checkTokenAndNotify('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.');
 
-  if (!isAuthenticated) {
-    return; // Exit function if not authenticated
-  }
   if (props.selectedProduct) {
     const productWithDetails = {
       name: props.selectedProduct.name,
