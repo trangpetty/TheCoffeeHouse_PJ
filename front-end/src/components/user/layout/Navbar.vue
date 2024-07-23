@@ -8,19 +8,19 @@
         <div class="header_menu">
           <ul class="clearfix">
             <li v-for="(item, index) in menu" :key="index" :class="{ 'has-child': item.children && item.children.length > 0 }">
-              <router-link :to="item.path || '#'" class="d-flex align-items-center">
+              <router-link :to="`/menu/${item.path || ''}`" class="d-flex align-items-center">
                 {{ item.label }}
                 <font-awesome-icon v-if="item.children && item.children.length > 0" icon="fa-solid fa-sort-down" class="ms-1" style="height: 8px; width: 8px"/>
               </router-link>
               <ul v-if="item.children && item.children.length > 0" class="menu_child">
                 <li v-for="(child, childIndex) in item.children" :key="childIndex" class="lv2_title">
-                  <router-link :to="child.path || '#'" class="d-flex align-items-center">
+                  <router-link :to="`/menu/${child.path || ''}`" class="d-flex align-items-center">
                     {{ child.label }}
                   </router-link>
                   <!-- Check for grandchildren -->
                   <ul v-if="child.children && child.children.length > 0" class="menu_child_lv3">
                     <li v-for="(grandchild, grandchildIndex) in child.children" :key="grandchildIndex" class="child-lv3">
-                      <router-link :to="grandchild.path || '#'" class="d-flex align-items-center">
+                      <router-link :to="`/menu/${grandchild.path || ''}`" class="d-flex align-items-center">
                         {{ grandchild.label }}
                       </router-link>
                     </li>
@@ -38,39 +38,39 @@
 import { ref } from "vue";
 
 const menu = ref([
-  { label: "Cà phê", path: "/cafe" },
-  { label: "Trà", path: "/tea" },
+  { label: "Cà phê", path: "Cà phê" },
+  { label: "Trà", path: "Trà trái cây" },
   {
     label: "Menu",
     children: [
-      { label: "Tất cả", path: "/menu/all" },
       {
         label: "Cà phê",
         children: [
-          { label: "Cà phê đá", path: "/menu/cafe/cold" },
-          { label: "Cà phê nóng", path: "/menu/cafe/hot" },
+          { label: "Cà phê đá", path: "Cà phê" },
+          { label: "Cà phê nóng", path: "Món nóng" },
         ]
       },
       {
         label: "Trà trái cây - Hi Tea",
         children: [
-          { label: "Trà trái cây", path: "/menu/fruit-tea" },
-          { label: "Hi Tea", path: "/menu/hi-tea" },
+          { label: "Trà trái cây", path: "Trà Trái Cây" },
+          { label: "Hi Tea", path: "" },
         ]
       },
       {
-        label: "Trà sữa - CloudTea",
+        label: "Trà sữa",
         children: [
-          { label: "Trà sữa", path: "/menu/milk-tea" },
-          { label: "CloudTea", path: "/menu/cloud-tea" },
+          { label: "Trà sữa", path: "Trà sữa" },
         ]
       },
-      { label: "Thức uống đá xay", path: "/menu/frozen-drinks" },
+      { label: "Thức uống đá xay", path: "Đá xay" },
+      { label: "Trà Xanh", path: "Trà Xanh" },
+      { label: "Trái Cây Đá Xay 0°C", path: "Trái Cây Đá Xay 0°C" },
       {
         label: "Bánh",
         children: [
-          { label: "Bánh mặn", path: "/menu/savory-cakes" },
-          { label: "Bánh ngọt", path: "/menu/sweet-cakes" },
+          {label: "Bánh mặn", path: "Bánh mặn"},
+          {label: "Bánh ngọt", path: "Bánh ngọt"},
         ]
       },
     ]

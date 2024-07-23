@@ -26,6 +26,7 @@ import PaymentFailure from '@/components/order/payment/PaymentFailure.vue';
 
 import ProductDetail from '@/components/user/ProductDetailView.vue';
 import MainPage from '@/components/user/main/MainPage.vue';
+import MenuPage from '@/components/user/menu/index.vue';
 import HomeView from '@/views/HomeView.vue';
 import Page404 from '@/components/Page404.vue'
 import {ElMessageBox} from "element-plus";
@@ -172,6 +173,12 @@ export const routes = [
         component: ProductDetail,
         props: true,
         meta: { breadcrumb: 'Product Detail' }
+      },
+      {
+        path: 'menu/:tabName',
+        name: 'menu',
+        component: MenuPage,
+        props: true
       },
     ],
   }
