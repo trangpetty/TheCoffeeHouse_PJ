@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse.entity;
+package com.example.thecoffeehouse.entity.user;
 
 import java.time.LocalDateTime;
 
@@ -22,13 +22,16 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
-    private String name;
-    @Column(name = "address")
-    private String address;
-    @Column(name = "phone_number", length = 10)
+    @Column(name = "default_name")
+    private String defaultName;
+
+    @Column(name = "default_address")
+    private String defaultAddress;
+
+    @Column(name = "phone_number", length = 10, unique = true, nullable = false)
     private String phoneNumber;
-    @Column(name = "point")
+
+    @Column(name = "point", columnDefinition = "INT DEFAULT 0")
     private int point;
 
     @CreationTimestamp

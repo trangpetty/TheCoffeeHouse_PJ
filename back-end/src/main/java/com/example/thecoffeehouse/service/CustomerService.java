@@ -14,4 +14,6 @@ public interface CustomerService {
     CustomerDto getCustomerById(Long id);
 
     void deleteCustomer(Long id);
+
+    int getPoint(String phoneNumber);
 }

@@ -1,10 +1,9 @@
 package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.dto.CustomerDto;
-import com.example.thecoffeehouse.entity.Customer;
+import com.example.thecoffeehouse.entity.user.Customer;
 import com.example.thecoffeehouse.entity.mapper.CustomerMapper;
 import com.example.thecoffeehouse.repository.CustomerRepository;
-import com.example.thecoffeehouse.repository.UserRepository;
 import com.example.thecoffeehouse.service.CustomerService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,8 +30,8 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = customerRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer does not exists"));
-        customer.setName(customerDto.getName());
-        customer.setAddress(customerDto.getAddress());
+        customer.setDefaultName(customerDto.getName());
+        customer.setDefaultAddress(customerDto.getAddress());
         customer.setPhoneNumber(customerDto.getPhoneNumber());
         customer.setPoint(customerDto.getPoint());
         Customer savedCustomer = customerRepository.save(customer);
@@ -59,5 +58,11 @@ public class CustomerServiceImpl implements CustomerService {
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer does not exists"));
         customerRepository.deleteById(id);
+    }
+
+    @Override
+    public int getPoint(String phoneNumber) {
+        Customer customer = customerRepository.findByPhoneNumber(phoneNumber);
+        return customer.getPoint();
     }
 }

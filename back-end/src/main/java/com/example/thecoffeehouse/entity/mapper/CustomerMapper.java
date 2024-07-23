@@ -1,7 +1,7 @@
 package com.example.thecoffeehouse.entity.mapper;
 
 import com.example.thecoffeehouse.dto.CustomerDto;
-import com.example.thecoffeehouse.entity.Customer;
+import com.example.thecoffeehouse.entity.user.Customer;
 
 public class CustomerMapper {
     public static Customer mapToCustomer(CustomerDto customerDto) {
@@ -21,8 +21,8 @@ public class CustomerMapper {
     public static CustomerDto mapToCustomerDto(Customer customer) {
         CustomerDto customerDto = new CustomerDto(
                 customer.getId(),
-                customer.getName(),
-                customer.getAddress(),
+                customer.getDefaultName(),
+                customer.getDefaultAddress(),
                 customer.getPhoneNumber(),
                 customer.getPoint(),
                 customer.getCreateTime(),

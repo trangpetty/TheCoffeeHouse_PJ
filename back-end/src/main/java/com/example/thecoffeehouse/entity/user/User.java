@@ -2,9 +2,7 @@ package com.example.thecoffeehouse.entity.user;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -38,7 +36,7 @@ public class User implements UserDetails {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "phone_number", length = 10)
+    @Column(name = "phone_number", length = 10, unique = true)
     private String phoneNumber;
 
     @Column(name = "email")
@@ -52,6 +50,9 @@ public class User implements UserDetails {
 
     @Column(name = "role")
     private Role role;
+
+    @Column(name = "point", columnDefinition = "INT DEFAULT 0")
+    private int point;
 
     @CreationTimestamp
     @Column(name = "create_time", nullable = false, updatable = false)

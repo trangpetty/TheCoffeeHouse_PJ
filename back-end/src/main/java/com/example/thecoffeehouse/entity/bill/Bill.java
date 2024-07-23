@@ -25,6 +25,12 @@ public class Bill {
     @Column(name = "user_id")
     private Long userID;
 
+    @Column(name = "customer_id")
+    private Long customerID;
+
+    @Column(name = "contact_detail_id")
+    private Long contactDetailID;
+
     @Column(name = "voucher_id")
     private Long voucherID;
 
@@ -35,7 +41,10 @@ public class Bill {
     private double ValueOfVoucher;
 
     @Column(name = "value_of_customer_point")
-    private double ValueOfCustomerPoint;
+    private int ValueOfCustomerPoint;
+
+    @Column(name = "used_customer_points")
+    private int usedCustomerPoints;
 
     @Column(name = "total_value")
     private double TotalValue;
@@ -52,9 +61,6 @@ public class Bill {
     @Column(name = "payment_status")
     private int paymentStatus;
 
-    @Column(name = "address")
-    private String address;
-
     @Column(name = "delivery_status")
     private String deliveryStatus;
 
@@ -63,12 +69,6 @@ public class Bill {
 
     @Column(name = "comment")
     private String comment;
-
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "phone_number", length = 10)
-    private String phoneNumber;
 
     @CreationTimestamp
     @Column(name = "create_time", nullable = false, updatable = false)

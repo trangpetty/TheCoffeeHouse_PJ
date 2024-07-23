@@ -4,7 +4,6 @@ import com.example.thecoffeehouse.Utils.HmacUtil;
 import com.example.thecoffeehouse.Utils.MomoConfig;
 import com.example.thecoffeehouse.Utils.VnPayConfig;
 import com.example.thecoffeehouse.dto.bill.BillDto;
-import com.example.thecoffeehouse.entity.user.UserAddress;
 import com.example.thecoffeehouse.repository.UserAddressRepository;
 import com.example.thecoffeehouse.service.bill.BillService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -34,14 +33,12 @@ import java.util.Map;
 public class PaymentController {
     private static final Logger log = LoggerFactory.getLogger(PaymentController.class);
     private final BillService billService;
-    private final UserAddressRepository userAddressRepository;
 
     @Value("${frontend.url}")
     private String frontendUrl;
 
-    public PaymentController(BillService billService, UserAddressRepository userAddressRepository) {
+    public PaymentController(BillService billService) {
         this.billService = billService;
-        this.userAddressRepository = userAddressRepository;
     }
 
     @PostMapping("/momo")
@@ -85,12 +82,12 @@ public class PaymentController {
         responseData.put("billDto", billService.createBill(billDto));
         responseData.put("paymentUrl", paymentUrl);
 
-        if (userAddressRepository.existsByUserIdAndAddress(billDto.getUserID(), billDto.getAddress())) {
-            UserAddress userAddress = new UserAddress();
-            userAddress.setUserId(billDto.getUserID());
-            userAddress.setAddress(billDto.getAddress());
-            userAddressRepository.save(userAddress);
-        }
+//        if (userAddressRepository.existsByUserIdAndAddress(billDto.getUserID(), billDto.getAddress())) {
+//            UserAddress userAddress = new UserAddress();
+//            userAddress.setUserId(billDto.getUserID());
+//            userAddress.setAddress(billDto.getAddress());
+//            userAddressRepository.save(userAddress);
+//        }
 
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
@@ -193,12 +190,12 @@ public class PaymentController {
         responseData.put("billDto", billService.createBill(billDto));
         responseData.put("paymentUrl", paymentUrl);
 
-        if (userAddressRepository.existsByUserIdAndAddress(billDto.getUserID(), billDto.getAddress())) {
-            UserAddress userAddress = new UserAddress();
-            userAddress.setUserId(billDto.getUserID());
-            userAddress.setAddress(billDto.getAddress());
-            userAddressRepository.save(userAddress);
-        }
+//        if (userAddressRepository.existsByUserIdAndAddress(billDto.getUserID(), billDto.getAddress())) {
+//            UserAddress userAddress = new UserAddress();
+//            userAddress.setUserId(billDto.getUserID());
+//            userAddress.setAddress(billDto.getAddress());
+//            userAddressRepository.save(userAddress);
+//        }
 
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }

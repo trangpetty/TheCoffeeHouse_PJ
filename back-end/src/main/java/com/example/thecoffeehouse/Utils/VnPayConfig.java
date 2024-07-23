@@ -8,5 +8,5 @@ public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay
     public static String vnp_Command = "pay";
     public static String secretKey = "LGI5BEW1Z2PH6OIPBQONED11IS2WHS3I";
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
-    public static final String vnp_ReturnUrl = "http://192.168.100.11:8082/api/payment/vnpay/result";
+    public static final String vnp_ReturnUrl = "http://10.30.100.178:8082/api/payment/vnpay/result";
 }

@@ -49,4 +49,9 @@ public class CustomerController {
         customerService.deleteCustomer(id);
         return ResponseEntity.ok("success");
     }
+
+    @GetMapping("/get-point")
+    public ResponseEntity<Integer> getPoint(@RequestParam("phoneNumber") String phoneNumber) {
+        return ResponseEntity.ok(customerService.getPoint(phoneNumber));
+    }
 }

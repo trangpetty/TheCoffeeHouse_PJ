@@ -4,12 +4,20 @@ import com.example.thecoffeehouse.Utils.DateTimeConverter;
 import com.example.thecoffeehouse.dto.bill.BillDto;
 import com.example.thecoffeehouse.dto.bill.BillProductDto;
 import com.example.thecoffeehouse.dto.MonthlyDataDTO;
+import com.example.thecoffeehouse.dto.user.ContactDetailDto;
 import com.example.thecoffeehouse.entity.bill.Bill;
 import com.example.thecoffeehouse.entity.bill.BillProduct;
 import com.example.thecoffeehouse.entity.mapper.BillMapper;
 import com.example.thecoffeehouse.entity.product.Product;
 import com.example.thecoffeehouse.entity.product.ProductDetail;
 import com.example.thecoffeehouse.entity.product.Topping;
+import com.example.thecoffeehouse.entity.user.ContactDetails;
+import com.example.thecoffeehouse.entity.user.Customer;
+import com.example.thecoffeehouse.entity.user.OwnerType;
+import com.example.thecoffeehouse.entity.user.User;
+import com.example.thecoffeehouse.repository.ContactDetailRepository;
+import com.example.thecoffeehouse.repository.CustomerRepository;
+import com.example.thecoffeehouse.repository.UserRepository;
 import com.example.thecoffeehouse.repository.bill.BillProductRepository;
 import com.example.thecoffeehouse.repository.bill.BillRepository;
 import com.example.thecoffeehouse.repository.product.ProductDetailRepository;
@@ -38,14 +46,20 @@ public class BillServiceImpl implements BillService {
     private final ProductRepository productRepository;
     private final ToppingRepository toppingRepository;
     private final ProductDetailRepository productDetailRepository;
+    private final ContactDetailRepository contactDetailRepository;
+    private final UserRepository userRepository;
+    private final CustomerRepository customerRepository;
 
-    public BillServiceImpl(BillRepository billRepository, BillProductRepository billProductRepository, DateTimeConverter dateTimeConverter, ProductRepository productRepository, ToppingRepository toppingRepository, ProductDetailRepository productDetailRepository) {
+    public BillServiceImpl(BillRepository billRepository, BillProductRepository billProductRepository, DateTimeConverter dateTimeConverter, ProductRepository productRepository, ToppingRepository toppingRepository, ProductDetailRepository productDetailRepository, ContactDetailRepository contactDetailRepository, UserRepository userRepository, CustomerRepository customerRepository) {
         this.billRepository = billRepository;
         this.billProductRepository = billProductRepository;
         this.dateTimeConverter = dateTimeConverter;
         this.productRepository = productRepository;
         this.toppingRepository = toppingRepository;
         this.productDetailRepository = productDetailRepository;
+        this.contactDetailRepository = contactDetailRepository;
+        this.userRepository = userRepository;
+        this.customerRepository = customerRepository;
     }
 
     @Override
@@ -68,6 +82,17 @@ public class BillServiceImpl implements BillService {
         return bills.map( bill -> {
             List<BillProduct> billProducts = billProductRepository.getBillProductByBillID(bill.getId());
             List<BillProductDto> billProductDtos = BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
+            if(bill.getContactDetailID() != null) {
+                ContactDetails contactDetails = contactDetailRepository
+                                                .findById(bill.getContactDetailID())
+                                                .orElseThrow(() -> new RuntimeException("Contact not found"));
+                ContactDetailDto contactDetailDto = new ContactDetailDto();
+                contactDetailDto.setId(contactDetails.getId());
+                contactDetailDto.setPhoneNumber(contactDetails.getPhoneNumber());
+                contactDetailDto.setName(contactDetails.getName());
+                contactDetailDto.setAddress(contactDetails.getAddress());
+                return BillMapper.mapToBillDto(bill, billProductDtos, contactDetailDto);
+            }
             return BillMapper.mapToBillDto(bill, billProductDtos);
 
         });
@@ -75,11 +100,43 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public BillDto createBill(BillDto billDto) {
+        // Kiểm tra và thiết lập ownerID và ownerType cho ContactDetailDto
+        if (billDto.getContactDetail().getOwnerType() == OwnerType.USER) {
+            User user = userRepository
+                    .findById(billDto.getContactDetail().getOwnerID())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            billDto.getContactDetail().setOwnerID(user.getId());
+            billDto.getContactDetail().setOwnerType(OwnerType.USER);
+        } else {
+            Customer customer = customerRepository.findByPhoneNumber(billDto.getContactDetail().getPhoneNumber());
+            if (customer == null) {
+                customer = new Customer();
+                customer.setPhoneNumber(billDto.getContactDetail().getPhoneNumber());
+                customer.setDefaultName(billDto.getContactDetail().getName());
+                customer.setDefaultAddress(billDto.getContactDetail().getAddress());
+                customer.setPoint(billDto.getValueOfCustomerPoint());
+                customerRepository.save(customer);
+            }
+            billDto.setCustomerID(customer.getId());
+            billDto.getContactDetail().setOwnerID(customer.getId());
+            billDto.getContactDetail().setOwnerType(OwnerType.CUSTOMER);
+
+        }
+
+        // Tạo hoặc cập nhật ContactDetails
+        ContactDetailDto contactDetailDto = createOrUpdateContactDetails(billDto.getContactDetail());
+        billDto.setContactDetail(contactDetailDto);
+
+        // Chuyển đổi BillDto sang Bill và thiết lập contactDetailID
         Bill bill = BillMapper.mapToBill(billDto);
+        bill.setContactDetailID(contactDetailDto.getId());
+
+        // Lưu bill và các chi tiết liên quan
         Bill savedBill = billRepository.save(bill);
         saveBillProducts(billDto.getProducts(), savedBill);
         List<BillProductDto> billProductDtos = billDto.getProducts();
-        return BillMapper.mapToBillDto(savedBill, billProductDtos);
+
+        return BillMapper.mapToBillDto(savedBill, billProductDtos, contactDetailDto);
     }
 
     private void saveBillProducts(List<BillProductDto> billProductDtos, Bill bill) {
@@ -161,13 +218,68 @@ public class BillServiceImpl implements BillService {
         Bill bill = billRepository.findByCode(code);
         if (bill != null) {
             bill.setPaymentStatus(status);
-            if(status == 0 ){
+            if (status == 0) { // Thanh toán thành công
                 bill.setStatus("success");
-            } else if (status == 1) {
+                if (bill.getUserID() != null) {
+                    User user = userRepository.findById(bill.getUserID())
+                            .orElseThrow(() -> new RuntimeException("User not found"));
+
+                    int currentPoints = user.getPoint();
+
+                    user.setPoint(currentPoints - bill.getUsedCustomerPoints() + bill.getValueOfCustomerPoint());
+                    userRepository.save(user);
+
+                    log.info("Updated points for user: {}", currentPoints);
+                } else {
+                    Customer customer = customerRepository.findById(bill.getCustomerID())
+                            .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+                    int currentPoints = customer.getPoint();
+                    customer.setPoint(currentPoints - bill.getUsedCustomerPoints() + bill.getValueOfCustomerPoint());
+                    customerRepository.save(customer);
+
+                    log.info("Updated points for customer: {}", customer.getId());
+                }
+            } else if (status == 1) { // Thanh toán thất bại
                 bill.setStatus("fail");
             }
             billRepository.save(bill);
+        } else {
+            log.warn("Bill with code {} not found", code);
         }
     }
+
+    private ContactDetailDto createOrUpdateContactDetails(ContactDetailDto contactDetailDto) {
+        ContactDetails contactDetails = contactDetailRepository.findByPhoneNumberAndAddressAndName(
+                contactDetailDto.getPhoneNumber(), contactDetailDto.getAddress(), contactDetailDto.getName());
+
+        if (contactDetails != null) {
+            // Cập nhật thông tin liên hệ hiện có
+            contactDetails.setName(contactDetailDto.getName());
+            contactDetails.setAddress(contactDetailDto.getAddress());
+            contactDetailRepository.save(contactDetails);
+        } else {
+            // Tạo mới thông tin liên hệ
+            contactDetails = new ContactDetails();
+            contactDetails.setOwnerID(contactDetailDto.getOwnerID());
+            contactDetails.setOwnerType(contactDetailDto.getOwnerType());
+            contactDetails.setPhoneNumber(contactDetailDto.getPhoneNumber());
+            contactDetails.setName(contactDetailDto.getName());
+            contactDetails.setAddress(contactDetailDto.getAddress());
+            contactDetailRepository.save(contactDetails);
+        }
+
+        // Chuyển đổi thành DTO để trả về
+        ContactDetailDto updatedContactDetailDto = new ContactDetailDto();
+        updatedContactDetailDto.setId(contactDetails.getId());
+        updatedContactDetailDto.setOwnerID(contactDetails.getOwnerID());
+        updatedContactDetailDto.setOwnerType(contactDetails.getOwnerType());
+        updatedContactDetailDto.setPhoneNumber(contactDetails.getPhoneNumber());
+        updatedContactDetailDto.setName(contactDetails.getName());
+        updatedContactDetailDto.setAddress(contactDetails.getAddress());
+
+        return updatedContactDetailDto;
+    }
+
 
 }

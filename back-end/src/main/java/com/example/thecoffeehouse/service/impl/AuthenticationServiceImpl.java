@@ -2,9 +2,9 @@ package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.dto.user.*;
 import com.example.thecoffeehouse.entity.mapper.UserMapper;
-import com.example.thecoffeehouse.entity.user.Role;
-import com.example.thecoffeehouse.entity.user.User;
-import com.example.thecoffeehouse.entity.user.UserAddress;
+import com.example.thecoffeehouse.entity.user.*;
+import com.example.thecoffeehouse.repository.ContactDetailRepository;
+import com.example.thecoffeehouse.repository.CustomerRepository;
 import com.example.thecoffeehouse.repository.UserAddressRepository;
 import com.example.thecoffeehouse.repository.UserRepository;
 import com.example.thecoffeehouse.service.AuthenticationService;
@@ -29,14 +29,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final JWTService jwtService;
 
-    private final UserAddressRepository userAddressRepository;
+    private final CustomerRepository customerRepository;
 
-    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JWTService jwtService, UserAddressRepository userAddressRepository) {
+    private final ContactDetailRepository contactDetailRepository;
+
+    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JWTService jwtService, CustomerRepository customerRepository, ContactDetailRepository contactDetailRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
-        this.userAddressRepository = userAddressRepository;
+        this.customerRepository = customerRepository;
+        this.contactDetailRepository = contactDetailRepository;
     }
 
     public UserDto signup(RegisterDto registerDto) {
@@ -48,6 +51,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new RuntimeException("Số điện thoại đã tồn tại");
         }
 
+        Customer existingCustomer = customerRepository.findByPhoneNumber(registerDto.getPhoneNumber());
+
         User user = new User();
 
         user.setFirstName(registerDto.getFirstName());
@@ -58,6 +63,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setGender(registerDto.getGender());
         user.setRole(Role.USER);
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+
+        if (existingCustomer != null) {
+            // Nếu số điện thoại đã tồn tại trong Customer, điểm của User có thể là 0 hoặc thiết lập theo logic của bạn
+            user.setPoint(existingCustomer.getPoint()); // Hoặc chuyển điểm từ Customer nếu cần thiết
+        } else {
+            user.setPoint(0); // Thiết lập điểm cho người dùng mới
+        }
 
         var jwt = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
@@ -90,10 +102,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userDto.setRole(user.getRole().name());
         userDto.setToken(jwt);
         userDto.setRefreshToken(refreshToken);
+        userDto.setPoint(user.getPoint());
 
-        UserAddress userAddress = userAddressRepository.findLastByUserId(user.getId());
-        if (userAddress != null && userAddress.getAddress() != null) {
-            userDto.setAddress(userAddress.getAddress());
+        ContactDetails contactDetails = contactDetailRepository.findLastByUserId(user.getId());
+        if (contactDetails != null && contactDetails.getAddress() != null) {
+            userDto.setAddress(contactDetails.getAddress());
         }
 
         return userDto;
