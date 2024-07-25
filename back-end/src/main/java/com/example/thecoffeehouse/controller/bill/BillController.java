@@ -1,5 +1,6 @@
 package com.example.thecoffeehouse.controller.bill;
 
+import com.example.thecoffeehouse.dto.OrderStatus;
 import com.example.thecoffeehouse.dto.bill.BillDto;
 import com.example.thecoffeehouse.dto.MonthlyDataDTO;
 import com.example.thecoffeehouse.service.bill.BillService;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -18,9 +20,11 @@ import java.util.List;
 @RequestMapping("/api/bills")
 public class BillController {
     private final BillService billService;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public BillController(BillService billService) {
+    public BillController(BillService billService, SimpMessagingTemplate messagingTemplate) {
         this.billService = billService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @GetMapping
@@ -44,6 +48,26 @@ public class BillController {
     public ResponseEntity<BillDto> updateBill(@PathVariable("code") String code, @RequestBody BillDto updateBillDto) {
         BillDto billDto = billService.updateBill(code, updateBillDto);
         return ResponseEntity.ok(billDto);
+    }
+
+    @PutMapping("/delivery/{code}")
+    public ResponseEntity<String> updateDeliveryStatus(@PathVariable("code") String code, @RequestParam String deliveryStatus) {
+        try {
+            // Cập nhật trạng thái giao hàng
+            billService.updateDeliveryStatus(code, deliveryStatus);
+
+            // Tạo đối tượng trạng thái đơn hàng để gửi
+            OrderStatus orderStatus = new OrderStatus();
+            orderStatus.setCode(code);
+            orderStatus.setStatus(deliveryStatus);
+
+            // Gửi thông báo đến các client qua WebSocket
+            messagingTemplate.convertAndSend("/topic/statusUpdates", orderStatus);
+
+            return ResponseEntity.ok("success");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("fail");
+        }
     }
 
     @GetMapping("/{code}")

@@ -54,6 +54,7 @@ public class SecurityConfig {
                         authorizeRequests
 //                                .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/**").permitAll()
+                                .requestMatchers("/ws/**").permitAll()
 //                                .requestMatchers("/api/**").hasAnyAuthority(Role.ADMIN.name())
 //                                .requestMatchers("/api/products/**").hasAnyAuthority(Role.USER.name())
 //                                .requestMatchers("/api/vouchers/**").hasAnyAuthority(Role.USER.name())

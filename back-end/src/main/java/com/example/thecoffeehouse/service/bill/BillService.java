@@ -26,4 +26,6 @@ public interface BillService {
     BillDto getBillByCode(String code);
 
     void updatePaymentStatus(String code, int status);
+
+    void updateDeliveryStatus(String code, String deliveryStatus);
 }

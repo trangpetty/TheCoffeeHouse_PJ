@@ -4,7 +4,6 @@ import com.example.thecoffeehouse.Utils.HmacUtil;
 import com.example.thecoffeehouse.Utils.MomoConfig;
 import com.example.thecoffeehouse.Utils.VnPayConfig;
 import com.example.thecoffeehouse.dto.bill.BillDto;
-import com.example.thecoffeehouse.repository.UserAddressRepository;
 import com.example.thecoffeehouse.service.bill.BillService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -216,12 +215,12 @@ public class PaymentController {
             // Giao dịch thành công
             billService.updatePaymentStatus(orderId, 0); // 0: success
             log.info("code success: {}", orderId);
-            redirectUrl = frontendUrl + "order/payment-success";
+            redirectUrl = frontendUrl + "order/payment-success" + orderId;
         } else {
             // Giao dịch thất bại
             billService.updatePaymentStatus(orderId, 1); // 1: fail
             log.info("code fail: {}", orderId);
-            redirectUrl = frontendUrl + "order/payment-failure";
+            redirectUrl = frontendUrl + "order/payment-failure" + orderId;
         }
 
         return ResponseEntity.status(HttpStatus.FOUND)
@@ -239,12 +238,12 @@ public class PaymentController {
             // Giao dịch thành công
             billService.updatePaymentStatus(orderId, 0);
             log.info("code success: {}", orderId);
-            redirectUrl = frontendUrl + "order/payment-success";
+            redirectUrl = frontendUrl + "order/payment-success" + orderId;
         } else {
             // Giao dịch thất bại
             billService.updatePaymentStatus(orderId, 1);
             log.info("code fail: {}", orderId);
-            redirectUrl = frontendUrl + "order/payment-failure";
+            redirectUrl = frontendUrl + "order/payment-failure" + orderId;
         }
 
         return ResponseEntity.status(HttpStatus.FOUND)

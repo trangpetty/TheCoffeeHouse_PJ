@@ -119,6 +119,7 @@ public class BillMapper {
         billDto.setRate(bill.getRate());
         billDto.setComment(bill.getComment());
         billDto.setProducts(products);
+        billDto.setUsedCustomerPoints(bill.getUsedCustomerPoints());
         return billDto;
     }
 

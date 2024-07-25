@@ -8,6 +8,7 @@ import com.example.thecoffeehouse.dto.user.ContactDetailDto;
 import com.example.thecoffeehouse.entity.bill.Bill;
 import com.example.thecoffeehouse.entity.bill.BillProduct;
 import com.example.thecoffeehouse.entity.mapper.BillMapper;
+import com.example.thecoffeehouse.entity.mapper.ContactDetailMapper;
 import com.example.thecoffeehouse.entity.product.Product;
 import com.example.thecoffeehouse.entity.product.ProductDetail;
 import com.example.thecoffeehouse.entity.product.Topping;
@@ -36,6 +37,7 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class BillServiceImpl implements BillService {
@@ -210,7 +212,11 @@ public class BillServiceImpl implements BillService {
         List<ProductDetail> sizes = productDetailRepository.findAll();
 
         List<BillProductDto> billProductDto = BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
-        return BillMapper.mapToBillDto(bill, billProductDto);
+
+        ContactDetails contactDetails = contactDetailRepository.findById(bill.getContactDetailID()).orElseThrow(() -> new RuntimeException("ContactDetail does not exist"));
+        ContactDetailDto contactDetailDto = ContactDetailMapper.mapToContactDetailDto(contactDetails);
+
+        return BillMapper.mapToBillDto(bill, billProductDto, contactDetailDto);
     }
 
     @Override
@@ -219,7 +225,7 @@ public class BillServiceImpl implements BillService {
         if (bill != null) {
             bill.setPaymentStatus(status);
             if (status == 0) { // Thanh toán thành công
-                bill.setStatus("success");
+                bill.setStatus("pending");
                 if (bill.getUserID() != null) {
                     User user = userRepository.findById(bill.getUserID())
                             .orElseThrow(() -> new RuntimeException("User not found"));
@@ -246,6 +252,17 @@ public class BillServiceImpl implements BillService {
             billRepository.save(bill);
         } else {
             log.warn("Bill with code {} not found", code);
+        }
+    }
+
+    public void updateDeliveryStatus(String code, String deliveryStatus) {
+        Bill bill = billRepository.findByCode(code);
+        if(bill != null) {
+            bill.setDeliveryStatus(deliveryStatus);
+            if(Objects.equals(deliveryStatus, "Delivered")) {
+                bill.setStatus("success");
+            }
+            billRepository.save(bill);
         }
     }
 
