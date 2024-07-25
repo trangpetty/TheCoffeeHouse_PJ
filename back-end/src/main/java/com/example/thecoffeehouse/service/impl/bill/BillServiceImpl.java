@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class BillServiceImpl implements BillService {
@@ -264,6 +265,21 @@ public class BillServiceImpl implements BillService {
             }
             billRepository.save(bill);
         }
+    }
+
+    @Override
+    public List<BillDto> getBillsByUserId(Long userID) {
+        List<Bill> bills = billRepository.findByUserID(userID);
+
+        List<Product> products = productRepository.findAll();
+        List<Topping> toppings = toppingRepository.findAll();
+        List<ProductDetail> sizes = productDetailRepository.findAll();
+
+        return bills.stream().map( bill -> {
+            List<BillProduct> billProducts = billProductRepository.getBillProductByBillID(bill.getId());
+            List<BillProductDto> billProductDtos = BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
+            return BillMapper.mapToBillDto(bill, billProductDtos);
+        }).collect(Collectors.toList());
     }
 
     private ContactDetailDto createOrUpdateContactDetails(ContactDetailDto contactDetailDto) {

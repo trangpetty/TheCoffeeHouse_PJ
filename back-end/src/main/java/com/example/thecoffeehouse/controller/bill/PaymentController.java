@@ -215,12 +215,12 @@ public class PaymentController {
             // Giao dịch thành công
             billService.updatePaymentStatus(orderId, 0); // 0: success
             log.info("code success: {}", orderId);
-            redirectUrl = frontendUrl + "order/payment-success" + orderId;
+            redirectUrl = frontendUrl + "order/payment-success/" + orderId;
         } else {
             // Giao dịch thất bại
             billService.updatePaymentStatus(orderId, 1); // 1: fail
             log.info("code fail: {}", orderId);
-            redirectUrl = frontendUrl + "order/payment-failure" + orderId;
+            redirectUrl = frontendUrl + "order/payment-failure/" + orderId;
         }
 
         return ResponseEntity.status(HttpStatus.FOUND)
@@ -238,12 +238,12 @@ public class PaymentController {
             // Giao dịch thành công
             billService.updatePaymentStatus(orderId, 0);
             log.info("code success: {}", orderId);
-            redirectUrl = frontendUrl + "order/payment-success" + orderId;
+            redirectUrl = frontendUrl + "order/payment-success/" + orderId;
         } else {
             // Giao dịch thất bại
             billService.updatePaymentStatus(orderId, 1);
             log.info("code fail: {}", orderId);
-            redirectUrl = frontendUrl + "order/payment-failure" + orderId;
+            redirectUrl = frontendUrl + "order/payment-failure/" + orderId;
         }
 
         return ResponseEntity.status(HttpStatus.FOUND)

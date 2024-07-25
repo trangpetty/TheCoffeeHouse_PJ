@@ -1,12 +1,13 @@
 package com.example.thecoffeehouse.controller;
 
+import com.example.thecoffeehouse.dto.bill.BillDto;
 import com.example.thecoffeehouse.dto.user.*;
-import com.example.thecoffeehouse.entity.bill.Bill;
+import com.example.thecoffeehouse.entity.user.ContactDetails;
 import com.example.thecoffeehouse.entity.user.User;
-import com.example.thecoffeehouse.entity.user.UserAddress;
+import com.example.thecoffeehouse.repository.ContactDetailRepository;
 import com.example.thecoffeehouse.repository.UserAddressRepository;
-import com.example.thecoffeehouse.repository.bill.BillRepository;
 import com.example.thecoffeehouse.service.UserService;
+import com.example.thecoffeehouse.service.bill.BillService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,12 +24,15 @@ public class UserController {
 
     private final UserAddressRepository userAddressRepository;
 
-    private final BillRepository billRepository;
+    private final BillService billService;
 
-    public UserController(UserService userService, UserAddressRepository userAddressRepository, BillRepository billRepository) {
+    private final ContactDetailRepository contactDetailRepository;
+
+    public UserController(UserService userService, UserAddressRepository userAddressRepository, BillService billService, ContactDetailRepository contactDetailRepository) {
         this.userService = userService;
         this.userAddressRepository = userAddressRepository;
-        this.billRepository = billRepository;
+        this.billService = billService;
+        this.contactDetailRepository = contactDetailRepository;
     }
 
     @GetMapping
@@ -107,12 +111,12 @@ public class UserController {
     }
 
     @GetMapping("/address/{id}")
-    public ResponseEntity<List<UserAddress>> getAddresses(@PathVariable Long id) {
-        return ResponseEntity.ok(userAddressRepository.findByUserId(id));
+    public ResponseEntity<List<ContactDetails>> getAddresses(@PathVariable Long id) {
+        return ResponseEntity.ok(contactDetailRepository.findByUserId(id));
     }
 
     @GetMapping("/bills/{id}")
-    public ResponseEntity<List<Bill>> getBills(@PathVariable Long id) {
-        return ResponseEntity.ok(billRepository.findByUserID(id));
+    public ResponseEntity<List<BillDto>> getBills(@PathVariable Long id) {
+        return ResponseEntity.ok(billService.getBillsByUserId(id));
     }
 }

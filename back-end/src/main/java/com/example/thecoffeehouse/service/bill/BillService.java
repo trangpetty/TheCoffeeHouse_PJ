@@ -28,4 +28,6 @@ public interface BillService {
     void updatePaymentStatus(String code, int status);
 
     void updateDeliveryStatus(String code, String deliveryStatus);
+
+    List<BillDto> getBillsByUserId(Long userID);
 }
