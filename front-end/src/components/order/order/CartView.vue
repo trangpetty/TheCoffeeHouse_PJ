@@ -144,7 +144,7 @@
                     <div v-if="user.point || customerPoint">
                       <div class="d-flex justify-content-between align-items-center">
                         <p class="text-orange order-card__text mb-0 w-50">Điểm tích lũy hiện tại: {{user.point ? user.point : customerPoint}}</p>
-                        <el-form-item v-if="user.point >= 10 || customerPoint >= 10" label="Su dung diem" class="text-orange order-card-icon mb-0 w-50">
+                        <el-form-item v-if="user.point >= 10 || customerPoint >= 10" label="Sử dụng điểm" class="text-orange order-card-icon mb-0 w-50">
                           <el-select v-model="formData.usedCustomerPoints">
                             <el-option label="0" :value="0"/>
                             <el-option label="10%" :value="10"/>

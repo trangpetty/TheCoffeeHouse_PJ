@@ -23,6 +23,7 @@ import BlogsView from '@/components/order/news/NewsView.vue';
 import BlogDetail from '@/components/order/news/NewsDetail.vue';
 import PaymentSuccess from '@/components/order/payment/PaymentSuccess.vue';
 import PaymentFailure from '@/components/order/payment/PaymentFailure.vue';
+import DeliveryView from '@/components/order/payment/DeliveryView.vue';
 
 import ProductDetail from '@/components/user/ProductDetailView.vue';
 import MainPage from '@/components/user/main/MainPage.vue';
@@ -128,14 +129,22 @@ export const routes = [
         component: BlogsView
       },
       {
-        path: '/order/payment-success',
+        path: '/order/payment-success/:code',
         name: 'payment-success',
-        component: PaymentSuccess
+        component: PaymentSuccess,
+        props: true
       },
       {
-        path: '/order/payment-failure',
+        path: '/order/payment-failure/:code',
         name: 'payment-failure',
-        component: PaymentFailure
+        component: PaymentFailure,
+        props: true
+      },
+      {
+        path: '/order/delivery/:code',
+        name: 'delivery',
+        component: DeliveryView,
+        props: true
       }
     ]
   },
