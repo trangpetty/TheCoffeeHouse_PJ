@@ -55,13 +55,13 @@
         <el-table-column prop="code" label="Code" />
         <el-table-column prop="totalValue" label="Total" />
         <el-table-column prop="value" label="Value" />
-<!--        <el-table-column label="status">-->
-<!--          <template #default={row}>-->
-<!--            <span :style="row.status === 0 ? 'color:#5daf34' : 'color:red'">-->
-<!--              {{ row.status === 0 ? 'Active' : 'Done' }}-->
-<!--            </span>-->
-<!--          </template>-->
-<!--        </el-table-column>-->
+        <el-table-column label="status">
+          <template #default={row}>
+            <span :style="{ color: row.status === 'success' ? '#5daf34' : (row.status === 'pending' ? 'orange' : 'red') }">
+              {{ row.status }}
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column label="payment">
           <template #default={row}>
             <span :style="(row.paymentStatus === 0) ? 'color:#5daf34' : 'color:red'">

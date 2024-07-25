@@ -4,10 +4,32 @@
       <div class="container-lg container-fluid">
         <div class="row justify-content-center">
           <div class="col-12 col-lg-10">
-            <div class="mb-5 checkout-header">
+            <div class="mb-5 mt-3 checkout-header">
               <h1 class="text-center h4 mb-0" style="font-weight: 600;">
                 <span class="text text-orange">{{deliveryStatusText}}</span>
               </h1>
+              <el-steps class="custom-steps mt-4" :active="activeStep">
+                <el-step title="Đặt thành công">
+                  <template #icon>
+                    <font-awesome-icon icon="fa-solid fa-check-to-slot" class="icon"/>
+                  </template>
+                </el-step>
+                <el-step title="Đang chuẩn bị">
+                  <template #icon>
+                    <font-awesome-icon icon="fa-solid fa-box-archive" class="icon"/>
+                  </template>
+                </el-step>
+                <el-step title="Đang giao">
+                  <template #icon>
+                    <font-awesome-icon icon="fa-solid fa-motorcycle" class="icon"/>
+                  </template>
+                </el-step>
+                <el-step title="Nhận hàng">
+                  <template #icon>
+                    <font-awesome-icon icon="fa-solid fa-circle-check" class="icon"/>
+                  </template>
+                </el-step>
+              </el-steps>
             </div>
             <div class="d-block">
               <!-- Delivery -->
@@ -122,7 +144,7 @@
                   </div>
                   <div class="d-flex align-items-center justify-content-between border-bottom pt-3" v-if="bill.usedCustomerPoints">
                     <div>
-                      <p class="order-card__text">Sử dụng điểm</p>
+                      <p class="order-card__text">Sử dụng điểm: {{ bill.usedCustomerPoints }}</p>
                     </div>
                     <div>
                       <p>- {{Utils.formatPrice(bill.totalValue - bill.value)}}</p>
@@ -177,9 +199,10 @@ import delivery from "@/assets/images/Delivery2.png";
 import cash from '@/assets/images/money.jpg';
 import momo from '@/assets/images/momo.png';
 import vnpay from '@/assets/images/vnpay.png'
-import {ref, onMounted, computed, defineProps} from "vue";
+import {ref, onMounted, computed, defineProps, watch} from "vue";
 import axiosClient from '@/utils/axiosConfig';
 import * as Utils from '@/utils';
+import { useRouter } from 'vue-router';
 import { connectWebSocket } from '@/utils/websocket';
 
 const props = defineProps(['code']);
@@ -197,6 +220,7 @@ const bill = ref<any>({
 });
 
 const voucher = ref({});
+const router = useRouter();
 
 const paymentMethods = ref([
   { url: momo, label: 'MoMo', methodName: 'momo' },
@@ -215,7 +239,31 @@ const deliveryStatusText = computed(() => {
     case 'Delivered':
       return 'Đơn hàng của bạn đã được giao!';
     default:
-      return 'Trạng thái đơn hàng không xác định!';
+      return 'Đơn hàng của bạn đã được đặt thành công!';
+  }
+});
+
+const activeStep = computed(() => {
+  switch (bill.value.deliveryStatus) {
+    case 'Ordered':
+      return 1;
+    case 'Preparing':
+      return 2;
+    case 'Transmit':
+      return 3;
+    case 'Delivered':
+      return 4;
+    default:
+      return 1;
+  }
+});
+
+watch(() => bill.value.deliveryStatus, (newStatus) => {
+  if (newStatus === 'Delivered') {
+    // Wait for 2 minutes (120000 milliseconds) before redirecting
+    setTimeout(() => {
+      router.push({ name: 'check-bill', params: { code: bill.value.code } });
+    }, 120000); // 2 minutes
   }
 });
 
@@ -250,10 +298,45 @@ onMounted (async () => {
 </script>
 
 <style scoped>
-.checkout-header .icon{
-  color: #fad207;
-  font-size: var(--space-16);
-  line-height: 1;
+
+.custom-steps {
+  margin-left: var(--space-50);
+}
+
+.custom-steps .icon {
+  width: var(--space-28);
+  height: var(--space-28);
+}
+
+::v-deep .el-step.is-horizontal .el-step__line {
+  top: 50%;
+}
+
+::v-deep .el-step__line-inner {
+  border-color: initial !important;
+}
+
+::v-deep .el-step__icon.is-icon {
+  padding: 2rem;
+  border-radius: 50%!important;
+  color: var(--white-1);
+  background-color: var(--smoky-gray-2);
+  font-size: var(--space-28);
+}
+
+::v-deep .custom-steps .el-step__head.is-finish,
+::v-deep .el-step__title.is-finish {
+  color: var(--orange-2)!important;
+}
+
+::v-deep .custom-steps .el-step__head.is-finish .el-step__icon {
+  background-color: var(--orange-2)!important;
+  color: var(--white-1)!important;
+}
+
+::v-deep .custom-steps .el-step__head.is-finish .el-step__title {
+  font-weight: bold!important;
+  color: var(--orange-2)!important;
 }
 
 .checkout-box {

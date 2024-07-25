@@ -22,16 +22,16 @@
                     <div class="d-flex border-bottom align-items-center mt-4 pb-3">
                       <div class="w-50 border-end">
                         <p class="mb-1">Người nhận</p>
-                        <h5 class="m-0">{{bill.name}}</h5>
+                        <h5 class="m-0">{{bill.contactDetail.name}}</h5>
                       </div>
                       <div class="w-50 px-3">
                         <p class="mb-1">Số điện thoại</p>
-                        <h5 class="m-0">{{bill.phoneNumber}}</h5>
+                        <h5 class="m-0">{{bill.contactDetail.phoneNumber}}</h5>
                       </div>
                     </div>
                     <div class="border-bottom mt-4 pb-3">
                       <p class="mb-1">Giao đến</p>
-                      <h6 class="m-0">{{bill.address}}</h6>
+                      <h6 class="m-0">{{bill.contactDetail.address}}</h6>
                     </div>
                     <div class="border-bottom mt-4 pb-3">
                       <p class="mb-1">Trạng thái thanh toán</p>
@@ -103,12 +103,22 @@
                         <h6 class="mb-0">Phí giao hàng</h6>
                         <h6 class="mb-0">{{ Utils.formatPrice(18000) }}</h6>
                       </div>
-                      <div class="border-bottom d-flex align-items-center justify-content-between mt-4 pb-3">
-                        <div>
-                          <el-text class="h5 text-primary">Khuyến mãi</el-text>
-                          <p class="m-0">{{voucher.name}}</p>
+                      <div class="border-bottom d-flex flex-column mt-4 pb-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                          <div>
+                            <el-text class="h5 text-primary">Khuyến mãi</el-text>
+                            <p class="m-0">{{voucher.name}}</p>
+                          </div>
+                          <h6 class="mb-0">-{{ Utils.formatPrice(bill.valueOfVoucher) }}</h6>
                         </div>
-                        <h6 class="mb-0">-{{ Utils.formatPrice(bill.valueOfVoucher) }}</h6>
+                        <div class="d-flex align-items-center justify-content-between pt-3" v-if="bill.usedCustomerPoints">
+                          <div>
+                            <p class="order-card__text">Sử dụng điểm: {{ bill.usedCustomerPoints }}</p>
+                          </div>
+                          <div>
+                            <p>- {{Utils.formatPrice(bill.totalValue - bill.value)}}</p>
+                          </div>
+                        </div>
                       </div>
                       <div class="border-bottom d-flex align-items-center justify-content-between w-100 mt-4 pb-3">
                         <h6 class="mb-0 fw-bold">Số tiền thanh toán</h6>
@@ -151,7 +161,17 @@ const formData = ref({
   rated: false
 });
 
-const bill = ref({});
+const bill = ref<any>({
+  contactDetail: {
+    name: '',
+    phoneNumber: '',
+    address: ''
+  },
+  products: [],
+  voucherID: null,
+  userID: null,
+  paymentMethod: ''
+});
 const products = ref([]);
 const voucher = ref({});
 const user = ref({});
@@ -217,8 +237,8 @@ onMounted (async () => {
     const response1 = await axiosClient.get(`/vouchers/${bill.value.voucherID}`);
     voucher.value = response1.data;
   }
-  const response2 = await axiosClient.get(`/users/${bill.value.userID}`);
-  user.value = response2.data;
+  // const response2 = await axiosClient.get(`/users/${bill.value.userID}`);
+  // user.value = response2.data;
   processBillData()
 
 })
