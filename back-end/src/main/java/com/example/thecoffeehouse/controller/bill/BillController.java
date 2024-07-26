@@ -3,6 +3,7 @@ package com.example.thecoffeehouse.controller.bill;
 import com.example.thecoffeehouse.dto.OrderStatus;
 import com.example.thecoffeehouse.dto.bill.BillDto;
 import com.example.thecoffeehouse.dto.MonthlyDataDTO;
+import com.example.thecoffeehouse.dto.bill.RevenueDTO;
 import com.example.thecoffeehouse.service.bill.BillService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/bills")
@@ -77,13 +79,22 @@ public class BillController {
     }
 
     @GetMapping("/revenue")
-    public List<Double> getRevenue() {
-        return billService.getRevenue();
+    public ResponseEntity<List<RevenueDTO>> getRevenue(@RequestParam(name = "type") String type,
+                                                       @RequestParam(name = "month", required = false) Integer month,
+                                                       @RequestParam(name = "week", required = false) Integer week) {
+        List<RevenueDTO> revenue = billService.getRevenueByType(type, month, week);
+        return new ResponseEntity<>(revenue, HttpStatus.OK);
     }
 
-    @GetMapping("/revenue/monthly")
-    public ResponseEntity<List<MonthlyDataDTO>> getMonthlyRevenue(@RequestParam int year) {
-        List<MonthlyDataDTO> monthlyRevenue = billService.getRevenueByMonth(year);
-        return ResponseEntity.ok(monthlyRevenue);
+    @GetMapping("/today-statistics")
+    public ResponseEntity<Map<String, Object>> getTodayStatistics() {
+        return ResponseEntity.ok(billService.getTodayStatistics());
     }
+
+
+//    @GetMapping("/revenue/monthly")
+//    public ResponseEntity<List<MonthlyDataDTO>> getMonthlyRevenue(@RequestParam int year) {
+//        List<MonthlyDataDTO> monthlyRevenue = billService.getRevenueByMonth(year);
+//        return ResponseEntity.ok(monthlyRevenue);
+//    }
 }

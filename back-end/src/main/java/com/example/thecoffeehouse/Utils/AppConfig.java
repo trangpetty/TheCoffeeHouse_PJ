@@ -1,17 +1,21 @@
 package com.example.thecoffeehouse.Utils;
 
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
-@Component
+@Configuration
 public class AppConfig {
-    @Getter
-    private static String serverAddress;
-
     @Value("${server.address}")
-    public void setServerAddress(String serverAddress) {
-        AppConfig.serverAddress = serverAddress;
+    private String serverAddress;
+
+    @Value("${server.port}")
+    private String serverPort;
+
+    public String getServerAddress() {
+        return serverAddress;
     }
 
+    public String getServerPort() {
+        return serverPort;
+    }
 }

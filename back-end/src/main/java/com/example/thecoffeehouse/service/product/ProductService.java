@@ -1,6 +1,7 @@
 package com.example.thecoffeehouse.service.product;
 
 
+import com.example.thecoffeehouse.dto.product.ProductSalesDto;
 import com.example.thecoffeehouse.entity.product.Product;
 import com.example.thecoffeehouse.entity.product.UserProduct;
 import org.springframework.data.domain.Page;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import com.example.thecoffeehouse.dto.product.ProductDto;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ProductService {
@@ -37,5 +39,11 @@ public interface ProductService {
     List<ProductDto> getHighestRatedProducts();
 
     List<ProductDto> getNewestProducts();
+
+    List<ProductSalesDto> getTopProducts(String reportType, int year, Integer period);
+
+    List<ProductSalesDto> getTopProductsByMonthAndWeek(int month, int week);
+
+    List<ProductSalesDto> getTopProductsByDate(LocalDate date);
 
 }

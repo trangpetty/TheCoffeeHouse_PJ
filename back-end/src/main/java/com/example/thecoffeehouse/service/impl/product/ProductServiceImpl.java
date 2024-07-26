@@ -1,22 +1,29 @@
 package com.example.thecoffeehouse.service.impl.product;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.WeekFields;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
-import com.example.thecoffeehouse.dto.product.ProductDetailDto;
-import com.example.thecoffeehouse.dto.product.ProductImageDto;
-import com.example.thecoffeehouse.dto.product.ProductToppingDto;
+import com.example.thecoffeehouse.dto.product.*;
+import com.example.thecoffeehouse.entity.bill.BillProduct;
 import com.example.thecoffeehouse.entity.product.*;
+import com.example.thecoffeehouse.repository.bill.BillProductRepository;
+import com.example.thecoffeehouse.repository.bill.BillRepository;
 import com.example.thecoffeehouse.repository.product.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.example.thecoffeehouse.dto.product.ProductDto;
 import com.example.thecoffeehouse.entity.mapper.ProductMapper;
 import com.example.thecoffeehouse.service.product.ProductService;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -28,14 +35,16 @@ public class ProductServiceImpl implements ProductService {
     private final ProductToppingRepository productToppingRepository;
     private final ToppingRepository toppingRepository;
     private final UserProductRepository userProductRepository;
+    private final BillProductRepository billProductRepository;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductDetailRepository productDetailRepository, ProductImageRepository productImageRepository, ProductToppingRepository productToppingRepository, ToppingRepository toppingRepository, UserProductRepository userProductRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductDetailRepository productDetailRepository, ProductImageRepository productImageRepository, ProductToppingRepository productToppingRepository, ToppingRepository toppingRepository, UserProductRepository userProductRepository, BillProductRepository billProductRepository) {
         this.productRepository = productRepository;
         this.productDetailRepository = productDetailRepository;
         this.productImageRepository = productImageRepository;
         this.productToppingRepository = productToppingRepository;
         this.toppingRepository = toppingRepository;
         this.userProductRepository = userProductRepository;
+        this.billProductRepository = billProductRepository;
     }
 
     @Override
@@ -233,6 +242,51 @@ public class ProductServiceImpl implements ProductService {
         productImageRepository.deleteByProductID(id);
         productToppingRepository.deleteByProductID(id);
         productRepository.deleteById(id);
+    }
+
+    @Override
+    public List<ProductSalesDto> getTopProducts(String reportType, int year, Integer period) {
+        LocalDateTime startDate;
+        LocalDateTime endDate;
+        Pageable pageable = PageRequest.of(0, 5); // Limit to top 10 products
+
+        switch (reportType) {
+            case "monthly":
+                startDate = LocalDateTime.of(year, period, 1, 0, 0);
+                endDate = startDate.plusMonths(1).minusNanos(1);
+                break;
+            case "weekly":
+                LocalDate startOfWeek = LocalDate.of(year, 1, 1).plusWeeks(period - 1);
+                startDate = startOfWeek.atStartOfDay();
+                endDate = startOfWeek.plusWeeks(1).atStartOfDay().minusNanos(1);
+                break;
+            case "yearly":
+                startDate = LocalDateTime.of(year, 1, 1, 0, 0);
+                endDate = LocalDateTime.of(year + 1, 1, 1, 0, 0).minusNanos(1);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid report type: " + reportType);
+        }
+
+        return billProductRepository.findTopProductsByPeriod(startDate, endDate, pageable);
+    }
+
+    @Override
+    public List<ProductSalesDto> getTopProductsByMonthAndWeek(int month, int week) {
+        LocalDate startOfMonth = LocalDate.of(LocalDate.now().getYear(), month, 1);
+        LocalDate startOfWeek = startOfMonth.plusWeeks(week - 1);
+        LocalDateTime startDate = startOfWeek.atStartOfDay();
+        LocalDateTime endDate = startOfWeek.plusWeeks(1).atStartOfDay().minusNanos(1);
+
+        return billProductRepository.findTopProductsByPeriod(startDate, endDate, PageRequest.of(0, 5));
+    }
+
+    @Override
+    public List<ProductSalesDto> getTopProductsByDate(LocalDate date) {
+        LocalDateTime startDate = date.atStartOfDay();
+        LocalDateTime endDate = startDate.plusDays(1).minusNanos(1);
+
+        return billProductRepository.findTopProductsByPeriod(startDate, endDate, PageRequest.of(0, 5));
     }
 
     private void saveOrUpdateProductDetails(List<ProductDetailDto> productDetailDtos, Product product) {

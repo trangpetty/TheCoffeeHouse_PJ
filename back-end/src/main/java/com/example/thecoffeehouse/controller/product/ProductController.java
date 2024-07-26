@@ -1,6 +1,7 @@
 package com.example.thecoffeehouse.controller.product;
 
 import com.example.thecoffeehouse.dto.LikeProductRequest;
+import com.example.thecoffeehouse.dto.product.ProductSalesDto;
 import com.example.thecoffeehouse.entity.product.ProductReview;
 import com.example.thecoffeehouse.entity.product.UserProduct;
 import com.example.thecoffeehouse.repository.product.ProductReviewRepository;
@@ -15,6 +16,7 @@ import com.example.thecoffeehouse.dto.product.ProductDto;
 import com.example.thecoffeehouse.service.product.ProductService;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -102,5 +104,22 @@ public class ProductController {
     @GetMapping("/newest")
     public ResponseEntity<List<ProductDto>> getNewestProducts() {
         return ResponseEntity.ok(productService.getNewestProducts());
+    }
+
+    @GetMapping("/top-products")
+    public List<ProductSalesDto> getTopProducts(
+            @RequestParam String reportType,
+            @RequestParam int year,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer week,
+            @RequestParam(required = false) String date) {
+        if (reportType.equals("monthly") && month != null && week != null) {
+            return productService.getTopProductsByMonthAndWeek(month, week);
+        } else if (reportType.equals("daily") && date != null) {
+            LocalDate localDate = LocalDate.parse(date);
+            return productService.getTopProductsByDate(localDate);
+        } else {
+            return productService.getTopProducts(reportType, year, month); // Adjust this method to handle `week` as well
+        }
     }
 }

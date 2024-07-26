@@ -4,6 +4,7 @@ import com.example.thecoffeehouse.Utils.DateTimeConverter;
 import com.example.thecoffeehouse.dto.bill.BillDto;
 import com.example.thecoffeehouse.dto.bill.BillProductDto;
 import com.example.thecoffeehouse.dto.MonthlyDataDTO;
+import com.example.thecoffeehouse.dto.bill.RevenueDTO;
 import com.example.thecoffeehouse.dto.user.ContactDetailDto;
 import com.example.thecoffeehouse.entity.bill.Bill;
 import com.example.thecoffeehouse.entity.bill.BillProduct;
@@ -31,13 +32,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.time.format.TextStyle;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -199,8 +200,22 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public List<MonthlyDataDTO> getRevenueByMonth(int year) {
-        return billRepository.getMonthlyRevenue(year);
+    public List<RevenueDTO> getRevenueByType(String type, Integer month, Integer week) {
+        if ("daily".equalsIgnoreCase(type) && month != null && week != null) {
+            return billRepository.findDailyRevenueForWeekInMonth(month, week);
+        }
+        // Other types of revenue queries
+        switch (type) {
+            case "weekly":
+                return getWeeklyRevenue();
+            case "yearly":
+                return getYearlyRevenue();
+//            case "productType":
+//                return getRevenueByProductType();
+            case "monthly":
+            default:
+                return getMonthlyRevenue();
+        }
     }
 
     @Override
@@ -227,6 +242,7 @@ public class BillServiceImpl implements BillService {
             bill.setPaymentStatus(status);
             if (status == 0) { // Thanh toán thành công
                 bill.setStatus("pending");
+                log.info("Bill status before save: {}", bill.getStatus());
                 if (bill.getUserID() != null) {
                     User user = userRepository.findById(bill.getUserID())
                             .orElseThrow(() -> new RuntimeException("User not found"));
@@ -237,7 +253,8 @@ public class BillServiceImpl implements BillService {
                     userRepository.save(user);
 
                     log.info("Updated points for user: {}", currentPoints);
-                } else {
+                }
+                else {
                     Customer customer = customerRepository.findById(bill.getCustomerID())
                             .orElseThrow(() -> new RuntimeException("Customer not found"));
 
@@ -251,6 +268,7 @@ public class BillServiceImpl implements BillService {
                 bill.setStatus("fail");
             }
             billRepository.save(bill);
+            log.info("Bill status after save: {}", bill.getStatus());
         } else {
             log.warn("Bill with code {} not found", code);
         }
@@ -280,6 +298,25 @@ public class BillServiceImpl implements BillService {
             List<BillProductDto> billProductDtos = BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
             return BillMapper.mapToBillDto(bill, billProductDtos);
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, Object> getTodayStatistics() {
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+
+        BigDecimal totalRevenue = billRepository.calculateTotalRevenue(startOfDay, endOfDay);
+        Integer totalProductsSold = billProductRepository.calculateTotalProductsSold(startOfDay, endOfDay);
+        Integer totalOrders = billRepository.countTotalOrders(startOfDay, endOfDay);
+        Integer newCustomers = customerRepository.findNewCustomersToday(startOfDay, endOfDay) + userRepository.findNewUsersToday(startOfDay, endOfDay);
+
+        Map<String, Object> statistics = new HashMap<>();
+        statistics.put("totalRevenue", totalRevenue != null ? totalRevenue : BigDecimal.ZERO);
+        statistics.put("totalProductsSold", totalProductsSold != null ? totalProductsSold : 0);
+        statistics.put("totalOrders", totalOrders != null ? totalOrders : 0);
+        statistics.put("newCustomers", newCustomers != null ? newCustomers : 0);
+
+        return statistics;
     }
 
     private ContactDetailDto createOrUpdateContactDetails(ContactDetailDto contactDetailDto) {
@@ -314,5 +351,49 @@ public class BillServiceImpl implements BillService {
         return updatedContactDetailDto;
     }
 
+    private List<RevenueDTO> getMonthlyRevenue() {
+        // Giả sử phương thức này trả về danh sách doanh thu hàng tháng
+        List<RevenueDTO> revenues = billRepository.findMonthlyRevenue();
+        return revenues.stream()
+                .map(revenue -> new RevenueDTO(revenue.getLabel(), revenue.getValue()))
+                .collect(Collectors.toList());
+    }
 
+    private List<RevenueDTO> getWeeklyRevenue() {
+        // Giả sử phương thức này trả về danh sách doanh thu hàng tuần
+        List<RevenueDTO> revenues = billRepository.findWeeklyRevenue();
+        return revenues.stream()
+                .map(revenue -> new RevenueDTO(revenue.getLabel(), revenue.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    private List<RevenueDTO> getYearlyRevenue() {
+        // Giả sử phương thức này trả về danh sách doanh thu hàng năm
+        List<RevenueDTO> revenues = billRepository.findYearlyRevenue();
+        return revenues.stream()
+                .map(revenue -> new RevenueDTO(revenue.getLabel(), revenue.getValue()))
+                .collect(Collectors.toList());
+    }
+
+//    public List<RevenueDTO> getDailyRevenueForWeekInMonth(int month, int week) {
+//        List<RevenueDTO> revenues = billRepository.findDailyRevenueForWeekInMonth(month, week);
+//        Map<String, Double> revenueMap = new HashMap<>();
+//        revenues.forEach(revenue -> revenueMap.put(revenue.getLabel(), revenue.getValue()));
+//
+//        List<RevenueDTO> result = new ArrayList<>();
+//        for (DayOfWeek day : DayOfWeek.values()) {
+//            String dayName = day.getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+//            result.add(new RevenueDTO(dayName, revenueMap.getOrDefault(dayName, 0.0)));
+//        }
+//        log.info("revenue: {}", revenues);
+//        return result;
+//    }
+
+//    private List<RevenueDTO> getRevenueByProductType() {
+//        // Giả sử phương thức này trả về danh sách doanh thu theo loại sản phẩm
+//        List<RevenueDTO> revenues = billRepository.findRevenueByProductType();
+//        return revenues.stream()
+//                .map(revenue -> new RevenueDTO(revenue.getLabel(), revenue.getValue()))
+//                .collect(Collectors.toList());
+//    }
 }

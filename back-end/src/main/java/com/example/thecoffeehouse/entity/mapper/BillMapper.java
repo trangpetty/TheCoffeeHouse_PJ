@@ -120,6 +120,8 @@ public class BillMapper {
         billDto.setComment(bill.getComment());
         billDto.setProducts(products);
         billDto.setUsedCustomerPoints(bill.getUsedCustomerPoints());
+        billDto.setCreateTime(bill.getCreateTime());
+        billDto.setModifyTime(bill.getModifyTime());
         return billDto;
     }
 

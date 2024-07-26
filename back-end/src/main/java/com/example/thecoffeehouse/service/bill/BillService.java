@@ -2,11 +2,13 @@ package com.example.thecoffeehouse.service.bill;
 
 import com.example.thecoffeehouse.dto.bill.BillDto;
 import com.example.thecoffeehouse.dto.MonthlyDataDTO;
+import com.example.thecoffeehouse.dto.bill.RevenueDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public interface BillService {
     Page<BillDto> getAllBills(String code, String status, Date from, Date to, Pageable pageable);
@@ -19,9 +21,11 @@ public interface BillService {
 
     BillDto markAsDelivered(Long orderId);
 
-    List<Double> getRevenue();
+    List<RevenueDTO> getRevenueByType(String type, Integer month, Integer week);
 
-    List<MonthlyDataDTO> getRevenueByMonth(int year);
+//    List<RevenueDTO> getDailyRevenueForWeekInMonth(int month, int week);
+
+//    List<MonthlyDataDTO> getRevenueByMonth(int year);
 
     BillDto getBillByCode(String code);
 
@@ -30,4 +34,6 @@ public interface BillService {
     void updateDeliveryStatus(String code, String deliveryStatus);
 
     List<BillDto> getBillsByUserId(Long userID);
+
+    Map<String, Object> getTodayStatistics();
 }
