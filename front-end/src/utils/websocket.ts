@@ -2,7 +2,7 @@
 import SockJS from 'sockjs-client';
 import { Client, IMessage } from '@stomp/stompjs';
 
-const socket = new SockJS('http://10.30.100.178:8082/ws');
+const socket = new SockJS(`http://10.30.100.178:8082/ws`);
 const stompClient = new Client({
     brokerURL: 'ws://10.30.100.178:8082/ws',
     connectHeaders: {},

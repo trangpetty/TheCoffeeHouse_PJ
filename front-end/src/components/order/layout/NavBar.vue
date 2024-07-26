@@ -118,7 +118,7 @@ const logout = () => {
 
 const navigateToCheckout = () => {
   if (totalQuantity.value > 0) {
-    router.push('order/checkout');
+    router.push('/order/checkout');
   }
 };
 

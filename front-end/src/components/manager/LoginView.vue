@@ -49,7 +49,7 @@ const login = async () => {
       ui.value.loading = true;
       ElMessage.success('Login successfully!');
       setTimeout(() => {
-        router.push('/admin/product');
+        router.push('/admin/dashboard');
       }, 2000);
     }
   } catch (error) {

@@ -73,7 +73,7 @@
                 <div class="py-3 w-100 px-4">
                   <div class="d-flex justify-content-between">
                     <h4 class="checkout-box_title mb-0">Các món đã chọn</h4>
-                    <router-link to="/" class="text-decoration-none text-dark">
+                    <router-link to="/order" class="text-decoration-none text-dark">
                       <p class="checkout-box_btn-outline">Thêm món</p>
                     </router-link>
                   </div>

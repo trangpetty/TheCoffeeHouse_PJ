@@ -30,6 +30,9 @@
                   </template>
                 </el-step>
               </el-steps>
+              <div class="w-100 text-center">
+                <button class="btn btn--orange-1 mt-3 mx-auto" v-if="ui.confirmDelivered" @click="confirmDelivered">Đã nhận được hàng</button>
+              </div>
             </div>
             <div class="d-block">
               <!-- Delivery -->
@@ -207,6 +210,10 @@ import { connectWebSocket } from '@/utils/websocket';
 
 const props = defineProps(['code']);
 
+const ui = ref({
+  confirmDelivered: false
+});
+
 const bill = ref<any>({
   contactDetail: {
     name: '',
@@ -260,10 +267,7 @@ const activeStep = computed(() => {
 
 watch(() => bill.value.deliveryStatus, (newStatus) => {
   if (newStatus === 'Delivered') {
-    // Wait for 2 minutes (120000 milliseconds) before redirecting
-    setTimeout(() => {
-      router.push({ name: 'check-bill', params: { code: bill.value.code } });
-    }, 120000); // 2 minutes
+    ui.value.confirmDelivered = true;
   }
 });
 
@@ -274,6 +278,10 @@ const paymentMethodInfo = computed(() => {
   );
   return method ? { url: method.url, label: method.label } : { url: '', label: '' };
 });
+
+const confirmDelivered = () => {
+    router.push({ name: 'check-bill', params: { code: bill.value.code } });
+}
 
 onMounted (async () => {
   const response = await axiosClient.get(`/bills/${props.code}`);

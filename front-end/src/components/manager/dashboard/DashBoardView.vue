@@ -1,0 +1,271 @@
+<template>
+  <div>
+    <div class="d-flex flex-wrap mb-4">
+      <div class="chart box-shadow box">
+        <el-form-item label="Report Type">
+          <el-select v-model="selectedReport" style="width: 120px">
+            <el-option label="Monthly" value="monthly"></el-option>
+            <el-option label="Weekly" value="weekly"></el-option>
+            <el-option label="Yearly" value="yearly"></el-option>
+            <el-option label="By Product Type" value="productType"></el-option>
+  <!--          <el-option label="Daily" value="daily"></el-option>-->
+          </el-select>
+        </el-form-item>
+        <Highcharts :options="chartOptions"></Highcharts>
+      </div>
+      <div class="chart">
+        <div class="flex flex-wrap gap-4">
+          <el-card class="card-item text-center" shadow="always">
+            <h1>{{ Utils.formatPrice(statistics.totalRevenue) }}</h1>
+            <h4>Doanh thu hôm nay</h4>
+          </el-card>
+          <el-card class="card-item text-center" shadow="always">
+            <h1>{{ statistics.totalProductsSold }}</h1>
+            <h4>Sản phẩm bán hôm nay</h4>
+          </el-card>
+          <el-card class="card-item text-center mt-3" shadow="always">
+            <h1>{{ statistics.totalOrders }}</h1>
+            <h4>Đơn đặt hôm nay</h4>
+          </el-card>
+          <el-card class="card-item text-center mt-3" shadow="always">
+            <h1>{{ statistics.newCustomers }}</h1>
+            <h4>Khách hàng mới hôm nay</h4>
+          </el-card>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex flex-wrap">
+      <div class="box-shadow box chart">
+        <h3>Top 5 products best seller</h3>
+        <div class="d-flex justify-content-between align-items-center">
+          <el-form-item label="Report Type">
+            <el-select v-model="selectedReportType" style="width: 120px" @change="handleReportTypeChange">
+              <el-option label="Monthly" value="monthly"></el-option>
+              <el-option label="Weekly" value="weekly"></el-option>
+              <el-option label="Yearly" value="yearly"></el-option>
+              <el-option label="Daily" value="daily"></el-option>
+            </el-select>
+          </el-form-item>
+
+          <div>
+            <div class="d-flex justify-content-between">
+              <el-form-item v-if="selectedReportType === 'monthly'" label="Month" class="me-4">
+                <el-select v-model="selectedMonthTopProducts" style="width: 120px" @change="fetchTopProducts">
+                  <el-option v-for="month in months" :key="month.value" :label="month.label" :value="month.value"></el-option>
+                </el-select>
+              </el-form-item>
+
+              <el-form-item v-if="selectedReportType === 'monthly'" label="Week">
+                <el-select v-model="selectedWeekTopProducts" style="width: 120px" @change="fetchTopProducts">
+                  <el-option v-for="week in weeks" :key="week" :label="'Week ' + week" :value="week"></el-option>
+                </el-select>
+              </el-form-item>
+            </div>
+
+            <el-form-item v-if="selectedReportType === 'daily'" label="Date">
+              <el-date-picker v-model="selectedDate" type="date" placeholder="Select Date" @change="fetchTopProducts"></el-date-picker>
+            </el-form-item>
+          </div>
+        </div>
+        <!-- Table -->
+        <el-table :data="products" stripe>
+          <el-table-column prop="productName" label="Product Name" ></el-table-column>
+          <el-table-column prop="totalQuantity" label="Quantity Sold" class-name="text-center"></el-table-column>
+        </el-table>
+      </div>
+      <div class="box-shadow box chart">
+        <div class="d-flex">
+          <el-form-item label="Month" class="me-4">
+            <el-select v-model="selectedMonth" style="width: 120px">
+              <el-option v-for="month in months" :key="month.value" :label="month.label" :value="month.value"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="Week">
+            <el-select v-model="selectedWeek" style="width: 120px">
+              <el-option v-for="week in weeks" :key="week" :label="'Week ' + week" :value="week"></el-option>
+            </el-select>
+          </el-form-item>
+        </div>
+        <Highcharts :options="dailyChartOptions"></Highcharts>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, watch, onMounted } from 'vue';
+import Highcharts from 'vue3-highcharts';
+import axiosClient from '@/utils/axiosConfig';
+import * as Utils from '@/utils/index'
+
+// Hàm để lấy tháng hiện tại và tuần hiện tại trong tháng
+const getCurrentMonth = () => new Date().getMonth() + 1;
+const getCurrentWeekInMonth = () => {
+  const today = new Date();
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  return Math.ceil(((today.getDate() + startOfMonth.getDay()) / 7));
+};
+
+const chartOptions = ref({
+  chart: { type: 'line' },
+  title: { text: 'Revenue Report' },
+  xAxis: { categories: [] },
+  yAxis: { title: { text: 'Revenue (VND)' }, labels: { formatter: function() { return formatValueKMB(this.value); } } },
+  series: [{ name: 'Revenue', data: [], dataLabels: { enabled: true, formatter: function() { return formatValueKMB(this.y); } } }]
+});
+
+const dailyChartOptions = ref({
+  chart: { type: 'column' },
+  title: { text: 'Weekly Revenue' },
+  xAxis: { categories: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] },
+  yAxis: { title: { text: 'Revenue (VND)' }, labels: { formatter: function() { return formatValueKMB(this.value); } } },
+  series: [{ name: 'Revenue', data: [0, 0, 0, 0, 0, 0, 0], dataLabels: { enabled: true, formatter: function() { return formatValueKMB(this.y); } } }]
+});
+
+const selectedReport = ref('monthly');
+const selectedMonth = ref(getCurrentMonth());
+const selectedWeek = ref(getCurrentWeekInMonth());
+const selectedReportType = ref('monthly');
+const selectedMonthTopProducts = ref(getCurrentMonth());
+const selectedWeekTopProducts = ref(getCurrentWeekInMonth());
+const selectedDate = ref(null);
+const products = ref([]);
+
+const months = [
+  { value: 1, label: 'January' },
+  { value: 2, label: 'February' },
+  { value: 3, label: 'March' },
+  { value: 4, label: 'April' },
+  { value: 5, label: 'May' },
+  { value: 6, label: 'June' },
+  { value: 7, label: 'July' },
+  { value: 8, label: 'August' },
+  { value: 9, label: 'September' },
+  { value: 10, label: 'October' },
+  { value: 11, label: 'November' },
+  { value: 12, label: 'December' }
+];
+
+const weeks = [1, 2, 3, 4, 5];
+
+const statistics = ref({
+  totalRevenue: 0,
+  totalProductsSold: 0,
+  totalOrders: 0,
+  newCustomers: 0,
+});
+
+const fetchTodayStatistics = async () => {
+  try {
+    const response = await axiosClient.get('/bills/today-statistics');
+    statistics.value = response.data;
+  } catch (error) {
+    console.error('Error fetching today statistics:', error);
+  }
+};
+
+const handleReportTypeChange = () => {
+  if (selectedReportType.value === 'monthly') {
+    selectedWeekTopProducts.value = 1;
+    fetchTopProducts();
+  } else if (selectedReportType.value === 'daily') {
+    selectedDate.value = null;
+    fetchTopProducts();
+  }
+};
+
+const fetchTopProducts = async () => {
+  try {
+    let params: any = { reportType: selectedReportType.value, year: new Date().getFullYear() };
+    if (selectedReportType.value === 'monthly') {
+      params.month = selectedMonthTopProducts.value;
+      params.week = selectedWeekTopProducts.value;
+    } else if (selectedReportType.value === 'daily') {
+      params.date = selectedDate.value ? selectedDate.value.toISOString().split('T')[0] : null;
+    }
+
+    const response = await axiosClient.get('/products/top-products', { params });
+    console.log('Top Products Response:', response.data); // Check if data is received correctly
+    products.value = response.data;
+  } catch (error) {
+    console.error('Error fetching top products:', error);
+  }
+};
+
+
+const fetchRevenueData = async () => {
+  try {
+    const response = await axiosClient.get('/bills/revenue', { params: { type: selectedReport.value } });
+    const data = response.data;
+    chartOptions.value.xAxis.categories = data.map(item => item.label);
+    chartOptions.value.series[0].data = data.map(item => item.value);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+const fetchDailyRevenueData = async () => {
+  if (!selectedMonth.value || !selectedWeek.value) return;
+  try {
+    const response = await axiosClient.get('/bills/revenue', { params: { type: 'daily', week: selectedWeek.value, month: selectedMonth.value } });
+    const data = response.data;
+    const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const dailyData = Array(7).fill(0);
+    data.forEach(item => {
+      const dayIndex = daysOfWeek.indexOf(item.label);
+      if (dayIndex !== -1) {
+        dailyData[dayIndex] = item.value;
+      }
+    });
+    dailyChartOptions.value.series[0].data = dailyData;
+  } catch (error) {
+    console.error('Error fetching daily dashboard data:', error);
+  }
+};
+
+const formatValueKMB = (value: number) => {
+  if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+  if (value >= 1000) return (value / 1000).toFixed(1) + 'K';
+  return value.toString();
+};
+
+watch(selectedReport, fetchRevenueData);
+watch([selectedMonth, selectedWeek], fetchDailyRevenueData);
+
+onMounted(() => {
+  fetchRevenueData();
+  fetchDailyRevenueData();
+  fetchTopProducts();
+  fetchTodayStatistics();
+});
+</script>
+
+<style scoped>
+.box {
+  padding: 1rem 1.5rem
+}
+
+.card-item {
+  width: calc(50% - 40px)!important;
+  float: left;
+  margin: 0 20px;
+  height: 240px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (min-width: 992px) {
+  .chart {
+    width: calc(50% - 40px)!important;
+    float: left;
+    margin: 0 20px;
+  }
+}
+
+@media (max-width: 991px) {
+  .chart {
+    width: 100%;
+  }
+}
+</style>

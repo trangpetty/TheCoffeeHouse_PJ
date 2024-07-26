@@ -10,7 +10,7 @@ import CustomerView from '@/components/manager/customer/CustomerView.vue';
 import UserView from '@/components/manager/user/UserView.vue';
 import BillView from '@/components/manager/bill/BillView.vue';
 import NewsView from '@/components/manager/news/index.vue';
-import RevenueView from '@/components/manager/revenue/RevenueView.vue';
+import DashBoardView from '@/components/manager/dashboard/DashBoardView.vue';
 import LoginAdminView from '@/components/manager/LoginView.vue';
 
 import HomeUserView from '@/views/OrderView.vue';
@@ -38,6 +38,11 @@ export const routes = [
     component: HomeAdminView,
     meta: { requiresAuth: true, requiresAdmin: true },
     children: [
+      {
+        path: '/admin/dashboard',
+        name: 'DashBoard',
+        component: DashBoardView
+      },
       {
         path: '/admin/product',
         name: 'Product',
@@ -84,11 +89,6 @@ export const routes = [
         path: '/admin/news',
         name: 'News',
         component: NewsView
-      },
-      {
-        path: '/admin/revenue',
-        name: 'Revenue',
-        component: RevenueView
       }
     ],
   },

@@ -50,7 +50,7 @@
       </el-form>
     </div>
     <div class="box box-shadow">
-      <el-table :data="tableData" stripe v-loading="ui.loading" @row-click="handleDetail" highlight-current-row>
+      <el-table :data="tableData" stripe v-loading="ui.loading" highlight-current-row>
         <el-table-column type="index" label="#"/>.
         <el-table-column prop="code" label="Code" />
         <el-table-column prop="totalValue" label="Total" />
@@ -69,6 +69,8 @@
             </span>
           </template>
         </el-table-column>
+        <el-table-column prop="paymentMethod" label="Payment Method" />
+        <el-table-column prop="deliveryStatus" label="Delivery Status" />
         <el-table-column prop="createTime" label="Create Time" />
         <el-table-column prop="modifyTime" label="Modify Time" />
         <el-table-column>
