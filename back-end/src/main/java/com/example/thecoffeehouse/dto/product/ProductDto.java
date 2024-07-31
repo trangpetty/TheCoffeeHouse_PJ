@@ -23,6 +23,8 @@ public class ProductDto {
     private List<ProductToppingDto> toppings;
     private List<ProductToppingDto> removedToppings;
     private boolean liked;
+    private double discountPrice;
+    private Boolean hasDiscount;
     private LocalDateTime createTime;
     private LocalDateTime modifyTime;
 }

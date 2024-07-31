@@ -85,10 +85,9 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("User with id " + id + " not found"));
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
-        user.setPhoneNumber(userDto.getPhoneNumber());
-        user.setEmail(userDto.getEmail());
         user.setGender(userDto.getGender());
         user.setAvatar(userDto.getAvatar());
+        user.setDob(userDto.getDob());
 
         User savedUser = userRepository.save(user);
         return UserMapper.mapToUserDto(savedUser);

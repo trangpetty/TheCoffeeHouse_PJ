@@ -3,7 +3,6 @@ package com.example.thecoffeehouse.service.impl.bill;
 import com.example.thecoffeehouse.Utils.DateTimeConverter;
 import com.example.thecoffeehouse.dto.bill.BillDto;
 import com.example.thecoffeehouse.dto.bill.BillProductDto;
-import com.example.thecoffeehouse.dto.MonthlyDataDTO;
 import com.example.thecoffeehouse.dto.bill.RevenueDTO;
 import com.example.thecoffeehouse.dto.user.ContactDetailDto;
 import com.example.thecoffeehouse.entity.bill.Bill;
@@ -33,11 +32,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.time.format.TextStyle;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -87,14 +84,18 @@ public class BillServiceImpl implements BillService {
             List<BillProduct> billProducts = billProductRepository.getBillProductByBillID(bill.getId());
             List<BillProductDto> billProductDtos = BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
             if(bill.getContactDetailID() != null) {
-                ContactDetails contactDetails = contactDetailRepository
-                                                .findById(bill.getContactDetailID())
-                                                .orElseThrow(() -> new RuntimeException("Contact not found"));
-                ContactDetailDto contactDetailDto = new ContactDetailDto();
-                contactDetailDto.setId(contactDetails.getId());
-                contactDetailDto.setPhoneNumber(contactDetails.getPhoneNumber());
-                contactDetailDto.setName(contactDetails.getName());
-                contactDetailDto.setAddress(contactDetails.getAddress());
+//                ContactDetails contactDetails = contactDetailRepository
+//                                                .findById(bill.getContactDetailID())
+//                                                .orElseThrow(() -> new RuntimeException("Contact not found"));
+//                ContactDetailDto contactDetailDto = new ContactDetailDto();
+//                contactDetailDto.setId(contactDetails.getId());
+//                contactDetailDto.setPhoneNumber(contactDetails.getPhoneNumber());
+//                contactDetailDto.setName(contactDetails.getName());
+//                contactDetailDto.setAddress(contactDetails.getAddress());
+//                contactDetailDto.setOwnerID(contactDetails.getOwnerID());
+//                contactDetailDto.setOwnerType(contactDetails.getOwnerType());
+                ContactDetails contactDetails = contactDetailRepository.findById(bill.getContactDetailID()).orElseThrow(() -> new RuntimeException("ContactDetail does not exist"));
+                ContactDetailDto contactDetailDto = ContactDetailMapper.mapToContactDetailDto(contactDetails);
                 return BillMapper.mapToBillDto(bill, billProductDtos, contactDetailDto);
             }
             return BillMapper.mapToBillDto(bill, billProductDtos);
@@ -205,17 +206,13 @@ public class BillServiceImpl implements BillService {
             return billRepository.findDailyRevenueForWeekInMonth(month, week);
         }
         // Other types of revenue queries
-        switch (type) {
-            case "weekly":
-                return getWeeklyRevenue();
-            case "yearly":
-                return getYearlyRevenue();
+        return switch (type) {
+            case "weekly" -> getWeeklyRevenue();
+            case "yearly" -> getYearlyRevenue();
 //            case "productType":
 //                return getRevenueByProductType();
-            case "monthly":
-            default:
-                return getMonthlyRevenue();
-        }
+            default -> getMonthlyRevenue();
+        };
     }
 
     @Override
@@ -287,7 +284,7 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public List<BillDto> getBillsByUserId(Long userID) {
-        List<Bill> bills = billRepository.findByUserID(userID);
+        List<Bill> bills = billRepository.findByUserIDOrderByModifyTimeDesc(userID);
 
         List<Product> products = productRepository.findAll();
         List<Topping> toppings = toppingRepository.findAll();
@@ -317,6 +314,11 @@ public class BillServiceImpl implements BillService {
         statistics.put("newCustomers", newCustomers != null ? newCustomers : 0);
 
         return statistics;
+    }
+
+    @Override
+    public Double totalValueByUserIDForCurrentYear(Long userID) {
+        return billRepository.findTotalValueByUserIDForCurrentYear(userID);
     }
 
     private ContactDetailDto createOrUpdateContactDetails(ContactDetailDto contactDetailDto) {

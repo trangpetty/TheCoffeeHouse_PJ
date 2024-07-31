@@ -22,15 +22,12 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    private final UserAddressRepository userAddressRepository;
-
     private final BillService billService;
 
     private final ContactDetailRepository contactDetailRepository;
 
-    public UserController(UserService userService, UserAddressRepository userAddressRepository, BillService billService, ContactDetailRepository contactDetailRepository) {
+    public UserController(UserService userService, BillService billService, ContactDetailRepository contactDetailRepository) {
         this.userService = userService;
-        this.userAddressRepository = userAddressRepository;
         this.billService = billService;
         this.contactDetailRepository = contactDetailRepository;
     }
@@ -118,5 +115,10 @@ public class UserController {
     @GetMapping("/bills/{id}")
     public ResponseEntity<List<BillDto>> getBills(@PathVariable Long id) {
         return ResponseEntity.ok(billService.getBillsByUserId(id));
+    }
+
+    @GetMapping("/bill-total/{id}")
+    public ResponseEntity<Double> getTotalBill(@PathVariable Long id) {
+        return ResponseEntity.ok(billService.totalValueByUserIDForCurrentYear(id));
     }
 }

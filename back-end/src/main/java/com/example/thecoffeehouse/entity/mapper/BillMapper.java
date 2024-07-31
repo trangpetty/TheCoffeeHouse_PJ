@@ -37,6 +37,8 @@ public class BillMapper {
     public static BillDto mapToBillDto(Bill bill, List<BillProductDto> billProductDtos) {
         BillDto billDto = new BillDto();
         billDto.setId(bill.getId());
+        billDto.setUserID(bill.getUserID());
+        billDto.setCustomerID(bill.getCustomerID());
         billDto.setVoucherID(bill.getVoucherID());
         billDto.setValue(bill.getValue());
         billDto.setValueOfVoucher(bill.getValueOfVoucher());
@@ -102,26 +104,8 @@ public class BillMapper {
     }
 
     public static BillDto mapToBillDto(Bill bill, List<BillProductDto> products, ContactDetailDto contactDetailDto) {
-        BillDto billDto = new BillDto();
-        billDto.setUserID(bill.getUserID());
-        billDto.setCustomerID(bill.getCustomerID());
+        BillDto billDto = BillMapper.mapToBillDto(bill, products);
         billDto.setContactDetail(contactDetailDto); // Thiết lập ContactDetailDto
-        billDto.setVoucherID(bill.getVoucherID());
-        billDto.setValue(bill.getValue());
-        billDto.setValueOfVoucher(bill.getValueOfVoucher());
-        billDto.setValueOfCustomerPoint(bill.getValueOfCustomerPoint());
-        billDto.setTotalValue(bill.getTotalValue());
-        billDto.setCode(bill.getCode());
-        billDto.setStatus(bill.getStatus());
-        billDto.setPaymentMethod(bill.getPaymentMethod());
-        billDto.setPaymentStatus(bill.getPaymentStatus());
-        billDto.setDeliveryStatus(bill.getDeliveryStatus());
-        billDto.setRate(bill.getRate());
-        billDto.setComment(bill.getComment());
-        billDto.setProducts(products);
-        billDto.setUsedCustomerPoints(bill.getUsedCustomerPoints());
-        billDto.setCreateTime(bill.getCreateTime());
-        billDto.setModifyTime(bill.getModifyTime());
         return billDto;
     }
 

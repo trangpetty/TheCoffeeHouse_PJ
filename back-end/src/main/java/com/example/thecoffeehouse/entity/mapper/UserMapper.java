@@ -14,6 +14,7 @@ public class UserMapper {
         user.setAvatar(userDto.getAvatar());
         user.setGender(userDto.getGender());
         user.setPoint(userDto.getPoint());
+        user.setDob(userDto.getDob());
         user.setCreateTime(userDto.getCreateTime());
         user.setModifyTime(userDto.getModifyTime());
         return user;
@@ -30,6 +31,7 @@ public class UserMapper {
         userDto.setGender(user.getGender());
         userDto.setRole(user.getRole().name());
         userDto.setPoint(user.getPoint());
+        userDto.setDob(userDto.getDob());
         userDto.setCreateTime(user.getCreateTime());
         userDto.setModifyTime(user.getModifyTime());
         return userDto;

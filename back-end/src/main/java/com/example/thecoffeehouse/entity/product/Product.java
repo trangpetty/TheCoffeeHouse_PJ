@@ -24,6 +24,7 @@ public class Product {
 
     @Column(name = "type_id")
     private Long TypeID;
+
     @Column(name = "name")
     private String name;
 
@@ -32,6 +33,12 @@ public class Product {
 
     @Column(name = "price")
     private double price;
+
+    @Column(name = "discount_price", columnDefinition = "INT DEFAULT 0")
+    private double discountPrice;
+
+    @Column(name = "has_discount")
+    private Boolean hasDiscount;
 
     @CreationTimestamp
     @Column(name = "create_time", nullable = false, updatable = false)

@@ -1,17 +1,20 @@
 package com.example.thecoffeehouse.service.impl;
 
+import com.example.thecoffeehouse.Utils.exception.ApiException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import com.example.thecoffeehouse.dto.user.*;
 import com.example.thecoffeehouse.entity.mapper.UserMapper;
 import com.example.thecoffeehouse.entity.user.*;
 import com.example.thecoffeehouse.repository.ContactDetailRepository;
 import com.example.thecoffeehouse.repository.CustomerRepository;
-import com.example.thecoffeehouse.repository.UserAddressRepository;
 import com.example.thecoffeehouse.repository.UserRepository;
 import com.example.thecoffeehouse.service.AuthenticationService;
 import com.example.thecoffeehouse.service.JWTService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -61,6 +64,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPhoneNumber(registerDto.getPhoneNumber());
         user.setAvatar(registerDto.getAvatar());
         user.setGender(registerDto.getGender());
+        user.setDob(registerDto.getDob());
         user.setRole(Role.USER);
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
@@ -70,6 +74,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         } else {
             user.setPoint(0); // Thiết lập điểm cho người dùng mới
         }
+
+        userRepository.save(user);
 
         var jwt = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
@@ -83,33 +89,58 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
 
-    public UserDto signin(LoginDto loginDto){
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword()));
-        var user = userRepository.findByEmail(loginDto.getEmail());
-        var jwt = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
+    public UserDto signin(LoginDto loginDto) {
+        try {
+            // Xác thực email và mật khẩu
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
+            );
 
-        UserDto userDto = new UserDto();
-        userDto.setId(user.getId());
-        userDto.setFirstName(user.getFirstName());
-        userDto.setLastName(user.getLastName());
-        userDto.setPhoneNumber(user.getPhoneNumber());
-        userDto.setEmail(user.getEmail());
-        userDto.setAvatar(user.getAvatar());
-        userDto.setGender(user.getGender());
-        userDto.setCreateTime(user.getCreateTime());
-        userDto.setModifyTime(user.getModifyTime());
-        userDto.setRole(user.getRole().name());
-        userDto.setToken(jwt);
-        userDto.setRefreshToken(refreshToken);
-        userDto.setPoint(user.getPoint());
+            // Nếu xác thực thành công, tìm người dùng
+            User user = userRepository.findByEmail(loginDto.getEmail());
 
-        ContactDetails contactDetails = contactDetailRepository.findLastByUserId(user.getId());
-        if (contactDetails != null && contactDetails.getAddress() != null) {
-            userDto.setAddress(contactDetails.getAddress());
+            if (user == null) {
+                log.info("User with this email does not exist.");
+                throw new ApiException("User with this email does not exist.", HttpStatus.NOT_FOUND);
+            }
+
+            // Tạo JWT và Refresh Token
+            var jwt = jwtService.generateToken(user);
+            var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
+
+            // Tạo đối tượng UserDto để trả về
+            UserDto userDto = new UserDto();
+            userDto.setId(user.getId());
+            userDto.setFirstName(user.getFirstName());
+            userDto.setLastName(user.getLastName());
+            userDto.setPhoneNumber(user.getPhoneNumber());
+            userDto.setEmail(user.getEmail());
+            userDto.setAvatar(user.getAvatar());
+            userDto.setGender(user.getGender());
+            userDto.setCreateTime(user.getCreateTime());
+            userDto.setModifyTime(user.getModifyTime());
+            userDto.setRole(user.getRole().name());
+            userDto.setToken(jwt);
+            userDto.setRefreshToken(refreshToken);
+            userDto.setPoint(user.getPoint());
+            userDto.setDob(user.getDob());
+
+            ContactDetails contactDetails = contactDetailRepository.findLastByUserId(user.getId());
+            if (contactDetails != null && contactDetails.getAddress() != null) {
+                userDto.setAddress(contactDetails.getAddress());
+            }
+
+            return userDto;
+        } catch (BadCredentialsException ex) {
+            log.info("Invalid credentials.");
+            throw new ApiException("Invalid email or password.", HttpStatus.UNAUTHORIZED);
+        } catch (UsernameNotFoundException ex) {
+            log.info("User not found.");
+            throw new ApiException("User with this email does not exist.", HttpStatus.NOT_FOUND);
+        } catch (Exception ex) {
+            log.error("An error occurred during login.", ex);
+            throw new ApiException("An error occurred during login.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return userDto;
     }
 
     public JwtAuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {

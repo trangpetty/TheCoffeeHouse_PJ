@@ -1,5 +1,6 @@
 package com.example.thecoffeehouse.entity.user;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -53,6 +54,9 @@ public class User implements UserDetails {
 
     @Column(name = "point", columnDefinition = "INT DEFAULT 0")
     private int point;
+
+    @Column(name = "dob")
+    private LocalDate dob;
 
     @CreationTimestamp
     @Column(name = "create_time", nullable = false, updatable = false)

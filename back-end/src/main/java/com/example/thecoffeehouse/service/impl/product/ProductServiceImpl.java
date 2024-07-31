@@ -2,17 +2,12 @@ package com.example.thecoffeehouse.service.impl.product;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.WeekFields;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import com.example.thecoffeehouse.dto.product.*;
-import com.example.thecoffeehouse.entity.bill.BillProduct;
 import com.example.thecoffeehouse.entity.product.*;
 import com.example.thecoffeehouse.repository.bill.BillProductRepository;
-import com.example.thecoffeehouse.repository.bill.BillRepository;
 import com.example.thecoffeehouse.repository.product.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import com.example.thecoffeehouse.entity.mapper.ProductMapper;
 import com.example.thecoffeehouse.service.product.ProductService;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -98,6 +92,8 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(productDto.getPrice());
         product.setTypeID(productDto.getTypeID());
         product.setDescription(productDto.getDescription());
+        product.setDiscountPrice(productDto.getDiscountPrice());
+        product.setHasDiscount(productDto.getHasDiscount());
 
         Product updatedProduct = productRepository.save(product);
 
@@ -147,9 +143,7 @@ public class ProductServiceImpl implements ProductService {
                     List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImageRepository.findAllByProductID(product.getId()));
                     List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppingRepository.findByProductID(product.getId()), toppings);
 
-                    ProductDto productDto = ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
-
-                    return productDto;
+                    return ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
                 })
                 .collect(Collectors.toList());
     }
@@ -185,8 +179,7 @@ public class ProductServiceImpl implements ProductService {
             List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImageRepository.findAllByProductID(product.getId()));
             List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppingRepository.findByProductID(product.getId()), toppings);
 
-            ProductDto productDto = ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
-            return productDto;
+            return ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
         }).collect(Collectors.toList());
     }
 
@@ -199,8 +192,7 @@ public class ProductServiceImpl implements ProductService {
             List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImageRepository.findAllByProductID(product.getId()));
             List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppingRepository.findByProductID(product.getId()), toppings);
 
-            ProductDto productDto = ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
-            return productDto;
+            return ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
         }).collect(Collectors.toList());
     }
 
@@ -213,8 +205,7 @@ public class ProductServiceImpl implements ProductService {
             List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImageRepository.findAllByProductID(product.getId()));
             List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppingRepository.findByProductID(product.getId()), toppings);
 
-            ProductDto productDto = ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
-            return productDto;
+            return ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
         }).collect(Collectors.toList());
     }
 
@@ -227,8 +218,7 @@ public class ProductServiceImpl implements ProductService {
             List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImageRepository.findAllByProductID(product.getId()));
             List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppingRepository.findByProductID(product.getId()), toppings);
 
-            ProductDto productDto = ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
-            return productDto;
+            return ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
         }).collect(Collectors.toList());
     }
 

@@ -1,7 +1,6 @@
 package com.example.thecoffeehouse.service.bill;
 
 import com.example.thecoffeehouse.dto.bill.BillDto;
-import com.example.thecoffeehouse.dto.MonthlyDataDTO;
 import com.example.thecoffeehouse.dto.bill.RevenueDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,4 +35,6 @@ public interface BillService {
     List<BillDto> getBillsByUserId(Long userID);
 
     Map<String, Object> getTodayStatistics();
+
+    Double totalValueByUserIDForCurrentYear(Long userID);
 }

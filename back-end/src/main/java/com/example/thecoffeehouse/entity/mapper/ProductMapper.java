@@ -5,7 +5,6 @@ import com.example.thecoffeehouse.dto.product.ProductDto;
 import com.example.thecoffeehouse.dto.product.ProductImageDto;
 import com.example.thecoffeehouse.dto.product.ProductToppingDto;
 import com.example.thecoffeehouse.entity.product.*;
-import com.example.thecoffeehouse.service.product.ProductService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +16,8 @@ public class ProductMapper {
         productDto.setName(product.getName());
         productDto.setDescription(product.getDescription());
         productDto.setPrice(product.getPrice());
+        productDto.setDiscountPrice(product.getDiscountPrice());
+        productDto.setHasDiscount(product.getHasDiscount());
         productDto.setCreateTime(product.getCreateTime());
         productDto.setModifyTime(product.getModifyTime());
         return productDto;
@@ -36,6 +37,8 @@ public class ProductMapper {
         product.setName(productDto.getName());
         product.setDescription(productDto.getDescription());
         product.setPrice(productDto.getPrice());
+        product.setDiscountPrice(productDto.getDiscountPrice());
+        product.setHasDiscount(productDto.getHasDiscount());
         return product;
     }
 

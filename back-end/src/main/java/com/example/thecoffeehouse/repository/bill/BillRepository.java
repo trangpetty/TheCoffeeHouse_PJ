@@ -34,7 +34,7 @@ public interface BillRepository extends JpaRepository<Bill, Long>{
             + "GROUP BY MONTH(b.createTime)")
     List<MonthlyDataDTO> getMonthlyRevenue(@Param("year") int year);
 
-    List<Bill> findByUserID(Long userID);
+    List<Bill> findByUserIDOrderByModifyTimeDesc (Long userID);
 
     boolean existsByUserIDAndVoucherID(Long userID, Long voucherID);
 
@@ -74,6 +74,8 @@ public interface BillRepository extends JpaRepository<Bill, Long>{
     @Query("SELECT COUNT(b) FROM Bill b WHERE b.createTime BETWEEN :startOfDay AND :endOfDay")
     Integer countTotalOrders(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
 
+    @Query("SELECT SUM(b.value) FROM Bill b WHERE b.paymentStatus = 0 AND b.userID = :userID AND YEAR(b.modifyTime) = YEAR(CURRENT_DATE)")
+    Double findTotalValueByUserIDForCurrentYear(@Param("userID") Long userID);
 
 //    @Query("SELECT new com.example.thecoffeehouse.dto.bill.RevenueDTO(p.type, SUM(b.createTime)) FROM Bill b JOIN b.products p GROUP BY p.type")
 //    List<RevenueDTO> findRevenueByProductType();
