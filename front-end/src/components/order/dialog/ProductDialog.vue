@@ -22,7 +22,10 @@
           </div>
           <p style="text-align: justify" class="m-0">{{props.selectedProduct.description}}</p>
           <div class="d-flex justify-content-between align-items-center mt-2">
-            <p class="mb-0 fs-5 fw-bold">{{ Utils.formatPrice(props.selectedProduct.price) }}</p>
+            <div class="mb-0 fs-5 fw-bold text-orange">
+              <span :class="{ 'price-crossed': props.selectedProduct.hasDiscount }">{{ Utils.formatPrice(props.selectedProduct.price) }}</span>
+              <span>{{ Utils.formatPrice(props.selectedProduct.discountPrice) }}</span>
+            </div>
             <div class="card-product-quantity d-flex align-items-center">
               <div class="btn add-to-cart d-flex align-items-center justify-content-center rounded-circle text-white" @click="quantity--" :class="quantity <= 1 ? 'disabled' :' btn--orange-1' ">
                 <font-awesome-icon icon="fa-solid fa-minus" />
@@ -142,7 +145,11 @@ const getToppingQuantity = (topping) => {
 };
 
 const cost = computed(() => {
-  let totalCost = props.selectedProduct.price * quantity.value;
+  let totalCost = 0;
+  totalCost = props.selectedProduct.price * quantity.value;
+  if(props.selectedProduct.hasDiscount) {
+    totalCost = props.selectedProduct.discountPrice * quantity.value;
+  }
   if(selectedSize.value.surcharge) {
     totalCost += selectedSize.value.surcharge;
   }
@@ -329,6 +336,12 @@ watch(() => props.selectedProduct, () => {
   background-color: var(--white);
   border-radius: 0.5rem;
   cursor: pointer;
+}
+
+.price-crossed {
+  text-decoration: line-through;
+  color: var(--smoky-gray-2)!important;
+  margin-right: 1rem;
 }
 
 .product-title_name {

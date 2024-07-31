@@ -22,7 +22,7 @@
             <span>{{ new Date(item.modifyTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span> -
             <span>{{ new Date(item.modifyTime).toLocaleDateString('vi-VN') }}</span>
           </div>
-          <div class="user-bean-footer" v-if="item.valueOfCustomerPoint > 0">
+          <div class="user-bean-footer" v-if="item.valueOfCustomerPoint > 0 && !item.paymentStatus">
             + {{ item.valueOfCustomerPoint }} points
           </div>
         </div>

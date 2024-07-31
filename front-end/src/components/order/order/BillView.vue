@@ -212,23 +212,34 @@ const paymentMethodInfo = computed(() => {
 });
 
 const submitRating = async () => {
-  ui.value.loading = true;
-  bill.value.rate = formData.value.rating
-  bill.value.comment = formData.value.comment
-  console.log(bill.value)
-  const response = await axiosClient.put(`/bills/${props.code}`, bill.value);
-  formData.value.rated = true;
-  let confirmed = await Utils.confirm("Bạn có muốn đánh giá các sản phẩm không？", "Xác nhận");
-  if(confirmed) {
-    ui.value.loading = false;
+  if (formData.value.rated) {
+    // Nếu đã đánh giá rồi thì không cần gửi lại
     return;
   }
-  else {
-    setTimeout(() => {
-      window.location.href = '/';
-    }, 1500);
+
+  ui.value.loading = true;
+  bill.value.rate = formData.value.rating;
+  bill.value.comment = formData.value.comment;
+
+  try {
+    const response = await axiosClient.put(`/bills/${props.code}`, bill.value);
+    formData.value.rated = true;
+
+    let confirmed = await Utils.confirm("Bạn có muốn đánh giá các sản phẩm không？", "Xác nhận");
+    if (confirmed) {
+      ui.value.loading = false;
+      return;
+    } else {
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1500);
+    }
+  } catch (error) {
+    console.error("Error submitting rating:", error);
+  } finally {
+    ui.value.loading = false;
   }
-}
+};
 
 onMounted (async () => {
   const response = await axiosClient.get(`/bills/${props.code}`);

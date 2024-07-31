@@ -286,10 +286,9 @@ const handleBlur = async () => {
   const phoneNumber = formData.value.contactDetail.phoneNumber;
   if (validatePhoneNumber(phoneNumber)) {
     ui.value.showError = false;
-    if(!user.value) {
+    if(user.value != {}) {
       const response = await axiosClient.get(`/customers/get-point?phoneNumber=${phoneNumber}`);
       customerPoint.value = response.data;
-      console.log("point ", customerPoint.value);
     }
   } else {
     ui.value.showError = true;

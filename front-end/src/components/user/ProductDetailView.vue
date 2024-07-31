@@ -30,8 +30,11 @@
         <div>
           <p class="info_product_title">{{product.name}}</p>
           <div class="info_product_price">
-            <div class="price">
-              {{Utils.formatPrice(cost)}}
+            <div class="price" :class="{ 'price-crossed': product.hasDiscount }">
+              {{ Utils.formatPrice(product.price) }}
+            </div>
+            <div v-if="product.hasDiscount" class="price">
+              {{ Utils.formatPrice(product.discountPrice) }}
             </div>
           </div>
         </div>
@@ -156,17 +159,6 @@ onMounted(async () => {
   }
 });
 
-const cost = computed(() => {
-  let totalCost = product.value.price + selectedSize.value.surcharge;
-
-  // Add the cost of the selected topping if any
-  if (selectedTopping.value) {
-    totalCost += selectedTopping.value.price;
-  }
-
-  return totalCost;
-});
-
 const selectTopping = (item) => {
   selectedTopping.value.toppingID = item.id;
   selectedTopping.value.name = item.name;
@@ -207,7 +199,8 @@ const navigateToOrder = () => {
   const selectedProduct = {
     name: product.value.name,
     id: product.value.id,
-    cost: cost.value,
+    hasDiscount: product.value.hasDiscount,
+    discountPrice: product.value.discountPrice,
     quantity: 1,
     productSizes: product.value.productSizes,
     toppings: product.value.toppings,
@@ -288,7 +281,12 @@ a {
   font-size: 26px;
   color: #E57905;
   font-weight: 600;
-  margin-right: 37px;
+  margin-right: var(--space-16);
+}
+
+.price-crossed {
+  text-decoration: line-through;
+  color: var(--smoky-gray-2)!important;
 }
 
 .option_title {

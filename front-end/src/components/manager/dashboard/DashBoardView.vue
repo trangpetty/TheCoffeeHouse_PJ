@@ -1,7 +1,37 @@
 <template>
   <div>
+    <div class="flex flex-wrap mb-4 overflow-hidden">
+      <el-card class="card-item rounded text-white" shadow="always" style="background-color: #16A2B9">
+        <div>
+          <h1>{{ formatValueKMB(statistics.totalRevenue) }}</h1>
+          <h5>Doanh thu hôm nay</h5>
+        </div>
+        <font-awesome-icon class="fs-1" icon="fa-solid fa-money-bills" />
+      </el-card>
+      <el-card class="card-item rounded text-white" shadow="always" style="background-color: #29A744">
+        <div>
+          <h1>{{ statistics.totalProductsSold }}</h1>
+          <h5>Sản phẩm bán hôm nay</h5>
+        </div>
+        <font-awesome-icon class="fs-1" icon="fa-solid fa-cart-plus" />
+      </el-card>
+      <el-card class="card-item rounded text-white" shadow="always" style="background-color: #FEC106">
+        <div>
+          <h1>{{ statistics.totalOrders }}</h1>
+          <h5>Đơn đặt hôm nay</h5>
+        </div>
+        <font-awesome-icon class="fs-1" icon="fa-solid fa-bag-shopping" />
+      </el-card>
+      <el-card class="card-item rounded text-white" shadow="always" style="background-color: #DC3546">
+        <div>
+          <h1>{{ statistics.newCustomers }}</h1>
+          <h5>Khách hàng mới hôm nay</h5>
+        </div>
+        <font-awesome-icon class="fs-1" icon="fa-solid fa-user-plus" />
+      </el-card>
+    </div>
     <div class="d-flex flex-wrap mb-4">
-      <div class="chart box-shadow box">
+      <div class="box-shadow box chart">
         <el-form-item label="Report Type">
           <el-select v-model="selectedReport" style="width: 120px">
             <el-option label="Monthly" value="monthly"></el-option>
@@ -13,28 +43,6 @@
         </el-form-item>
         <Highcharts :options="chartOptions"></Highcharts>
       </div>
-      <div class="chart">
-        <div class="flex flex-wrap gap-4">
-          <el-card class="card-item text-center" shadow="always">
-            <h1>{{ Utils.formatPrice(statistics.totalRevenue) }}</h1>
-            <h4>Doanh thu hôm nay</h4>
-          </el-card>
-          <el-card class="card-item text-center" shadow="always">
-            <h1>{{ statistics.totalProductsSold }}</h1>
-            <h4>Sản phẩm bán hôm nay</h4>
-          </el-card>
-          <el-card class="card-item text-center mt-3" shadow="always">
-            <h1>{{ statistics.totalOrders }}</h1>
-            <h4>Đơn đặt hôm nay</h4>
-          </el-card>
-          <el-card class="card-item text-center mt-3" shadow="always">
-            <h1>{{ statistics.newCustomers }}</h1>
-            <h4>Khách hàng mới hôm nay</h4>
-          </el-card>
-        </div>
-      </div>
-    </div>
-    <div class="d-flex flex-wrap">
       <div class="box-shadow box chart">
         <h3>Top 5 products best seller</h3>
         <div class="d-flex justify-content-between align-items-center">
@@ -68,11 +76,14 @@
           </div>
         </div>
         <!-- Table -->
-        <el-table :data="products" stripe>
-          <el-table-column prop="productName" label="Product Name" ></el-table-column>
-          <el-table-column prop="totalQuantity" label="Quantity Sold" class-name="text-center"></el-table-column>
-        </el-table>
+<!--        <el-table :data="products" stripe>-->
+<!--          <el-table-column prop="productName" label="Product Name" ></el-table-column>-->
+<!--          <el-table-column prop="totalQuantity" label="Quantity Sold" class-name="text-center"></el-table-column>-->
+<!--        </el-table>-->
+        <Highcharts :options="topProductsChartOptions"></Highcharts>
       </div>
+    </div>
+    <div >
       <div class="box-shadow box chart">
         <div class="d-flex">
           <el-form-item label="Month" class="me-4">
@@ -120,6 +131,29 @@ const dailyChartOptions = ref({
   xAxis: { categories: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] },
   yAxis: { title: { text: 'Revenue (VND)' }, labels: { formatter: function() { return formatValueKMB(this.value); } } },
   series: [{ name: 'Revenue', data: [0, 0, 0, 0, 0, 0, 0], dataLabels: { enabled: true, formatter: function() { return formatValueKMB(this.y); } } }]
+});
+
+const topProductsChartOptions = ref({
+  chart: {
+    type: 'pie'
+  },
+  title: {
+    text: 'Top 5 Best Selling Products'
+  },
+  series: [{
+    name: 'Quantity Sold',
+    data: []
+  }],
+  plotOptions: {
+    pie: {
+      allowPointSelect: true,
+      cursor: 'pointer',
+      dataLabels: {
+        enabled: true,
+        format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+      }
+    }
+  }
 });
 
 const selectedReport = ref('monthly');
@@ -187,11 +221,18 @@ const fetchTopProducts = async () => {
     const response = await axiosClient.get('/products/top-products', { params });
     console.log('Top Products Response:', response.data); // Check if data is received correctly
     products.value = response.data;
+
+    // Format data for Highcharts pie chart with colors
+    const colors = ['#FF474C', '#FFA500', '#FFFF00', '#90EE90', '#3a9cbd'];
+    topProductsChartOptions.value.series[0].data = response.data.map((product: any, index: number) => ({
+      name: product.productName,
+      y: product.totalQuantity,
+      color: colors[index % colors.length] // Use colors array to assign colors
+    }));
   } catch (error) {
     console.error('Error fetching top products:', error);
   }
 };
-
 
 const fetchRevenueData = async () => {
   try {
@@ -248,22 +289,34 @@ onMounted(() => {
 .card-item {
   width: calc(50% - 40px)!important;
   float: left;
-  margin: 0 20px;
-  height: 240px;
+  margin: 0 10px;
+}
+
+::v-deep .el-card__body {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 @media (min-width: 992px) {
+  .card-item {
+    width: calc(25% - 20px) !important;
+  }
+
   .chart {
-    width: calc(50% - 40px)!important;
+    width: calc(50% - 20px)!important;
     float: left;
-    margin: 0 20px;
+    margin: 0 10px;
   }
 }
 
 @media (max-width: 991px) {
+  .card-item {
+    height: 140px;
+    margin-bottom: 1rem;
+  }
+
   .chart {
     width: 100%;
   }

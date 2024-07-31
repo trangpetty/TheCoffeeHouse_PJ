@@ -57,6 +57,22 @@
           <el-form-item label="Price">
             <el-input v-model="formData.price" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
           </el-form-item>
+          <el-form-item label="Discount Price">
+            <el-input
+                v-model="formData.discountPrice"
+                :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                placeholder="Enter discount price"
+            />
+          </el-form-item>
+          <el-form-item label="Enable Discount">
+            <el-switch
+                v-model="formData.hasDiscount"
+                class="ml-2"
+                style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+            />
+          </el-form-item>
+
           <el-form-item label="Type">
             <el-select v-model="formData.typeID" class="input">
               <el-option v-for="(item, index) in types" :key="index" :label="item.name" :value="item.id"></el-option>
@@ -173,6 +189,8 @@ const formData = ref({
   description: '',
   images: [],
   price: 0,
+  discountPrice: 0,
+  hasDiscount: true,
   productSizes: [],
   typeID: 1,
   toppings: []

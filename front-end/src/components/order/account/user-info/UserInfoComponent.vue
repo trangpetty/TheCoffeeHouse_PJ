@@ -17,6 +17,21 @@
       <label class="p-0 mb-1">Số điện thoại</label>
       <input type="text" :value="user.phoneNumber" class="form-control" disabled>
     </div>
+    <div class="form-group row" v-if="user.dob">
+      <label class="p-0 mb-1">Sinh nhật (Bạn không thể thay đổi sau khi đã lựa chọn)</label>
+      <input type="text" :value="user.dob" class="form-control" disabled>
+    </div>
+    <div v-else class="form-group row">
+      <label class="p-0 mb-1">Sinh nhật</label>
+      <el-date-picker
+          v-model="formData.dob"
+          type="date"
+          placeholder="DD/MM/YYYY"
+          format="DD/MM/YYYY"
+          value-format="YYYY-MM-DD"
+          class="w-100 p-0"
+      />
+    </div>
     <div class="form-group row">
       <label class="p-0 mb-1">Email</label>
       <input type="text" :value="user.email" class="form-control" disabled>
@@ -34,7 +49,7 @@
       </div>
     </div>
     <div class="row d-flex justify-content-end">
-      <button class="btn-update btn btn--orange-1 w-auto px-4 py-2">Cập nhật</button>
+      <button class="btn-update btn btn--orange-1 w-auto px-4 py-2" @click="handleUpdate">Cập nhật</button>
     </div>
   </form>
 </template>
@@ -42,6 +57,7 @@
 <script lang="ts" setup>
 import {computed, onMounted, ref} from "vue";
 import {useStore} from "vuex";
+import axiosClient from "@/utils/axiosConfig";
 
 const store = useStore();
 
@@ -49,13 +65,33 @@ const user = computed(() => store.getters.user);
 
 const formData = ref({
   firstName: '',
-  lastName: ''
+  lastName: '',
+  dob: null,
 })
 
 onMounted(() => {
   formData.value.firstName = user.value.firstName;
   formData.value.lastName = user.value.lastName;
 })
+
+const handleUpdate = async () => {
+  try {
+    await axiosClient.put(`/users/${user.value.id}`, formData.value);
+    // Sau khi cập nhật thành công, tải lại dữ liệu người dùng
+    await loadUserData();
+  } catch (error) {
+    console.error('Update failed:', error);
+  }
+};
+
+const loadUserData = async () => {
+  try {
+    const response = await axiosClient.get(`/users/${user.value.id}`);
+    store.commit('updateUser', response.data); // Giả sử bạn có một mutation để cập nhật người dùng trong Vuex
+  } catch (error) {
+    console.error('Failed to load user data:', error);
+  }
+};
 </script>
 
 <style scoped>

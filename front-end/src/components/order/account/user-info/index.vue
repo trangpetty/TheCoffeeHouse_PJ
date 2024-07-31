@@ -7,6 +7,15 @@
 
     <section class="user-info">
       <div class="user-info-left">
+        <div class="user-info-card user-silver">
+          <div class="user-info-card-header">
+            <p class="text-uppercase">{{ user.lastName }}</p>
+            <p>Silver</p>
+          </div>
+          <div class="user-card-barcode d-flex flex-column align-items-center">
+
+          </div>
+        </div>
         <ul class="user-list">
           <li class="user-item" v-for="(item, index) in tabList" :key="index" @click="selectTab(index, item.tabName)" :class="{ 'active': selectedTab === index }">
             <font-awesome-icon :icon="item.icon" class="icon"/>
@@ -27,9 +36,15 @@ import { useRoute, useRouter } from 'vue-router';
 import accountUser from '@/components/order/account/user-info/UserInfoComponent.vue';
 import userAddress from '@/components/order/account/user-info/AddressComponent.vue';
 import orderHistory from '@/components/order/account/user-info/OrderHistoryComponent.vue';
+import {useStore} from "vuex";
+import axiosClient from "@/utils/axiosConfig";
 
 const route = useRoute();
 const router = useRouter();
+
+const store = useStore();
+
+const user = computed(() => store.getters.user);
 
 const tabList = ref([
   { icon: "fa-solid fa-user", text: "Thông tin tài khoản", component: accountUser, tabName: 'accountUser' },
@@ -67,6 +82,35 @@ watch(
   padding: 50px;
   text-align: center;
   align-items: center;
+}
+
+.user-info-card {
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: -16px;
+  min-height: 220px;
+  padding: 20px 16px 10px 10px;
+  position: relative;
+}
+
+.user-silver {
+  background: linear-gradient(rgb(203, 215, 228) 0%, rgb(101, 121, 142) 50%);
+}
+
+.user-info-card-header {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  text-shadow: .254px .508px .508px rgba(0, 0, 0, .25);
+}
+
+.user-card-barcode {
+  background: #fff;
+  border-radius: 8px;
+  height: 102px;
+  padding: 12px 18px 8px;
+  text-align: center;
 }
 
 .user-info-text {
