@@ -7,16 +7,21 @@
 
     <section class="user-info">
       <div class="user-info-left">
-        <div :class="['user-info-card', userMembershipClass]">
-          <div class="user-info-card-header">
-            <p class="text-uppercase">{{ user.firstName }}</p>
-            <p>{{ user.point }} điểm - {{ user.membershipLevel }}</p>
+        <div class="box-shadow rounded mb-3">
+          <div :class="['user-info-card', userMembershipClass]">
+            <div class="user-info-card-header">
+              <p class="text-uppercase">{{ user.firstName }}</p>
+              <p>{{ user.point }} điểm - {{ user.membershipLevel }}</p>
+            </div>
+            <div class="user-card-barcode d-flex flex-column align-items-center">
+              <canvas id="barcode" class="barcode" />
+              <p class="m-0">{{ user.code }}</p>
+            </div>
+            <img :src="leaves" class="leaves-image">
           </div>
-          <div class="user-card-barcode d-flex flex-column align-items-center">
-            <canvas id="barcode" class="barcode" />
-            <p class="m-0">{{ user.code }}</p>
-          </div>
-          <img :src="leaves" class="leaves-image">
+          <p class="px-3 py-2 mb-0" v-if="nextMembershipLevel.pointsNeeded > 0">
+            Bạn còn thiếu <span class="text-orange fw-bold"> {{ nextMembershipLevel.pointsNeeded }} </span> điểm để đạt hạng <span class="text-orange fw-bold">{{ nextMembershipLevel.level }}</span>
+          </p>
         </div>
         <ul class="user-list">
           <li class="user-item" v-for="(item, index) in tabList" :key="index" @click="selectTab(index, item.tabName)" :class="{ 'active': selectedTab === index }">
@@ -97,6 +102,19 @@ const userMembershipClass = computed(() => {
   return membershipClasses[user.value.membershipLevel] || 'user-basic';
 });
 
+const nextMembershipLevel = computed(() => {
+  const points = user.value.point;
+  if (points < 10) {
+    return { level: 'Silver', pointsNeeded: 10 - points };
+  } else if (points < 30) {
+    return { level: 'Gold', pointsNeeded: 30 - points };
+  } else if (points < 50) {
+    return { level: 'Diamond', pointsNeeded: 50 - points };
+  } else {
+    return { level: 'Diamond', pointsNeeded: 0 }; // Nếu đã là Diamond
+  }
+});
+
 onMounted(() => {
   createBarcode(user.value.code);
 });
@@ -115,7 +133,6 @@ onMounted(() => {
   border-radius: 12px;
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
   min-height: 200px;
   padding: 20px 16px 10px 10px;
   position: relative;
