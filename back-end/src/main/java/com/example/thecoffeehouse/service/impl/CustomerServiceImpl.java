@@ -3,14 +3,18 @@ package com.example.thecoffeehouse.service.impl;
 import com.example.thecoffeehouse.dto.CustomerDto;
 import com.example.thecoffeehouse.entity.user.Customer;
 import com.example.thecoffeehouse.entity.mapper.CustomerMapper;
+import com.example.thecoffeehouse.entity.user.MembershipLevel;
 import com.example.thecoffeehouse.repository.CustomerRepository;
 import com.example.thecoffeehouse.service.CustomerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     private final CustomerRepository customerRepository;
 
     public CustomerServiceImpl (CustomerRepository customerRepository) {
@@ -65,4 +69,13 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = customerRepository.findByPhoneNumber(phoneNumber);
         return customer.getPoint();
     }
+
+    @Override
+    public void updateMemberLevel(Customer customer) {
+        int points = customer.getPoint();
+        MembershipLevel newLevel = MembershipLevel.getLevel(points);
+        customer.setMembershipLevel(newLevel.getName());
+        customerRepository.save(customer);
+    }
+
 }

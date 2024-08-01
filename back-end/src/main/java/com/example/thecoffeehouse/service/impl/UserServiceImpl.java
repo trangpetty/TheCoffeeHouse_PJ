@@ -1,6 +1,7 @@
 package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.dto.user.*;
+import com.example.thecoffeehouse.entity.user.MembershipLevel;
 import com.example.thecoffeehouse.entity.user.User;
 import com.example.thecoffeehouse.entity.mapper.UserMapper;
 import com.example.thecoffeehouse.repository.UserRepository;
@@ -100,6 +101,14 @@ public class UserServiceImpl implements UserService {
 
         userRoleRepository.deleteByUserID(id);
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public void updateMemberLevel(User user) {
+        int points = user.getPoint();
+        MembershipLevel newLevel = MembershipLevel.getLevel(points);
+        user.setMembershipLevel(newLevel.getName());
+        userRepository.save(user);
     }
 
 }

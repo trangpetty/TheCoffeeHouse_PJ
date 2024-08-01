@@ -11,6 +11,7 @@ public class CustomerMapper {
                 customerDto.getAddress(),
                 customerDto.getPhoneNumber(),
                 customerDto.getPoint(),
+                customerDto.getMembershipLevel(),
                 customerDto.getCreateTime(),
                 customerDto.getModifyTime()
         );
@@ -25,6 +26,7 @@ public class CustomerMapper {
                 customer.getDefaultAddress(),
                 customer.getPhoneNumber(),
                 customer.getPoint(),
+                customer.getMembershipLevel(),
                 customer.getCreateTime(),
                 customer.getModifyTime()
         );

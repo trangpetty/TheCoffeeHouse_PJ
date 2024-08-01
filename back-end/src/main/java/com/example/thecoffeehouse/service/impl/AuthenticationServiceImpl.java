@@ -1,6 +1,7 @@
 package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.Utils.exception.ApiException;
+import com.example.thecoffeehouse.service.UserService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import com.example.thecoffeehouse.dto.user.*;
 import com.example.thecoffeehouse.entity.mapper.UserMapper;
@@ -36,58 +37,76 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final ContactDetailRepository contactDetailRepository;
 
-    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JWTService jwtService, CustomerRepository customerRepository, ContactDetailRepository contactDetailRepository) {
+    private final UserService userService;
+
+    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JWTService jwtService, CustomerRepository customerRepository, ContactDetailRepository contactDetailRepository, UserService userService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.customerRepository = customerRepository;
         this.contactDetailRepository = contactDetailRepository;
+        this.userService = userService;
     }
 
     public UserDto signup(RegisterDto registerDto) {
+        // Kiểm tra xem email có tồn tại không
         if (userRepository.existsByEmail(registerDto.getEmail())) {
             throw new RuntimeException("Email đã tồn tại");
         }
 
+        // Kiểm tra xem số điện thoại có tồn tại không
         if (userRepository.existsByPhoneNumber(registerDto.getPhoneNumber())) {
             throw new RuntimeException("Số điện thoại đã tồn tại");
         }
 
+        // Kiểm tra xem số điện thoại có tồn tại trong bảng Customer không
         Customer existingCustomer = customerRepository.findByPhoneNumber(registerDto.getPhoneNumber());
-
-        User user = new User();
-
-        user.setFirstName(registerDto.getFirstName());
-        user.setLastName(registerDto.getLastName());
-        user.setEmail(registerDto.getEmail());
-        user.setPhoneNumber(registerDto.getPhoneNumber());
-        user.setAvatar(registerDto.getAvatar());
-        user.setGender(registerDto.getGender());
-        user.setDob(registerDto.getDob());
-        user.setRole(Role.USER);
-        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        User newUser = new User();
 
         if (existingCustomer != null) {
-            // Nếu số điện thoại đã tồn tại trong Customer, điểm của User có thể là 0 hoặc thiết lập theo logic của bạn
-            user.setPoint(existingCustomer.getPoint()); // Hoặc chuyển điểm từ Customer nếu cần thiết
+            // Cập nhật thông tin người dùng từ Customer
+            newUser.setPhoneNumber(existingCustomer.getPhoneNumber());
+            newUser.setFirstName(registerDto.getFirstName());
+            newUser.setLastName(registerDto.getLastName());
+            newUser.setMembershipLevel(existingCustomer.getMembershipLevel());
+            newUser.setPoint(existingCustomer.getPoint());
+
+            // Xóa bản ghi khách hàng sau khi chuyển thông tin
+            customerRepository.delete(existingCustomer);
         } else {
-            user.setPoint(0); // Thiết lập điểm cho người dùng mới
+            // Thiết lập thông tin người dùng mới không có điểm và hạng chuyển giao
+            newUser.setPhoneNumber(registerDto.getPhoneNumber());
+            newUser.setFirstName(registerDto.getFirstName());
+            newUser.setLastName(registerDto.getLastName());
+            newUser.setMembershipLevel("Basic"); // Hạng mặc định
+            newUser.setPoint(0); // Điểm khởi tạo
         }
 
-        userRepository.save(user);
+        // Cập nhật các thuộc tính còn lại cho người dùng
+        newUser.setEmail(registerDto.getEmail());
+        newUser.setAvatar(registerDto.getAvatar());
+        newUser.setGender(registerDto.getGender());
+        newUser.setDob(registerDto.getDob());
+        newUser.setCode(registerDto.getCode());
+        newUser.setRole(Role.USER);
+        newUser.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        userService.updateMemberLevel(newUser);
+        // Lưu người dùng vào cơ sở dữ liệu
+        userRepository.save(newUser);
 
-        var jwt = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
+        // Tạo JWT và Refresh Token
+        var jwt = jwtService.generateToken(newUser);
+        var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), newUser);
 
-        UserDto userDto = UserMapper.mapToUserDto(user);
-        userDto.setRole(user.getRole().name());
+        // Chuyển đổi người dùng thành DTO và trả về
+        UserDto userDto = UserMapper.mapToUserDto(newUser);
+        userDto.setRole(newUser.getRole().name());
         userDto.setToken(jwt);
         userDto.setRefreshToken(refreshToken);
 
         return userDto;
     }
-
 
     public UserDto signin(LoginDto loginDto) {
         try {
@@ -124,6 +143,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             userDto.setRefreshToken(refreshToken);
             userDto.setPoint(user.getPoint());
             userDto.setDob(user.getDob());
+            userDto.setCode(user.getCode());
+            userDto.setMembershipLevel(user.getMembershipLevel());
 
             ContactDetails contactDetails = contactDetailRepository.findLastByUserId(user.getId());
             if (contactDetails != null && contactDetails.getAddress() != null) {

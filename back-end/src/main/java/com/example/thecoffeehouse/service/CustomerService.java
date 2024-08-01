@@ -1,6 +1,7 @@
 package com.example.thecoffeehouse.service;
 
 import com.example.thecoffeehouse.dto.CustomerDto;
+import com.example.thecoffeehouse.entity.user.Customer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -16,4 +17,6 @@ public interface CustomerService {
     void deleteCustomer(Long id);
 
     int getPoint(String phoneNumber);
+
+    void updateMemberLevel(Customer customer);
 }

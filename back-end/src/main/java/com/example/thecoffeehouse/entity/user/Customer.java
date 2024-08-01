@@ -34,6 +34,9 @@ public class Customer {
     @Column(name = "point", columnDefinition = "INT DEFAULT 0")
     private int point;
 
+    @Column(name = "membership_level")
+    private String membershipLevel;
+
     @CreationTimestamp
     @Column(name = "create_time", nullable = false, updatable = false)
     private LocalDateTime createTime;

@@ -18,4 +18,6 @@ public interface UserService {
     User saveOrUpdateGoogleUser(GoogleUserInfo userInfo);
 
     UserDto getUser(Long id);
+
+    void updateMemberLevel(User user);
 }

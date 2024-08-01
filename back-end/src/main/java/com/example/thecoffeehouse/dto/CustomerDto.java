@@ -15,6 +15,7 @@ public class CustomerDto {
     private String address;
     private String phoneNumber;
     private int point;
+    private String membershipLevel;
     private LocalDateTime createTime;
     private LocalDateTime modifyTime;
 }

@@ -24,6 +24,8 @@ import com.example.thecoffeehouse.repository.bill.BillRepository;
 import com.example.thecoffeehouse.repository.product.ProductDetailRepository;
 import com.example.thecoffeehouse.repository.product.ProductRepository;
 import com.example.thecoffeehouse.repository.product.ToppingRepository;
+import com.example.thecoffeehouse.service.CustomerService;
+import com.example.thecoffeehouse.service.UserService;
 import com.example.thecoffeehouse.service.bill.BillService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,8 +52,10 @@ public class BillServiceImpl implements BillService {
     private final ContactDetailRepository contactDetailRepository;
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
+    private final UserService userService;
+    private final CustomerService customerService;
 
-    public BillServiceImpl(BillRepository billRepository, BillProductRepository billProductRepository, DateTimeConverter dateTimeConverter, ProductRepository productRepository, ToppingRepository toppingRepository, ProductDetailRepository productDetailRepository, ContactDetailRepository contactDetailRepository, UserRepository userRepository, CustomerRepository customerRepository) {
+    public BillServiceImpl(BillRepository billRepository, BillProductRepository billProductRepository, DateTimeConverter dateTimeConverter, ProductRepository productRepository, ToppingRepository toppingRepository, ProductDetailRepository productDetailRepository, ContactDetailRepository contactDetailRepository, UserRepository userRepository, CustomerRepository customerRepository, UserService userService, CustomerService customerService) {
         this.billRepository = billRepository;
         this.billProductRepository = billProductRepository;
         this.dateTimeConverter = dateTimeConverter;
@@ -61,6 +65,8 @@ public class BillServiceImpl implements BillService {
         this.contactDetailRepository = contactDetailRepository;
         this.userRepository = userRepository;
         this.customerRepository = customerRepository;
+        this.userService = userService;
+        this.customerService = customerService;
     }
 
     @Override
@@ -248,18 +254,19 @@ public class BillServiceImpl implements BillService {
 
                     user.setPoint(currentPoints - bill.getUsedCustomerPoints() + bill.getValueOfCustomerPoint());
                     userRepository.save(user);
+                    userService.updateMemberLevel(user);
 
-                    log.info("Updated points for user: {}", currentPoints);
-                }
-                else {
+                    log.info("Updated points for user: {}", user.getPoint());
+                } else {
                     Customer customer = customerRepository.findById(bill.getCustomerID())
                             .orElseThrow(() -> new RuntimeException("Customer not found"));
 
                     int currentPoints = customer.getPoint();
                     customer.setPoint(currentPoints - bill.getUsedCustomerPoints() + bill.getValueOfCustomerPoint());
                     customerRepository.save(customer);
+                    customerService.updateMemberLevel(customer);
 
-                    log.info("Updated points for customer: {}", customer.getId());
+                    log.info("Updated points for customer: {}", customer.getPoint());
                 }
             } else if (status == 1) { // Thanh toán thất bại
                 bill.setStatus("fail");
@@ -293,6 +300,13 @@ public class BillServiceImpl implements BillService {
         return bills.stream().map( bill -> {
             List<BillProduct> billProducts = billProductRepository.getBillProductByBillID(bill.getId());
             List<BillProductDto> billProductDtos = BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
+            if(bill.getContactDetailID() != null) {
+                ContactDetails contactDetails = contactDetailRepository.findById(bill.getContactDetailID()).orElseThrow(() -> new RuntimeException("ContactDetail does not exist"));
+                ContactDetailDto contactDetailDto = ContactDetailMapper.mapToContactDetailDto(contactDetails);
+
+                return BillMapper.mapToBillDto(bill, billProductDtos, contactDetailDto);
+            }
+
             return BillMapper.mapToBillDto(bill, billProductDtos);
         }).collect(Collectors.toList());
     }

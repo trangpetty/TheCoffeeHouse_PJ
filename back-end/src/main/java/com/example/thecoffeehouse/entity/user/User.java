@@ -58,6 +58,12 @@ public class User implements UserDetails {
     @Column(name = "dob")
     private LocalDate dob;
 
+    @Column(name = "code")
+    private String code;
+
+    @Column(name = "membership_level")
+    private String membershipLevel;
+
     @CreationTimestamp
     @Column(name = "create_time", nullable = false, updatable = false)
     private LocalDateTime createTime;
