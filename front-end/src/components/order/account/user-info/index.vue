@@ -10,7 +10,7 @@
         <div :class="['user-info-card', userMembershipClass]">
           <div class="user-info-card-header">
             <p class="text-uppercase">{{ user.firstName }}</p>
-            <p>{{ user.membershipLevel }}</p>
+            <p>{{ user.point }} điểm - {{ user.membershipLevel }}</p>
           </div>
           <div class="user-card-barcode d-flex flex-column align-items-center">
             <canvas id="barcode" class="barcode" />
