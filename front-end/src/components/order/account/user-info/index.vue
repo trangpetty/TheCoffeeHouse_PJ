@@ -7,14 +7,16 @@
 
     <section class="user-info">
       <div class="user-info-left">
-        <div class="user-info-card user-silver">
+        <div :class="['user-info-card', userMembershipClass]">
           <div class="user-info-card-header">
-            <p class="text-uppercase">{{ user.lastName }}</p>
-            <p>Silver</p>
+            <p class="text-uppercase">{{ user.firstName }}</p>
+            <p>{{ user.membershipLevel }}</p>
           </div>
           <div class="user-card-barcode d-flex flex-column align-items-center">
-
+            <canvas id="barcode" class="barcode" />
+            <p class="m-0">{{ user.code }}</p>
           </div>
+          <img :src="leaves" class="leaves-image">
         </div>
         <ul class="user-list">
           <li class="user-item" v-for="(item, index) in tabList" :key="index" @click="selectTab(index, item.tabName)" :class="{ 'active': selectedTab === index }">
@@ -31,13 +33,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import accountUser from '@/components/order/account/user-info/UserInfoComponent.vue';
 import userAddress from '@/components/order/account/user-info/AddressComponent.vue';
 import orderHistory from '@/components/order/account/user-info/OrderHistoryComponent.vue';
-import {useStore} from "vuex";
-import axiosClient from "@/utils/axiosConfig";
+import { useStore } from "vuex";
+import JsBarcode from 'jsbarcode';
+import leaves from '@/assets/images/Leaves.5c9ad83.svg'
 
 const route = useRoute();
 const router = useRouter();
@@ -73,6 +76,30 @@ watch(
     },
     { immediate: true }
 );
+
+const createBarcode = (code: string) => {
+  const barcodeElement = document.getElementById('barcode') as HTMLCanvasElement;
+  if (barcodeElement) {
+    JsBarcode(barcodeElement, code, {
+      format: 'CODE128',
+      displayValue: false,
+    });
+  }
+}
+
+const userMembershipClass = computed(() => {
+  const membershipClasses = {
+    'Diamond': 'user-diamond',
+    'Gold': 'user-gold',
+    'Silver': 'user-silver',
+    'Basic': 'user-basic'
+  };
+  return membershipClasses[user.value.membershipLevel] || 'user-basic';
+});
+
+onMounted(() => {
+  createBarcode(user.value.code);
+});
 </script>
 
 <style scoped>
@@ -88,14 +115,26 @@ watch(
   border-radius: 12px;
   display: flex;
   flex-direction: column;
-  margin-bottom: -16px;
-  min-height: 220px;
+  margin-bottom: 1rem;
+  min-height: 200px;
   padding: 20px 16px 10px 10px;
   position: relative;
 }
 
+.user-basic {
+  background: linear-gradient(rgb(240, 240, 240) 0%, rgb(200, 200, 200) 50%);
+}
+
 .user-silver {
   background: linear-gradient(rgb(203, 215, 228) 0%, rgb(101, 121, 142) 50%);
+}
+
+.user-gold {
+  background: linear-gradient(rgb(255, 223, 142) 0%, rgb(255, 166, 0) 50%);
+}
+
+.user-diamond {
+  background: linear-gradient(rgb(0, 0, 0) 0%, rgb(54, 57, 63) 50%);
 }
 
 .user-info-card-header {
@@ -111,6 +150,20 @@ watch(
   height: 102px;
   padding: 12px 18px 8px;
   text-align: center;
+}
+
+.barcode {
+  height: calc(100% - 24px);
+  width: 100%;
+}
+
+.leaves-image {
+  height: 100%;
+  -o-object-fit: contain;
+  object-fit: contain;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 
 .user-info-text {

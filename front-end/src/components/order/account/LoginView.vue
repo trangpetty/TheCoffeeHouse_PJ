@@ -111,7 +111,8 @@ const formRegister = ref({
   password: '',
   phoneNumber: '',
   gender: 0,
-  dob: null
+  dob: null,
+  code: ''
 });
 
 const ui = ref({
@@ -129,6 +130,20 @@ const gender = ref([
 const switchTab = (tab: string) => {
   activeTab.value = tab;
 };
+
+function generateRandomString(): string {
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+
+  // Generate the first character (a letter)
+  const firstChar = letters[Math.floor(Math.random() * letters.length)];
+
+  // Generate the remaining nine characters (numbers)
+  const remainingChars = Array.from({ length: 9 }, () => numbers[Math.floor(Math.random() * numbers.length)]).join('');
+
+  // Combine the first character and the remaining characters
+  return firstChar + remainingChars;
+}
 
 const login = async () => {
   try {
@@ -157,6 +172,7 @@ const login = async () => {
 const register = async () => {
   try {
     await registerForm.value.validate();
+    formRegister.value.code = generateRandomString();
     const response = await axiosClient.post('/auth/signup', formRegister.value);
     const result = response.data;
 
