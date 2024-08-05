@@ -5,6 +5,7 @@ import com.example.thecoffeehouse.dto.bill.RevenueDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -37,4 +38,12 @@ public interface BillService {
     Map<String, Object> getTodayStatistics();
 
     Double totalValueByUserIDForCurrentYear(Long userID);
+
+    boolean cancelOrder(String code);
+
+    List<Map<String, Object>> getOrders(String reportType, int year, Integer period);
+
+    List<Map<String, Object>> getOrdersByMonthAndWeek(int month, int week);
+
+    List<Map<String, Object>> getOrdersByDate(LocalDate date);
 }

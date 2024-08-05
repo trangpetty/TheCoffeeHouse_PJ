@@ -2,7 +2,6 @@ package com.example.thecoffeehouse.controller.bill;
 
 import com.example.thecoffeehouse.dto.OrderStatus;
 import com.example.thecoffeehouse.dto.bill.BillDto;
-import com.example.thecoffeehouse.dto.MonthlyDataDTO;
 import com.example.thecoffeehouse.dto.bill.RevenueDTO;
 import com.example.thecoffeehouse.service.bill.BillService;
 import org.springframework.data.domain.Page;
@@ -14,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +89,32 @@ public class BillController {
     @GetMapping("/today-statistics")
     public ResponseEntity<Map<String, Object>> getTodayStatistics() {
         return ResponseEntity.ok(billService.getTodayStatistics());
+    }
+
+    @PostMapping("/cancel/{code}")
+    public ResponseEntity<String> cancelOrder(@PathVariable String code) {
+        boolean success = billService.cancelOrder(code);
+        if (success) {
+            return ResponseEntity.ok("success");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order cannot be cancelled.");
+        }
+    }
+
+    @GetMapping("/status-summary")
+    public ResponseEntity<List<Map<String, Object>>> countOrders(@RequestParam String reportType,
+                                               @RequestParam int year,
+                                               @RequestParam(required = false) Integer month,
+                                               @RequestParam(required = false) Integer week,
+                                               @RequestParam(required = false) String date) {
+        if (reportType.equals("monthly") && month != null && week != null) {
+            return ResponseEntity.ok(billService.getOrdersByMonthAndWeek(month, week));
+        } else if (reportType.equals("daily") && date != null) {
+            LocalDate localDate = LocalDate.parse(date);
+            return ResponseEntity.ok(billService.getOrdersByDate(localDate));
+        } else {
+            return ResponseEntity.ok(billService.getOrders(reportType, year, month)); // Adjust this method to handle `week` as well
+        }
     }
 
 

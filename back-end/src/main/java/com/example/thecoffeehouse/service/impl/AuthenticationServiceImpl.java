@@ -72,6 +72,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             newUser.setMembershipLevel(existingCustomer.getMembershipLevel());
             newUser.setPoint(existingCustomer.getPoint());
 
+            ContactDetails contactDetails = contactDetailRepository.findByPhoneNumberAndOwnerType(existingCustomer.getPhoneNumber(), OwnerType.CUSTOMER);
+            contactDetails.setOwnerType(OwnerType.USER);
+            contactDetails.setOwnerID(newUser.getId());
+            contactDetailRepository.save(contactDetails);
+
             // Xóa bản ghi khách hàng sau khi chuyển thông tin
             customerRepository.delete(existingCustomer);
         } else {
@@ -79,7 +84,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             newUser.setPhoneNumber(registerDto.getPhoneNumber());
             newUser.setFirstName(registerDto.getFirstName());
             newUser.setLastName(registerDto.getLastName());
-            newUser.setMembershipLevel("Basic"); // Hạng mặc định
+            newUser.setMembershipLevel(MembershipLevel.BRONZE.getName()); // Hạng mặc định
             newUser.setPoint(0); // Điểm khởi tạo
         }
 

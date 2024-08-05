@@ -26,7 +26,7 @@ public interface UserRepository extends JpaRepository<User, Long>{
 
     boolean existsByPhoneNumber(String phoneNumber);
 
-    @Query("SELECT COUNT(c) FROM Customer c WHERE c.createTime BETWEEN :startOfDay AND :endOfDay")
+    @Query("SELECT COUNT(u) FROM User u WHERE u.createTime BETWEEN :startOfDay AND :endOfDay")
     Integer findNewUsersToday(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
 
 }

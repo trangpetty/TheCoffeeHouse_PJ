@@ -1,6 +1,7 @@
 package com.example.thecoffeehouse.service.impl.bill;
 
 import com.example.thecoffeehouse.Utils.DateTimeConverter;
+import com.example.thecoffeehouse.Utils.WeekInMonth;
 import com.example.thecoffeehouse.dto.bill.BillDto;
 import com.example.thecoffeehouse.dto.bill.BillProductDto;
 import com.example.thecoffeehouse.dto.bill.RevenueDTO;
@@ -209,7 +210,8 @@ public class BillServiceImpl implements BillService {
     @Override
     public List<RevenueDTO> getRevenueByType(String type, Integer month, Integer week) {
         if ("daily".equalsIgnoreCase(type) && month != null && week != null) {
-            return billRepository.findDailyRevenueForWeekInMonth(month, week);
+            LocalDateTime[] weekRange = WeekInMonth.getStartAndEndOfWeekInMonth(LocalDate.now().getYear(), month, week);
+            return billRepository.findDailyRevenueForWeekInMonth(weekRange[0], weekRange[1]);
         }
         // Other types of revenue queries
         return switch (type) {
@@ -246,28 +248,6 @@ public class BillServiceImpl implements BillService {
             if (status == 0) { // Thanh toán thành công
                 bill.setStatus("pending");
                 log.info("Bill status before save: {}", bill.getStatus());
-                if (bill.getUserID() != null) {
-                    User user = userRepository.findById(bill.getUserID())
-                            .orElseThrow(() -> new RuntimeException("User not found"));
-
-                    int currentPoints = user.getPoint();
-
-                    user.setPoint(currentPoints - bill.getUsedCustomerPoints() + bill.getValueOfCustomerPoint());
-                    userRepository.save(user);
-                    userService.updateMemberLevel(user);
-
-                    log.info("Updated points for user: {}", user.getPoint());
-                } else {
-                    Customer customer = customerRepository.findById(bill.getCustomerID())
-                            .orElseThrow(() -> new RuntimeException("Customer not found"));
-
-                    int currentPoints = customer.getPoint();
-                    customer.setPoint(currentPoints - bill.getUsedCustomerPoints() + bill.getValueOfCustomerPoint());
-                    customerRepository.save(customer);
-                    customerService.updateMemberLevel(customer);
-
-                    log.info("Updated points for customer: {}", customer.getPoint());
-                }
             } else if (status == 1) { // Thanh toán thất bại
                 bill.setStatus("fail");
             }
@@ -284,6 +264,29 @@ public class BillServiceImpl implements BillService {
             bill.setDeliveryStatus(deliveryStatus);
             if(Objects.equals(deliveryStatus, "Delivered")) {
                 bill.setStatus("success");
+                if (bill.getUserID() != null) {
+                    User user = userRepository.findById(bill.getUserID())
+                            .orElseThrow(() -> new RuntimeException("User not found"));
+
+                    int currentPoints = user.getPoint();
+
+                    user.setPoint(currentPoints - bill.getUsedCustomerPoints() + bill.getValueOfCustomerPoint());
+                    userRepository.save(user);
+                    userService.updateMemberLevel(user);
+
+                    log.info("Updated points for user: {}", user.getPoint());
+                }
+                else {
+                    Customer customer = customerRepository.findById(bill.getCustomerID())
+                            .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+                    int currentPoints = customer.getPoint();
+                    customer.setPoint(currentPoints - bill.getUsedCustomerPoints() + bill.getValueOfCustomerPoint());
+                    customerRepository.save(customer);
+                    customerService.updateMemberLevel(customer);
+
+                    log.info("Updated points for customer: {}", customer.getPoint());
+                }
             }
             billRepository.save(bill);
         }
@@ -320,6 +323,7 @@ public class BillServiceImpl implements BillService {
         Integer totalProductsSold = billProductRepository.calculateTotalProductsSold(startOfDay, endOfDay);
         Integer totalOrders = billRepository.countTotalOrders(startOfDay, endOfDay);
         Integer newCustomers = customerRepository.findNewCustomersToday(startOfDay, endOfDay) + userRepository.findNewUsersToday(startOfDay, endOfDay);
+        log.info("start day: {}", startOfDay);
 
         Map<String, Object> statistics = new HashMap<>();
         statistics.put("totalRevenue", totalRevenue != null ? totalRevenue : BigDecimal.ZERO);
@@ -391,6 +395,94 @@ public class BillServiceImpl implements BillService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public boolean cancelOrder(String code) {
+        Bill bill = billRepository.findByCode(code);
+        if(bill != null) {
+            bill.setStatus("cancel");
+            billRepository.save(bill);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public List<Map<String, Object>> getOrders(String reportType, int year, Integer period) {
+        LocalDateTime startDate;
+        LocalDateTime endDate;
+
+        switch (reportType) {
+            case "monthly":
+                startDate = LocalDateTime.of(year, period, 1, 0, 0);
+                endDate = startDate.plusMonths(1).minusNanos(1);
+                break;
+            case "yearly":
+                startDate = LocalDateTime.of(year, 1, 1, 0, 0);
+                endDate = LocalDateTime.of(year + 1, 1, 1, 0, 0).minusNanos(1);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid report type: " + reportType);
+        }
+
+        log.info("start day: {}", startDate);
+        log.info("end day: {}", endDate);
+
+        List<Object[]> results = billRepository.calculateTotalOrdersByStatus(startDate, endDate);
+        log.info("orders: {}", results.get(0));
+        List<Map<String, Object>> statusOrderCounts = new ArrayList<>();
+        for (Object[] result : results) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("status", result[0]);
+            map.put("orders", result[1]);
+            statusOrderCounts.add(map);
+        }
+
+        return statusOrderCounts;
+    }
+
+    @Override
+    public  List<Map<String, Object>> getOrdersByMonthAndWeek(int month, int week) {
+        LocalDateTime[] weekRange = WeekInMonth.getStartAndEndOfWeekInMonth(LocalDate.now().getYear(), month, week);
+
+        LocalDateTime startDate = weekRange[0];
+        LocalDateTime endDate = weekRange[1];
+        log.info("start day: {}", startDate);
+        log.info("end day: {}", endDate);
+
+        log.info("count: {}", billRepository.calculateTotalOrdersByStatus(startDate, endDate));
+
+        List<Object[]> results = billRepository.calculateTotalOrdersByStatus(startDate, endDate);
+        List<Map<String, Object>> statusOrderCounts = new ArrayList<>();
+        for (Object[] result : results) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("status", result[0]);
+            map.put("orders", result[1]);
+            statusOrderCounts.add(map);
+        }
+
+        return statusOrderCounts;
+    }
+
+    @Override
+    public  List<Map<String, Object>> getOrdersByDate(LocalDate date) {
+        LocalDateTime startDate = date.atStartOfDay();
+        LocalDateTime endDate = startDate.plusDays(1).minusNanos(1);
+        log.info("start day: {}", startDate);
+        log.info("end day: {}", endDate);
+
+        log.info("count: {}", billRepository.calculateTotalOrdersByStatus(startDate, endDate));
+
+        List<Object[]> results = billRepository.calculateTotalOrdersByStatus(startDate, endDate);
+        List<Map<String, Object>> statusOrderCounts = new ArrayList<>();
+        for (Object[] result : results) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("status", result[0]);
+            map.put("orders", result[1]);
+            statusOrderCounts.add(map);
+        }
+
+        return statusOrderCounts;
+    }
 //    public List<RevenueDTO> getDailyRevenueForWeekInMonth(int month, int week) {
 //        List<RevenueDTO> revenues = billRepository.findDailyRevenueForWeekInMonth(month, week);
 //        Map<String, Double> revenueMap = new HashMap<>();

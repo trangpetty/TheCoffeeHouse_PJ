@@ -42,13 +42,12 @@ public interface BillRepository extends JpaRepository<Bill, Long>{
 
     @Query("SELECT new com.example.thecoffeehouse.dto.bill.RevenueDTO(DAYNAME(b.createTime), COALESCE(SUM(b.value), 0)) " +
             "FROM Bill b " +
-            "WHERE b.status = 'success'" +
-            "AND MONTH(b.createTime) = :month " +
-            "AND FLOOR((DAY(b.createTime) - 1) / 7) + 1 = :week " + // Tuần trong tháng
+            "WHERE b.status = 'success' " +
+            "AND b.createTime BETWEEN :startOfWeek AND :endOfWeek " +
             "GROUP BY DAYOFWEEK(b.createTime) " +
             "ORDER BY DAYOFWEEK(b.createTime)")
-    List<RevenueDTO> findDailyRevenueForWeekInMonth(@Param("month") int month, @Param("week") int week);
-
+    List<RevenueDTO> findDailyRevenueForWeekInMonth(@Param("startOfWeek") LocalDateTime startOfWeek,
+                                                    @Param("endOfWeek") LocalDateTime endOfWeek);
 
     @Query("SELECT new com.example.thecoffeehouse.dto.bill.RevenueDTO(CONCAT('Month ', MONTH(b.createTime)), SUM(b.value)) " +
             "FROM Bill b " +
@@ -76,6 +75,15 @@ public interface BillRepository extends JpaRepository<Bill, Long>{
 
     @Query("SELECT SUM(b.value) FROM Bill b WHERE b.paymentStatus = 0 AND b.userID = :userID AND YEAR(b.modifyTime) = YEAR(CURRENT_DATE)")
     Double findTotalValueByUserIDForCurrentYear(@Param("userID") Long userID);
+
+    @Query("SELECT b.status AS status, COUNT(b.id) AS totalOrders " +
+            "FROM Bill b " +
+            "WHERE b.modifyTime BETWEEN :startOfDay AND :endOfDay " +
+            "GROUP BY b.status")
+    List<Object[]> calculateTotalOrdersByStatus(@Param("startOfDay") LocalDateTime startOfDay,
+                                                @Param("endOfDay") LocalDateTime endOfDay);
+
+
 
 //    @Query("SELECT new com.example.thecoffeehouse.dto.bill.RevenueDTO(p.type, SUM(b.createTime)) FROM Bill b JOIN b.products p GROUP BY p.type")
 //    List<RevenueDTO> findRevenueByProductType();

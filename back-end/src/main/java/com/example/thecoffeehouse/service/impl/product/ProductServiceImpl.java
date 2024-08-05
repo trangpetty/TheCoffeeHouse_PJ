@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.thecoffeehouse.Utils.WeekInMonth;
 import com.example.thecoffeehouse.dto.product.*;
 import com.example.thecoffeehouse.entity.product.*;
 import com.example.thecoffeehouse.repository.bill.BillProductRepository;
@@ -263,10 +264,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductSalesDto> getTopProductsByMonthAndWeek(int month, int week) {
-        LocalDate startOfMonth = LocalDate.of(LocalDate.now().getYear(), month, 1);
-        LocalDate startOfWeek = startOfMonth.plusWeeks(week - 1);
-        LocalDateTime startDate = startOfWeek.atStartOfDay();
-        LocalDateTime endDate = startOfWeek.plusWeeks(1).atStartOfDay().minusNanos(1);
+        LocalDateTime[] weekRange = WeekInMonth.getStartAndEndOfWeekInMonth(LocalDate.now().getYear(), month, week);
+
+        LocalDateTime startDate = weekRange[0];
+        LocalDateTime endDate = weekRange[1];
+        log.info("start day: {}", startDate);
+        log.info("end day: {}", endDate);
 
         return billProductRepository.findTopProductsByPeriod(startDate, endDate, PageRequest.of(0, 5));
     }
