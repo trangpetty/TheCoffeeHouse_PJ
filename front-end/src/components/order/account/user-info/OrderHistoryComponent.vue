@@ -42,7 +42,7 @@
       <div>
         <div class="box-shadow px-4 py-3 mb-3">
           <div class="border-bottom d-flex flex-column">
-            <div class="mb-2">
+            <div class="mb-2" v-if="bill.status == 'success'">
               <p class="mb-1">Thời gian giao hàng dự kiến</p>
               <h5 class="mb-0">
                 <span>{{ new Date(bill.modifyTime).toLocaleDateString('vi-VN') }} - </span>
@@ -56,7 +56,8 @@
               </div>
               <div>
                 <h5 class="text-orange fw-bold">{{ bill.status == 'success' ? 'Hoàn tất' : 'Đơn hàng đã bị hủy' }}</h5>
-                <p class="mb-1">Bạn đã nhận đơn hàng thành công. Cảm ơn bạn đã chọn Petty!</p>
+                <p class="mb-1" v-if="bill.status == 'success'">Bạn đã nhận đơn hàng thành công. Cảm ơn bạn đã chọn Petty!</p>
+                <p class="mb-1" v-else>Đơn hàng của bạn đã được hủy</p>
               </div>
             </div>
           </div>

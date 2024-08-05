@@ -32,6 +32,7 @@
               </el-steps>
               <div class="w-100 text-center">
                 <button class="btn btn--orange-1 mt-3 mx-auto" v-if="ui.confirmDelivered" @click="confirmDelivered">Đã nhận được hàng</button>
+                <button class="btn btn-danger mt-3 mx-auto" v-if="bill.deliveryStatus === 'Ordered'" @click="cancelOrder">Hủy đơn hàng</button>
               </div>
             </div>
             <div class="d-block">
@@ -282,6 +283,18 @@ const paymentMethodInfo = computed(() => {
 const confirmDelivered = () => {
     router.push({ name: 'check-bill', params: { code: bill.value.code } });
 }
+
+const cancelOrder = async () => {
+  try {
+    await axiosClient.post(`/bills/cancel/${bill.value.code}`);
+    bill.value.deliveryStatus = 'Cancelled'; // Update status locally
+    // Optionally, redirect or show a success message
+    router.push({ name: 'payment-failure', params: { code: bill.value.code } });
+  } catch (error) {
+    console.error('Error cancelling order:', error);
+    // Optionally, show an error message
+  }
+};
 
 onMounted (async () => {
   const response = await axiosClient.get(`/bills/${props.code}`);

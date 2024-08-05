@@ -1,7 +1,10 @@
 <template>
   <header class="bg-header d-flex align-items-center text-white">
     <div class="container-fluid container-lg d-flex align-items-center px-3 justify-content-center">
-      <router-link to="/order" class="navbar-brand fw-bolder me-5" href="#">PETTY COFFEE</router-link>
+      <router-link to="/order" class="navbar-brand fw-bolder me-5 d-flex align-items-center" href="#">
+        <img :src="cup" style="width: 60px;" class="me-2">
+        PETTY COFFEE
+      </router-link>
       <div class="header-delivery header-delivery--bg d-flex align-items-center justify-content-between" @click="showAddressDialog">
         <div class="d-flex">
           <img :src="delivery" alt="" class="icon-delivery">
@@ -76,6 +79,7 @@
 </template>
 
 <script setup lang="ts">
+import cup from "@/assets/images/cup.png";
 import delivery from "@/assets/images/Delivery2.png";
 import noAvatar from "@/assets/images/no-avatar.png";
 import { Handbag } from "@element-plus/icons-vue";

@@ -5,7 +5,14 @@
         <div class="row justify-content-center">
           <div class="col-12 col-lg-10">
             <div class="mb-5 mt-3 checkout-header">
-              <h1 class="text-center h2 mb-0" style="font-weight: 600;">
+              <div v-if="bill.status === 'cancel'" class="text-center">
+                <h1 class="h2" style="font-weight: 600;">
+                  <span class="text text-danger"><font-awesome-icon icon="fa-solid fa-clock-rotate-left" /> Đơn hàng đã bị hủy</span>
+                </h1>
+                <h4>Đơn hàng sẽ được hoàn tiền</h4>
+                <h1>{{ Utils.formatPrice(bill.value) }}</h1>
+              </div>
+              <h1 class="text-center h2 mb-0" style="font-weight: 600;" v-else>
                 <span class="text text-danger"><font-awesome-icon icon="fa-solid fa-circle-exclamation" /> Đặt hàng không thành công</span>
               </h1>
             </div>
@@ -134,7 +141,7 @@
                     <p class="order-card__text text-white mb-0">Thành tiền</p>
                     <p class="order-card__text text-white fw-bold mb-0">{{ Utils.formatPrice(bill.value) }}</p>
                   </div>
-                  <button class="btn btn--white px-4" @click="confirmOrder">
+                  <button class="btn btn--white px-4">
                     Liên hệ hỗ trợ
                   </button>
                 </div>
@@ -157,8 +164,9 @@
                   </h4>
                   <div class="d-flex align-items-center w-100 mt-2 pb-3">
                     <h6 class="m-0">
-                      <el-tag type="danger" effect="dark">UNPAID</el-tag>
-                      <span class="ms-2">Chưa thanh toán</span>
+                      <el-tag v-if="bill.paymentStatus" type="danger" effect="dark">UNPAID</el-tag>
+                      <el-tag v-else type="success" effect="dark">PAID</el-tag>
+                      <span class="ms-2">{{bill.paymentStatus ? 'Chưa thanh toán' : 'Đã thanh toán'}}</span>
                     </h6>
                   </div>
                 </div>
@@ -192,7 +200,10 @@ const bill = ref<any>({
   products: [],
   voucherID: null,
   userID: null,
-  paymentMethod: ''
+  paymentMethod: '',
+  paymentStatus: null,
+  status: '',
+  value: null
 });
 const products = ref([]);
 const voucher = ref({});

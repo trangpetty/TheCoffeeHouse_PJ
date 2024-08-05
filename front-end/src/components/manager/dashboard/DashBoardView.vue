@@ -49,7 +49,6 @@
           <el-form-item label="Report Type">
             <el-select v-model="selectedReportType" style="width: 120px" @change="handleReportTypeChange">
               <el-option label="Monthly" value="monthly"></el-option>
-              <el-option label="Weekly" value="weekly"></el-option>
               <el-option label="Yearly" value="yearly"></el-option>
               <el-option label="Daily" value="daily"></el-option>
             </el-select>
@@ -75,11 +74,6 @@
             </el-form-item>
           </div>
         </div>
-        <!-- Table -->
-<!--        <el-table :data="products" stripe>-->
-<!--          <el-table-column prop="productName" label="Product Name" ></el-table-column>-->
-<!--          <el-table-column prop="totalQuantity" label="Quantity Sold" class-name="text-center"></el-table-column>-->
-<!--        </el-table>-->
         <Highcharts :options="topProductsChartOptions"></Highcharts>
       </div>
     </div>
@@ -100,6 +94,39 @@
         <Highcharts :options="dailyChartOptions"></Highcharts>
       </div>
     </div>
+    <div class="box-shadow box chart">
+      <h3>Order Status Statistics</h3>
+      <div class="d-flex justify-content-between align-items-center">
+        <el-form-item label="Report Type">
+          <el-select v-model="selectedReportTypeOrders" style="width: 120px" @change="handleReportTypeOrdersChange">
+            <el-option label="Monthly" value="monthly"></el-option>
+            <el-option label="Yearly" value="yearly"></el-option>
+            <el-option label="Daily" value="daily"></el-option>
+          </el-select>
+        </el-form-item>
+
+        <div>
+          <div class="d-flex justify-content-between">
+            <el-form-item v-if="selectedReportTypeOrders === 'monthly'" label="Month" class="me-4">
+              <el-select v-model="selectedMonthOrders" style="width: 120px" @change="fetchOrderStatusData">
+                <el-option v-for="month in months" :key="month.value" :label="month.label" :value="month.value"></el-option>
+              </el-select>
+            </el-form-item>
+
+            <el-form-item v-if="selectedReportTypeOrders === 'monthly'" label="Week">
+              <el-select v-model="selectedWeekOrders" style="width: 120px" @change="fetchOrderStatusData">
+                <el-option v-for="week in weeks" :key="week" :label="'Week ' + week" :value="week"></el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+
+          <el-form-item v-if="selectedReportTypeOrders === 'daily'" label="Date">
+            <el-date-picker v-model="selectedDateOrders" type="date" placeholder="Select Date" @change="fetchOrderStatusData"></el-date-picker>
+          </el-form-item>
+        </div>
+      </div>
+      <Highcharts :options="orderStatusChartOptions"></Highcharts>
+    </div>
   </div>
 </template>
 
@@ -107,14 +134,18 @@
 import { ref, watch, onMounted } from 'vue';
 import Highcharts from 'vue3-highcharts';
 import axiosClient from '@/utils/axiosConfig';
-import * as Utils from '@/utils/index'
+import * as Utils from '@/utils/index';
+import moment from 'moment';
 
 // Hàm để lấy tháng hiện tại và tuần hiện tại trong tháng
 const getCurrentMonth = () => new Date().getMonth() + 1;
 const getCurrentWeekInMonth = () => {
-  const today = new Date();
-  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  return Math.ceil(((today.getDate() + startOfMonth.getDay()) / 7));
+  const today = moment();
+  const startOfMonth = moment().startOf('month');
+
+  // Tính số tuần của ngày hôm nay trong tháng
+  const weekOfMonth = today.week() - startOfMonth.week() + 1;
+  return weekOfMonth;
 };
 
 const chartOptions = ref({
@@ -160,9 +191,13 @@ const selectedReport = ref('monthly');
 const selectedMonth = ref(getCurrentMonth());
 const selectedWeek = ref(getCurrentWeekInMonth());
 const selectedReportType = ref('monthly');
+const selectedReportTypeOrders = ref('monthly');
 const selectedMonthTopProducts = ref(getCurrentMonth());
+const selectedMonthOrders = ref(getCurrentMonth());
 const selectedWeekTopProducts = ref(getCurrentWeekInMonth());
+const selectedWeekOrders = ref(getCurrentWeekInMonth());
 const selectedDate = ref(null);
+const selectedDateOrders = ref(null);
 const products = ref([]);
 
 const months = [
@@ -189,6 +224,64 @@ const statistics = ref({
   newCustomers: 0,
 });
 
+
+const orderStatusChartOptions = ref({
+  chart: {
+    type: 'pie'
+  },
+  title: {
+    text: 'Order Status Statistics'
+  },
+  series: [{
+    name: 'Orders',
+    data: []
+  }],
+  plotOptions: {
+    pie: {
+      allowPointSelect: true,
+      cursor: 'pointer',
+      dataLabels: {
+        enabled: true,
+        format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+      }
+    }
+  }
+});
+
+const fetchOrderStatusData = async () => {
+  try {
+    let params: any = { reportType: selectedReportTypeOrders.value, year: new Date().getFullYear() };
+    if (selectedReportTypeOrders.value === 'monthly') {
+      params.month = selectedMonthOrders.value;
+      params.week = selectedWeekOrders.value;
+    } else if (selectedReportTypeOrders.value === 'daily') {
+      params.date = selectedDateOrders.value ? selectedDateOrders.value.toISOString().split('T')[0] : null;
+    }
+
+    const response = await axiosClient.get('/bills/status-summary', {params});
+    const data = response.data;
+
+    // Format data for Highcharts pie chart
+    const statusCounts = { success: 0, fail: 0, cancel: 0 };
+
+// Process the data to count the orders for each status
+    data.forEach(item => {
+      if (item.status in statusCounts) {
+        statusCounts[item.status] = item.orders;
+      }
+    });
+
+// Format data for Highcharts pie chart
+    orderStatusChartOptions.value.series[0].data = [
+      { name: 'Success', y: statusCounts.success, color: '#28a745' },
+      { name: 'Fail', y: statusCounts.fail, color: '#dc3545' },
+      { name: 'Cancel', y: statusCounts.cancel, color: '#ffc107' }
+    ];
+  } catch (error) {
+    console.error('Error fetching order status data:', error);
+  }
+};
+
 const fetchTodayStatistics = async () => {
   try {
     const response = await axiosClient.get('/bills/today-statistics');
@@ -203,6 +296,16 @@ const handleReportTypeChange = () => {
     selectedWeekTopProducts.value = 1;
     fetchTopProducts();
   } else if (selectedReportType.value === 'daily') {
+    selectedDateOrders.value = null;
+    fetchTopProducts();
+  }
+};
+
+const handleReportTypeOrdersChange = () => {
+  if (selectedReportTypeOrders.value === 'monthly') {
+    selectedWeekOrders.value = 1;
+    fetchTopProducts();
+  } else if (selectedReportTypeOrders.value === 'daily') {
     selectedDate.value = null;
     fetchTopProducts();
   }
@@ -278,6 +381,7 @@ onMounted(() => {
   fetchDailyRevenueData();
   fetchTopProducts();
   fetchTodayStatistics();
+  fetchOrderStatusData();
 });
 </script>
 
