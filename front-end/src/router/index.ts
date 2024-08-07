@@ -24,6 +24,7 @@ import BlogDetail from '@/components/order/news/NewsDetail.vue';
 import PaymentSuccess from '@/components/order/payment/PaymentSuccess.vue';
 import PaymentFailure from '@/components/order/payment/PaymentFailure.vue';
 import DeliveryView from '@/components/order/payment/DeliveryView.vue';
+import FindOrderView from '@/components/order/account/user-info/FindOrderView.vue';
 
 import ProductDetail from '@/components/user/ProductDetailView.vue';
 import MainPage from '@/components/user/main/MainPage.vue';
@@ -66,6 +67,11 @@ export const routes = [
         ]
       },
       {
+        path: '/admin/bill',
+        name: 'Bill',
+        component: BillView
+      },
+      {
         path: '/admin/voucher',
         name: 'Voucher',
         component: VoucherView
@@ -79,11 +85,6 @@ export const routes = [
         path: '/admin/user',
         name: 'User',
         component: UserView
-      },
-      {
-        path: '/admin/bill',
-        name: 'Bill',
-        component: BillView
       },
       {
         path: '/admin/news',
@@ -122,6 +123,11 @@ export const routes = [
         name: 'user-info',
         component: UserInfoView,
         props: true
+      },
+      {
+        path: '/order/find-order',
+        name: 'find-order',
+        component: FindOrderView
       },
       {
         path: '/blogs',

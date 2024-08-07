@@ -5,7 +5,7 @@
 
   <div class="card-cover" v-for="(item, index) in addresses" :key="index">
     <div class="cover-card-address">
-      <div class="name mb-1">{{user.firstName}} {{user.lastName}}</div>
+      <div class="name mb-1">{{item.name}}</div>
       <div class="mb-1">
         <span class="title-data">Địa chỉ:</span>
         {{item.address}}

@@ -29,6 +29,7 @@
   --smoky-gray-4: #ededee;
   --smoky-gray-5: hsla(0, 0%, 77%, .3);
   --smoky-gray-6: #e4e4e4;
+  --yellow-1: #FAD207;
   --scale-unit: 1rem;
   --space-2: calc(var(--scale-unit)* 0.125);
   --space-4: calc(var(--scale-unit)* 0.25);
@@ -77,6 +78,7 @@
   --space-94: calc(var(--scale-unit)* 5.875);
   --space-98: calc(var(--scale-unit)* 6.125);
   --space-100: calc(var(--scale-unit)* 6.25);
+  --space-200: calc(var(--scale-unit)*12.5);
   --space-376: calc(var(--scale-unit)*23.5);
 }
 
@@ -145,6 +147,10 @@
 
 .text-orange {
   color: var(--orange-2)!important;
+}
+
+.text-yellow {
+  color: var(--yellow-1)!important;
 }
 
 .btn.btn--orange-1,

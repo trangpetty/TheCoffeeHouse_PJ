@@ -61,9 +61,27 @@
             </el-dropdown-menu>
           </template>
         </el-dropdown>
-        <router-link v-else to="/order/login">
-          <img :src="noAvatar" style="width: 40px;height: 40px" alt="" class="rounded-circle object-fit-cover">
-        </router-link>
+        <el-dropdown trigger="click" v-else ref="dropdown">
+          <div>
+            <img :src="noAvatar" style="width: 40px;height: 40px" alt="" class="rounded-circle object-fit-cover">
+          </div>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item @click="handleClick">
+                <router-link to="/order/find-order" class="d-flex align-items-center">
+                  <font-awesome-icon style="width: var(--space-24)" class="fs-5 me-2" icon="fa-solid fa-clock-rotate-left" />
+                  <span>Tra cứu đơn hàng</span>
+                </router-link>
+              </el-dropdown-item>
+              <el-dropdown-item @click="handleClick">
+                <router-link to="/order/login" class="d-flex align-items-center">
+                  <font-awesome-icon style="width: var(--space-24)" class="fs-5 me-2" icon="fa-solid fa-arrow-right-from-bracket" />
+                  <span>Đăng nhập</span>
+                </router-link>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
         <span class="name_user">{{user.firstName}} {{user.lastName}}</span>
         <div class="ms-3" @click="navigateToCheckout">
           <div class="icon d-flex align-items-center justify-content-center" :class="(totalQuantity > 0) ? 'icon-cart-has-item' : 'icon-cart'">
@@ -108,6 +126,12 @@ const handleItemClick = (path: string) => {
     dropdown.value.handleClose();
   }
   router.push(`/order/user-info/${path}`);
+};
+
+const handleClick = (path: string) => {
+  if (dropdown.value) {
+    dropdown.value.handleClose();
+  }
 };
 
 const isActive = (path: string) => {

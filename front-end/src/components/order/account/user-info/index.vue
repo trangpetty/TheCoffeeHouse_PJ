@@ -1,7 +1,7 @@
 <template>
   <div class="container-lg container-fluid">
     <div class="user-info-head">
-      <font-awesome-icon icon="fa-solid fa-circle-user" style="font-size: 2rem; color: #FAD207"/>
+      <font-awesome-icon icon="fa-solid fa-circle-user" class="text-yellow" style="font-size: 2rem;"/>
       <span class="user-info-text">Tài khoản của bạn</span>
     </div>
 
