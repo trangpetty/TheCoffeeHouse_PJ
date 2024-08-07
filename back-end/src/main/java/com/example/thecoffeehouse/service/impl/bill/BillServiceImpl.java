@@ -120,18 +120,43 @@ public class BillServiceImpl implements BillService {
             billDto.getContactDetail().setOwnerID(user.getId());
             billDto.getContactDetail().setOwnerType(OwnerType.USER);
         } else {
-            Customer customer = customerRepository.findByPhoneNumber(billDto.getContactDetail().getPhoneNumber());
-            if (customer == null) {
-                customer = new Customer();
-                customer.setPhoneNumber(billDto.getContactDetail().getPhoneNumber());
-                customer.setDefaultName(billDto.getContactDetail().getName());
-                customer.setDefaultAddress(billDto.getContactDetail().getAddress());
-                customer.setPoint(billDto.getValueOfCustomerPoint());
-                customerRepository.save(customer);
+            ContactDetails contactDetails = contactDetailRepository.findByPhoneNumberAndOwnerType(billDto.getContactDetail().getPhoneNumber(), OwnerType.USER);
+            if (contactDetails != null) {
+                if (contactDetails.getOwnerType() == OwnerType.USER) {
+                    if (!contactDetailRepository.existsByPhoneNumberAndAddressAndName(
+                            billDto.getContactDetail().getPhoneNumber(),
+                            billDto.getContactDetail().getAddress(),
+                            billDto.getContactDetail().getName())) {
+                        ContactDetails newContact = new ContactDetails();
+                        newContact.setName(billDto.getContactDetail().getName());
+                        newContact.setPhoneNumber(billDto.getContactDetail().getPhoneNumber());
+                        newContact.setAddress(billDto.getContactDetail().getAddress());
+                        newContact.setOwnerType(OwnerType.USER);
+                        newContact.setOwnerID(contactDetails.getOwnerID());
+                        contactDetailRepository.save(newContact);
+
+                        // Đảm bảo rằng bạn đã thiết lập đúng ID và thuộc tính
+                    }
+                    billDto.setUserID(contactDetails.getOwnerID());
+                    System.out.println("UserID: " + billDto.getUserID());
+                    billDto.getContactDetail().setOwnerID(contactDetails.getOwnerID());
+                    billDto.getContactDetail().setOwnerType(OwnerType.USER);
+                }
             }
-            billDto.setCustomerID(customer.getId());
-            billDto.getContactDetail().setOwnerID(customer.getId());
-            billDto.getContactDetail().setOwnerType(OwnerType.CUSTOMER);
+            else {
+                Customer customer = customerRepository.findByPhoneNumber(billDto.getContactDetail().getPhoneNumber());
+                if (customer == null) {
+                    customer = new Customer();
+                    customer.setPhoneNumber(billDto.getContactDetail().getPhoneNumber());
+                    customer.setDefaultName(billDto.getContactDetail().getName());
+                    customer.setDefaultAddress(billDto.getContactDetail().getAddress());
+                    customer.setPoint(billDto.getValueOfCustomerPoint());
+                    customerRepository.save(customer);
+                }
+                billDto.setCustomerID(customer.getId());
+                billDto.getContactDetail().setOwnerID(customer.getId());
+                billDto.getContactDetail().setOwnerType(OwnerType.CUSTOMER);
+            }
 
         }
 
@@ -463,10 +488,6 @@ public class BillServiceImpl implements BillService {
     public  List<Map<String, Object>> getOrdersByDate(LocalDate date) {
         LocalDateTime startDate = date.atStartOfDay();
         LocalDateTime endDate = startDate.plusDays(1).minusNanos(1);
-        log.info("start day: {}", startDate);
-        log.info("end day: {}", endDate);
-
-        log.info("count: {}", billRepository.calculateTotalOrdersByStatus(startDate, endDate));
 
         List<Object[]> results = billRepository.calculateTotalOrdersByStatus(startDate, endDate);
         List<Map<String, Object>> statusOrderCounts = new ArrayList<>();
@@ -478,6 +499,27 @@ public class BillServiceImpl implements BillService {
         }
 
         return statusOrderCounts;
+    }
+
+    @Override
+    public List<BillDto> getBillsByPhoneNumberOfCustomer(String phoneNumber) {
+        List<Bill> bills = billRepository.findBillsByPhoneNumber(phoneNumber);
+        List<Product> products = productRepository.findAll();
+        List<Topping> toppings = toppingRepository.findAll();
+        List<ProductDetail> sizes = productDetailRepository.findAll();
+
+        return bills.stream().map( bill -> {
+            List<BillProduct> billProducts = billProductRepository.getBillProductByBillID(bill.getId());
+            List<BillProductDto> billProductDtos = BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
+            if(bill.getContactDetailID() != null) {
+                ContactDetails contactDetails = contactDetailRepository.findById(bill.getContactDetailID()).orElseThrow(() -> new RuntimeException("ContactDetail does not exist"));
+                ContactDetailDto contactDetailDto = ContactDetailMapper.mapToContactDetailDto(contactDetails);
+
+                return BillMapper.mapToBillDto(bill, billProductDtos, contactDetailDto);
+            }
+
+            return BillMapper.mapToBillDto(bill, billProductDtos);
+        }).collect(Collectors.toList());
     }
 //    public List<RevenueDTO> getDailyRevenueForWeekInMonth(int month, int week) {
 //        List<RevenueDTO> revenues = billRepository.findDailyRevenueForWeekInMonth(month, week);

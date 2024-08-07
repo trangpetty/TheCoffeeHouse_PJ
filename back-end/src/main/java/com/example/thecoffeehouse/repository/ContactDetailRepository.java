@@ -18,4 +18,8 @@ public interface ContactDetailRepository extends JpaRepository<ContactDetails, L
 
     @Query("SELECT ct FROM ContactDetails ct WHERE (ct.ownerID = :userId) AND (ct.ownerType = 0) ORDER BY ct.id DESC")
     List<ContactDetails> findByUserId(@Param("userId") Long userId);
+
+    boolean existsByPhoneNumberAndAddressAndName(String phoneNumber, String address, String name);
+
+    ContactDetails findFirstByPhoneNumber(String phoneNumber);
 }

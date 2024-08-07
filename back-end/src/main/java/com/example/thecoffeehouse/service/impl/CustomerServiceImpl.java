@@ -1,24 +1,26 @@
 package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.dto.CustomerDto;
-import com.example.thecoffeehouse.entity.user.Customer;
+import com.example.thecoffeehouse.entity.user.*;
 import com.example.thecoffeehouse.entity.mapper.CustomerMapper;
-import com.example.thecoffeehouse.entity.user.MembershipLevel;
+import com.example.thecoffeehouse.repository.ContactDetailRepository;
 import com.example.thecoffeehouse.repository.CustomerRepository;
+import com.example.thecoffeehouse.repository.UserRepository;
 import com.example.thecoffeehouse.service.CustomerService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
-    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     private final CustomerRepository customerRepository;
+    private final UserRepository userRepository;
+    private final ContactDetailRepository contactDetailRepository;
 
-    public CustomerServiceImpl (CustomerRepository customerRepository) {
+    public CustomerServiceImpl (CustomerRepository customerRepository, UserRepository userRepository, ContactDetailRepository contactDetailRepository) {
         this.customerRepository = customerRepository;
+        this.userRepository = userRepository;
+        this.contactDetailRepository = contactDetailRepository;
     }
 
 
@@ -66,8 +68,19 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public int getPoint(String phoneNumber) {
-        Customer customer = customerRepository.findByPhoneNumber(phoneNumber);
-        return customer.getPoint();
+        ContactDetails contactDetails = contactDetailRepository.findFirstByPhoneNumber(phoneNumber);
+        if(contactDetails != null) {
+            if(contactDetails.getOwnerType() == OwnerType.USER) {
+                User user =  userRepository.findById(contactDetails.getOwnerID())
+                        .orElseThrow(() -> new RuntimeException("User does not exists"));
+                return user.getPoint();
+            }
+            else {
+                Customer customer = customerRepository.findByPhoneNumber(phoneNumber);
+                return customer.getPoint();
+            }
+        }
+        return 0;
     }
 
     @Override

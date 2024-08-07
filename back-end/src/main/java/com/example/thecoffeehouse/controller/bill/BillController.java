@@ -117,6 +117,11 @@ public class BillController {
         }
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<BillDto>> getBillsByCustomerPhoneNumber(@RequestParam String phoneNumber) {
+        return ResponseEntity.ok(billService.getBillsByPhoneNumberOfCustomer(phoneNumber));
+    }
+
 
 //    @GetMapping("/revenue/monthly")
 //    public ResponseEntity<List<MonthlyDataDTO>> getMonthlyRevenue(@RequestParam int year) {

@@ -85,6 +85,15 @@ public interface BillRepository extends JpaRepository<Bill, Long>{
                                                 @Param("endOfDay") LocalDateTime endOfDay);
 
 
+    @Query("SELECT b FROM Bill b " +
+            "JOIN ContactDetails ct ON b.contactDetailID = ct.id " +
+            "JOIN Customer c ON ct.ownerID = c.id " +
+            "WHERE c.phoneNumber = :phoneNumber " +
+            "AND (b.status = 'pending' " +
+            "OR (b.status != 'pending' AND b.modifyTime = (SELECT MAX(b2.modifyTime) FROM Bill b2 WHERE b2.status != 'pending' AND b2.customerID = c.id)))")
+    List<Bill> findBillsByPhoneNumber(@Param("phoneNumber") String phoneNumber);
+
+
 
 //    @Query("SELECT new com.example.thecoffeehouse.dto.bill.RevenueDTO(p.type, SUM(b.createTime)) FROM Bill b JOIN b.products p GROUP BY p.type")
 //    List<RevenueDTO> findRevenueByProductType();

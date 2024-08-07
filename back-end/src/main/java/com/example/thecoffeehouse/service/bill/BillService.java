@@ -46,4 +46,6 @@ public interface BillService {
     List<Map<String, Object>> getOrdersByMonthAndWeek(int month, int week);
 
     List<Map<String, Object>> getOrdersByDate(LocalDate date);
+
+    List<BillDto> getBillsByPhoneNumberOfCustomer(String phoneNUmber);
 }
