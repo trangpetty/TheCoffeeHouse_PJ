@@ -23,8 +23,8 @@
           <p style="text-align: justify" class="m-0">{{props.selectedProduct.description}}</p>
           <div class="d-flex justify-content-between align-items-center mt-2">
             <div class="mb-0 fs-5 fw-bold text-orange">
-              <span :class="{ 'price-crossed': props.selectedProduct.hasDiscount }">{{ Utils.formatPrice(props.selectedProduct.price) }}</span>
-              <span>{{ Utils.formatPrice(props.selectedProduct.discountPrice) }}</span>
+              <span :class="{ 'price-crossed': props.selectedProduct.hasDiscount }" class="me-2">{{ Utils.formatPrice(props.selectedProduct.price) }}</span>
+              <span v-if="props.selectedProduct.hasDiscount">{{ Utils.formatPrice(props.selectedProduct.discountPrice) }}</span>
             </div>
             <div class="card-product-quantity d-flex align-items-center">
               <div class="btn add-to-cart d-flex align-items-center justify-content-center rounded-circle text-white" @click="quantity--" :class="quantity <= 1 ? 'disabled' :' btn--orange-1' ">
@@ -42,7 +42,7 @@
         <el-icon class="card-product-note-icon fs-5"><Tickets /></el-icon>
         <input class="card-product-text" placeholder="Ghi chú thêm cho món này" />
       </section>
-      <section class="card-product_size">
+      <section class="card-product_size" v-if="props.selectedProduct.productSizes.length">
         <div class="card-product-option">
           <span class="card-product-option-text">CHỌN SIZE (BẮT BUỘC)</span>
         </div>
@@ -181,7 +181,9 @@ const addToCart = async () => {
       },
       description: props.selectedProduct.description,
       price: props.selectedProduct.price,
-      images: props.selectedProduct.images
+      images: props.selectedProduct.images,
+      hasDiscount: props.selectedProduct.hasDiscount,
+      discountPrice: props.selectedProduct.discountPrice
     };
 
     if (props.addCart) {
@@ -252,12 +254,16 @@ const toggleLike = async () => {
 
 watch(() => props.selectedProduct, () => {
   // Initialize selected size
-  if (props.selectedProduct && props.selectedProduct.selectedSize) {
-    selectedSize.value = props.selectedProduct.selectedSize;
-  } else if (props.selectedProduct && props.selectedProduct.productSizes) {
-    selectedSize.value = props.selectedProduct.productSizes.reduce((max, item) => {
-      return item.surcharge > max.surcharge ? item : max;
-    });
+  if (props.selectedProduct) {
+    if (Object.keys(props.selectedProduct.selectedSize || {}).length > 0) {
+      // If `selectedSize` is defined and not an empty object
+      selectedSize.value = props.selectedProduct.selectedSize;
+    } else if (props.selectedProduct.productSizes && props.selectedProduct.productSizes.length > 0) {
+      // If `productSizes` is defined and not an empty array
+      selectedSize.value = props.selectedProduct.productSizes.reduce((max, item) => {
+        return item.surcharge > max.surcharge ? item : max;
+      });
+    }
   }
 
   // Initialize selected topping
@@ -281,7 +287,7 @@ watch(() => props.selectedProduct, () => {
     quantity.value = props.selectedProduct.quantity;
   }
 
-  console.log(image.value)
+  console.log("product", props.selectedProduct)
 }, { immediate: true });
 
 </script>
@@ -336,12 +342,6 @@ watch(() => props.selectedProduct, () => {
   background-color: var(--white);
   border-radius: 0.5rem;
   cursor: pointer;
-}
-
-.price-crossed {
-  text-decoration: line-through;
-  color: var(--smoky-gray-2)!important;
-  margin-right: 1rem;
 }
 
 .product-title_name {

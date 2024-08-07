@@ -284,11 +284,6 @@ a {
   margin-right: var(--space-16);
 }
 
-.price-crossed {
-  text-decoration: line-through;
-  color: var(--smoky-gray-2)!important;
-}
-
 .option_title {
   font-weight: 400;
   font-size: 16px;

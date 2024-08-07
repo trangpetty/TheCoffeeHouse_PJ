@@ -3,7 +3,7 @@
     <template #header="{close}">
       <div class="d-flex align-items-center w-100 pt-3" v-if="!ui.showDetail">
         <h4 class="mx-auto my-0 fs-6">Khuyến mãi</h4>
-        <font-awesome-icon icon="fa-solid fa-xmark" class="cursor-pointer" @click="close"/>
+        <font-awesome-icon icon="fa-solid fa-xmark" class="cursor-pointer fs-6 px-2" @click="close"/>
       </div>
       <div class="d-flex align-items-center w-100 p-3" v-if="ui.showDetail">
         <font-awesome-icon icon="fa-solid fa-chevron-left" @click="ui.showDetail = false" class="cursor-pointer"/>
@@ -13,9 +13,20 @@
     <div v-if="!ui.showDetail">
       <div class="align-items-center mb-3 d-flex position-relative delivery__input p-0">
         <font-awesome-icon icon="fa-solid fa-expand" class="px-3"/>
-        <input placeholder="Nhập mã khuyến mãi" class="form-control form-control--custom border-0"/>
+        <input
+            placeholder="Nhập mã khuyến mãi"
+            class="form-control form-control--custom border-0"
+            v-model="code"
+            @input="checkInput"
+        />
         <div class="input-group-prepend">
-          <button class="btn btn--smoky-gray rounded-end">Áp dụng</button>
+          <button
+              class="btn rounded-end"
+              :class="{'btn--smoky-gray': !ui.code, 'btn--orange-1': ui.code}"
+              @click="searchCode"
+          >
+            Áp dụng
+          </button>
         </div>
       </div>
       <div>
@@ -23,13 +34,30 @@
           <div class="sale-title">Sẵn sàng sử dụng</div>
         </div>
         <div class="pt-4 pb-5">
-          <div class="sale-card mb-2 cursor-pointer" v-for="(item, index) in vouchers" :key="index">
+          <div v-if="foundVoucher.image" class="sale-card mb-2 cursor-pointer">
             <div class="d-flex align-items-center voucher-content">
-              <div class="sale-card-image d-flex justify-content-center">
+              <div class="sale-card-image d-flex justify-content-center" @click="showDetail(foundVoucher)">
+                <img :src="foundVoucher.image" alt="">
+              </div>
+              <div class="sale-card-content d-flex flex-column justify-content-between">
+                <p class="text-description mb-0" @click="showDetail(foundVoucher)">{{ foundVoucher.name }}</p>
+                <p class="text-expired-time-10days" v-if="(getDaysUntilExpiration(foundVoucher.applyTo)) < 10">
+                  Hết hạn trong {{ getDaysUntilExpiration(foundVoucher.applyTo) }} ngày
+                </p>
+                <p class="text-expired-time" v-else>
+                  Hết hạn {{ formatDate(foundVoucher.applyTo) }}
+                </p>
+                <span class="use-now" @click="handleSelect(foundVoucher)">Sử dụng ngay</span>
+              </div>
+            </div>
+          </div>
+          <div v-else class="sale-card mb-2 cursor-pointer" v-for="(item, index) in vouchers" :key="index">
+            <div class="d-flex align-items-center voucher-content">
+              <div class="sale-card-image d-flex justify-content-center" @click="showDetail(item)">
                 <img :src="item.image" alt="">
               </div>
               <div class="sale-card-content d-flex flex-column justify-content-between">
-                <p class="text-description mb-0">{{item.name}}</p>
+                <p class="text-description mb-0" @click="showDetail(item)">{{item.name}}</p>
                 <p class="text-expired-time-10days" v-if="(getDaysUntilExpiration(item.applyTo)) < 10">
                   Hết hạn trong {{ getDaysUntilExpiration(item.applyTo) }} ngày
                 </p>
@@ -67,7 +95,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted } from "vue";
+import {computed, ref, onMounted, watch} from "vue";
 import { useStore } from 'vuex';
 import axiosClient from "@/utils/axiosConfig";
 import { ElMessage } from 'element-plus'
@@ -80,9 +108,12 @@ const user = computed(() => store.getters.user);
 
 const vouchers = ref([]);
 const selectedVoucher = ref({});
+const foundVoucher = ref({});
+const code = ref('');
 
 const ui = ref({
-  showDetail: false
+  showDetail: false,
+  code: false
 });
 
 const closeDialog = () => {
@@ -90,11 +121,22 @@ const closeDialog = () => {
 }
 
 const getVouchers = async () => {
-  const response = await axiosClient.get(`/vouchers/all?userID=${user.value.id}`);
+  let response;
+  if(user.value.id) {
+    response = await axiosClient.get(`/vouchers/all?userId=${user.value.id}`);
+  }
+  else {
+    response = await axiosClient.get(`/vouchers/all`);
+  }
   if(response.status == 200) {
     vouchers.value = response.data;
   }
 };
+
+const searchCode = async () => {
+  const response = await axiosClient.get(`/vouchers/find-by-code?code=${code.value}`);
+  foundVoucher.value = response.data;
+}
 
 const getDaysUntilExpiration = (applyTo: string) => {
   const expiredDate = new Date(applyTo)
@@ -110,6 +152,18 @@ const formatDate = (dateString: string) => {
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
 };
+
+const showDetail = (item: object) => {
+  selectedVoucher.value = item;
+  ui.value.showDetail = true;
+}
+
+const checkInput = () => {
+  if(code.value.trim() !== '') {
+    ui.value.code = true;
+  }
+  else foundVoucher.value = {};
+}
 
 const handleSelect = (voucher: Record<string, any>) => {
   const totalCost = cartItems.value.reduce((total, item) => total + item.cost, 0);
@@ -145,11 +199,12 @@ const copyToClipboard = (text) => {
 }
 
 onMounted(() => {
-  console.log(user)
-  if (user.value.id) {
-    getVouchers();
-  }
-});
+  getVouchers();
+})
+
+watch(user, (newUser) => {
+  getVouchers();
+})
 
 </script>
 

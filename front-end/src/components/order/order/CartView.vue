@@ -257,9 +257,12 @@ var totalValue = computed(() => {
 
   // Adjust total cost based on voucher type
   if (cost >= voucher.value.minimumOrderValue && totalQuantity.value >= voucher.value.minimumItems) {
-    if(voucher.value.voucherType == 'percentage') {
+    if(voucher.value.voucherType == 'percentage'|| voucher.value.voucherType == 'Silver' || voucher.value.voucherType == 'Gold') {
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      discount.value = cost * voucher.value.discountValue;
+      discount.value = (cost * voucher.value.discountValue) / 100;
+    }
+    else if(voucher.value.voucherType == 'Gold' && voucher.value.description.toLowerCase().includes('freeship')) {
+      discount.value = feeship.value;
     }
     else {
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
@@ -345,7 +348,7 @@ watch(errorMessage, (newErrorMessage) => {
 watch([user, voucher, totalCost, totalValue, address], ([newUser, newVoucher, newTotalCost, newTotalValue, newAddress]) => {
   formData.value.userID = newUser?.id || null;
   formData.value.voucherID = newVoucher?.id || null;
-  formData.value.ValueOfVoucher = discount.value;
+  formData.value.valueOfVoucher = discount.value;
   formData.value.totalValue = newTotalCost;
   formData.value.value = newTotalValue;
   formData.value.address = newAddress;

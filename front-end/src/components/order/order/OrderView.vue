@@ -37,8 +37,9 @@
                     <div class="mb-0">{{ item.name }}</div>
                   </div>
                   <div class="d-flex align-items-center justify-content-between">
-                    <p class="mb-0">
-                      <span class="d-block" style="font-size: 0.875rem">{{ formatPrice(item.price) }}</span>
+                    <p class="mb-0 d-flex align-items-center">
+                      <span class="d-block me-2" :class="{ 'price-crossed': item.hasDiscount }" style="font-size: 0.875rem">{{ formatPrice(item.price) }}</span>
+                      <span class="d-block" style="font-size: 0.875rem" v-if="item.hasDiscount">{{ formatPrice(item.discountPrice) }}</span>
                     </p>
                     <div class="btn btn--orange-1 add-to-cart d-flex align-items-center justify-content-center rounded-circle text-white" @click="() => showProductModal(item)">
                       <font-awesome-icon icon="fa-solid fa-plus" />
@@ -124,6 +125,7 @@ const handleChangeType = async (id: number, name: string, event: Event) => {
   if(name == 'Topping') {
     const response = await axiosClient.get(`/topping`);
     products.value = response.data;
+    console.log("topping: ", products.value)
   }
   else {
     const response = await axiosClient.get(`/products/type/${id}?userID=`);
@@ -136,7 +138,6 @@ const formatPrice = (price: number): string => {
 };
 
 const showProductModal = async (product) => {
-  console.log("user id: ", user.value.id);
   // selectedProduct.value = product;
   store.dispatch('setProductDialog', product);
 };

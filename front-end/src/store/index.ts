@@ -20,6 +20,8 @@ interface Product {
     selectedTopping: Topping;
     description: string;
     images: any[];
+    hasDiscount: boolean;
+    discountPrice: number;
 }
 
 interface Size {

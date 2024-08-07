@@ -146,12 +146,21 @@
                       <p>{{Utils.formatPrice(18000)}}</p>
                     </div>
                   </div>
-                  <div class="d-flex align-items-center justify-content-between border-bottom pt-3" v-if="bill.usedCustomerPoints">
-                    <div>
-                      <p class="order-card__text">Sử dụng điểm: {{ bill.usedCustomerPoints }}</p>
+                  <div class="border-bottom d-flex flex-column mt-4 pb-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <div>
+                        <el-text class="h5 text-primary">Khuyến mãi</el-text>
+                        <p class="m-0">{{voucher.name}}</p>
+                      </div>
+                      <h6 class="mb-0">-{{ bill.valueOfVoucher ? Utils.formatPrice(bill.valueOfVoucher) : (voucher.discountValue + '%') }}</h6>
                     </div>
-                    <div>
-                      <p>- {{Utils.formatPrice(bill.totalValue - bill.value)}}</p>
+                    <div class="d-flex align-items-center justify-content-between pt-3" v-if="bill.usedCustomerPoints">
+                      <div>
+                        <p class="order-card__text">Sử dụng điểm: {{ bill.usedCustomerPoints }}</p>
+                      </div>
+                      <div>
+                        <p>- {{Utils.formatPrice(bill.totalValue - bill.value)}}</p>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -204,6 +204,11 @@
   margin-right: -1px;
 }
 
+.price-crossed {
+  text-decoration: line-through;
+  color: var(--smoky-gray-2)!important;
+}
+
 .pagination {
   margin-top: 1rem;
   justify-content: center;
