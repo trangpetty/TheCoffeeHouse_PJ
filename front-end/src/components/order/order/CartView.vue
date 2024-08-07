@@ -112,7 +112,7 @@
                       <p>{{formatPrice(18000)}}</p>
                     </div>
                   </div>
-                  <div class="d-flex align-items-center justify-content-between border-bottom pt-3">
+                  <div class="d-flex align-items-center justify-content-between border-bottom pt-3" v-if="!voucher.id">
                     <div>
                       <p class="order-card__text">Bạn có mã Freeship trong mục Ưu đãi</p>
                     </div>
@@ -289,9 +289,15 @@ const handleBlur = async () => {
   const phoneNumber = formData.value.contactDetail.phoneNumber;
   if (validatePhoneNumber(phoneNumber)) {
     ui.value.showError = false;
-    if(user.value != {}) {
+    if (user.value != {}) {
       const response = await axiosClient.get(`/customers/get-point?phoneNumber=${phoneNumber}`);
       customerPoint.value = response.data;
+    }
+    if (voucher.value && voucher.value.id) {
+      const response = await axiosClient.get(`/vouchers/find-by-phone-number?voucherID=${voucher.value.id}&phoneNumber=${phoneNumber}`);
+      if (response.data == 'fail') {
+        handleClearVoucher();
+      }
     }
   } else {
     ui.value.showError = true;
@@ -345,13 +351,12 @@ watch(errorMessage, (newErrorMessage) => {
   }
 });
 
-watch([user, voucher, totalCost, totalValue, address], ([newUser, newVoucher, newTotalCost, newTotalValue, newAddress]) => {
+watch([user, voucher, totalCost, totalValue], ([newUser, newVoucher, newTotalCost, newTotalValue]) => {
   formData.value.userID = newUser?.id || null;
   formData.value.voucherID = newVoucher?.id || null;
   formData.value.valueOfVoucher = discount.value;
   formData.value.totalValue = newTotalCost;
   formData.value.value = newTotalValue;
-  formData.value.address = newAddress;
 });
 
 watch(cartItems, (newCartItems) => {
@@ -360,6 +365,17 @@ watch(cartItems, (newCartItems) => {
     setTimeout(() => {
       router.push('/'); // Replace 'home' with your actual home route name
     }, 2000);
+  }
+});
+
+watch(voucher, async (newVoucher) => {
+  if (formData.value.contactDetail.phoneNumber) {
+    if (newVoucher && newVoucher.id) {
+      const response = await axiosClient.get(`/vouchers/find-by-phone-number?voucherID=${newVoucher.id}&phoneNumber=${formData.value.contactDetail.phoneNumber}`);
+      if (response.data == 'fail') {
+        handleClearVoucher();
+      }
+    }
   }
 });
 
