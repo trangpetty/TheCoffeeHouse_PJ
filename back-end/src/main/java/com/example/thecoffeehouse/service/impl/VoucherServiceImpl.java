@@ -2,11 +2,12 @@ package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.Utils.DateTimeConverter;
 import com.example.thecoffeehouse.dto.VoucherDto;
+import com.example.thecoffeehouse.entity.user.User;
+import com.example.thecoffeehouse.entity.user.UserVoucher;
 import com.example.thecoffeehouse.entity.voucher.Voucher;
 import com.example.thecoffeehouse.entity.mapper.VoucherMapper;
 import com.example.thecoffeehouse.entity.voucher.VoucherType;
-import com.example.thecoffeehouse.repository.VoucherRepository;
-import com.example.thecoffeehouse.repository.VoucherTypeRepository;
+import com.example.thecoffeehouse.repository.*;
 import com.example.thecoffeehouse.repository.bill.BillRepository;
 import com.example.thecoffeehouse.service.VoucherService;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -29,12 +31,18 @@ public class VoucherServiceImpl implements VoucherService {
     private final VoucherTypeRepository voucherTypeRepository;
     private final DateTimeConverter dateTimeConverter;
     private final BillRepository billRepository;
+    private final UserRepository userRepository;
+    private final CustomerRepository customerRepository;
+    private final UserVoucherRepository userVoucherRepository;
 
-    public VoucherServiceImpl(VoucherRepository voucherRepository, VoucherTypeRepository voucherTypeRepository, DateTimeConverter dateTimeConverter, BillRepository billRepository) {
+    public VoucherServiceImpl(VoucherRepository voucherRepository, VoucherTypeRepository voucherTypeRepository, DateTimeConverter dateTimeConverter, BillRepository billRepository, UserRepository userRepository, CustomerRepository customerRepository, UserVoucherRepository userVoucherRepository) {
         this.voucherRepository = voucherRepository;
         this.voucherTypeRepository = voucherTypeRepository;
         this.dateTimeConverter = dateTimeConverter;
         this.billRepository = billRepository;
+        this.userRepository = userRepository;
+        this.customerRepository = customerRepository;
+        this.userVoucherRepository = userVoucherRepository;
     }
 
     @Override
@@ -72,8 +80,9 @@ public class VoucherServiceImpl implements VoucherService {
         Page<Voucher> vouchers = voucherRepository.getAllVouchers(name, status, applyFromConverted, applyToConverted, pageable);
 
         return vouchers.map(voucher -> {
-            Optional<VoucherType> optionalVoucherType = voucherTypeRepository.findById(voucher.getVoucherTypeID());
-            VoucherType voucherType = optionalVoucherType.orElseThrow(() -> new RuntimeException("VoucherType not found"));
+            VoucherType voucherType = voucherTypeRepository
+                    .findById(voucher.getVoucherTypeID())
+                    .orElseThrow(() -> new RuntimeException("VoucherType not found"));
             return VoucherMapper.mapToVoucherDto(voucher, voucherType);
         });
     }
@@ -123,37 +132,43 @@ public class VoucherServiceImpl implements VoucherService {
         }).collect(Collectors.toList());
     }
 
-    public List<VoucherDto> getVouchers(Long userId) {
+    public List<VoucherDto> getVouchersByUserId(Long userId) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime firstDayOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
         LocalDateTime lastDayOfMonth = now.withDayOfMonth(YearMonth.from(now).lengthOfMonth()).withHour(23).withMinute(59).withSecond(59);
-
         List<Voucher> vouchers = voucherRepository.getVouchers(firstDayOfMonth, lastDayOfMonth);
 
-        if (userId != null) {
-            return vouchers.stream().filter(voucher -> {
-                // Check if the user has already used this voucher
-                boolean alreadyUsed = billRepository.existsByUserIDAndVoucherID(userId, voucher.getId());
+        // Lấy các voucher mà người dùng có quyền sử dụng từ bảng UserVoucher
+        List<Voucher> userVouchers = userVoucherRepository.findByUserID(userId);
 
-                // Check other conditions like voucher validity
-                boolean valid = now.isBefore(voucher.getApplyTo()) && now.isAfter(voucher.getApplyFrom());
+        // Kết hợp voucher từ cả hai nguồn
+        List<Voucher> allVouchers = new ArrayList<>();
+        allVouchers.addAll(vouchers);
+        allVouchers.addAll(userVouchers);
 
-                return !alreadyUsed && valid;
-            }).map(voucher -> {
-                Optional<VoucherType> optionalVoucherType = voucherTypeRepository.findById(voucher.getVoucherTypeID());
-                VoucherType voucherType = optionalVoucherType.orElse(null); // Return null if VoucherType is not found
-                assert voucherType != null;
-                return VoucherMapper.mapToVoucherDto(voucher, voucherType);
-            }).collect(Collectors.toList());
-        } else {
-            // Handle case when userId is null
-            return vouchers.stream().map(voucher -> {
-                Optional<VoucherType> optionalVoucherType = voucherTypeRepository.findById(voucher.getVoucherTypeID());
-                VoucherType voucherType = optionalVoucherType.orElse(null); // Return null if VoucherType is not found
-                assert voucherType != null;
-                return VoucherMapper.mapToVoucherDto(voucher, voucherType);
-            }).collect(Collectors.toList());
-        }
+        // Loại bỏ các voucher trùng lặp (nếu có)
+        List<Voucher> uniqueVouchers = allVouchers.stream()
+                .distinct()
+                .collect(Collectors.toList());
+
+        return uniqueVouchers.stream().filter(voucher -> {
+            // Kiểm tra nếu người dùng đã sử dụng voucher này
+            boolean alreadyUsed = billRepository.existsByUserIDAndVoucherID(userId, voucher.getId());
+            log.info("voucher used: {}", alreadyUsed);
+
+            // Kiểm tra các điều kiện khác như hiệu lực của voucher
+            boolean valid = now.isBefore(voucher.getApplyTo()) && now.isAfter(voucher.getApplyFrom());
+            log.info("voucher valid: {}", valid);
+
+            // Chỉ trả về các voucher chưa sử dụng và còn hiệu lực
+            return !alreadyUsed && valid;
+        }).map(voucher -> {
+            VoucherType voucherType = voucherTypeRepository
+                    .findById(voucher.getVoucherTypeID())
+                    .orElseThrow(() -> new RuntimeException("VoucherType not found"));
+            assert voucherType != null;
+            return VoucherMapper.mapToVoucherDto(voucher, voucherType);
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -171,8 +186,51 @@ public class VoucherServiceImpl implements VoucherService {
         Voucher voucher = voucherRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Voucher not found"));
-        Optional<VoucherType> optionalVoucherType = voucherTypeRepository.findById(voucher.getVoucherTypeID());
-        VoucherType voucherType = optionalVoucherType.orElseThrow(() -> new RuntimeException("VoucherType not found"));
+        VoucherType voucherType = voucherTypeRepository
+                .findById(voucher.getVoucherTypeID())
+                .orElseThrow(() -> new RuntimeException("VoucherType not found"));
         return VoucherMapper.mapToVoucherDto(voucher, voucherType);
+    }
+
+    @Override
+    public VoucherDto getVoucherByCode(String code) {
+        Voucher voucher = voucherRepository.findByCode(code);
+        VoucherType voucherType = voucherTypeRepository
+                .findById(voucher.getVoucherTypeID())
+                .orElseThrow(() -> new RuntimeException("VoucherType not found"));
+        log.info("voucher: {}", voucher);
+
+        return VoucherMapper.mapToVoucherDto(voucher, voucherType);
+    }
+
+    @Override
+    public void assignVouchersToUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Xác định cấp độ thành viên của người dùng
+        String membershipLevel = user.getMembershipLevel();
+
+        // Tìm các voucher phù hợp với cấp độ thành viên
+        List<Voucher> vouchers = voucherRepository.findByVoucherTypeID(
+                getVoucherTypeIdForMembershipLevel(membershipLevel)
+        );
+
+        // Cấp phát các voucher cho người dùng
+        for (Voucher voucher : vouchers) {
+            UserVoucher userVoucher = userVoucherRepository.findByUserIDAndAndVoucherID(userId, voucher.getId());
+            if (userVoucher == null) {
+                userVoucher = new UserVoucher();
+                userVoucher.setUserID(userId);
+                userVoucher.setVoucherID(voucher.getId());
+                userVoucher.setCreateTime(LocalDateTime.now());
+                userVoucherRepository.save(userVoucher);
+            }
+        }
+    }
+
+    private Long getVoucherTypeIdForMembershipLevel(String membershipLevel) {
+        VoucherType voucherType = voucherTypeRepository.findByType(membershipLevel);
+        return voucherType.getId();
     }
 }

@@ -19,11 +19,15 @@ public interface VoucherService {
 
     List<VoucherDto> getVouchers();
 
-    List<VoucherDto> getVouchers(Long userID);
+    List<VoucherDto> getVouchersByUserId(Long userID);
 
     VoucherType createVoucherType(VoucherType voucherType);
 
     List<VoucherType> getVoucherTypes();
 
     VoucherDto getVoucherById(Long id);
+
+    VoucherDto getVoucherByCode(String code);
+
+    void assignVouchersToUser(Long userId);
 }

@@ -36,7 +36,8 @@ public interface BillRepository extends JpaRepository<Bill, Long>{
 
     List<Bill> findByUserIDOrderByModifyTimeDesc (Long userID);
 
-    boolean existsByUserIDAndVoucherID(Long userID, Long voucherID);
+    @Query("SELECT COUNT(b.id) > 0 FROM Bill b WHERE b.userID = :userID AND b.voucherID = :voucherID AND b.status = 'success'")
+    boolean existsByUserIDAndVoucherID(@Param("userID") Long userID, @Param("voucherID") Long voucherID);
 
     Bill findByCode(String code);
 

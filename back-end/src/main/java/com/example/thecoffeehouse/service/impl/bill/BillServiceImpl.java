@@ -273,8 +273,6 @@ public class BillServiceImpl implements BillService {
                     user.setPoint(currentPoints - bill.getUsedCustomerPoints() + bill.getValueOfCustomerPoint());
                     userRepository.save(user);
                     userService.updateMemberLevel(user);
-
-                    log.info("Updated points for user: {}", user.getPoint());
                 }
                 else {
                     Customer customer = customerRepository.findById(bill.getCustomerID())
@@ -284,8 +282,6 @@ public class BillServiceImpl implements BillService {
                     customer.setPoint(currentPoints - bill.getUsedCustomerPoints() + bill.getValueOfCustomerPoint());
                     customerRepository.save(customer);
                     customerService.updateMemberLevel(customer);
-
-                    log.info("Updated points for customer: {}", customer.getPoint());
                 }
             }
             billRepository.save(bill);

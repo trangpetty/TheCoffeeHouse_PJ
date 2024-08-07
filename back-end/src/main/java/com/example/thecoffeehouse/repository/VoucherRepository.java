@@ -19,7 +19,7 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long>{
             "AND (:status IS NULL OR v.status = :status) " +
             "AND (:applyFrom IS NULL OR v.applyFrom >= :applyFrom) " +
             "AND (:applyTo IS NULL OR v.applyTo <= :applyTo) " +
-            "AND (v.applyTo >= :applyFrom) " +  // Ensure the voucher applies after the requested start date
+            "AND (v.applyTo >= :applyFrom) " +
             "ORDER BY v.id DESC")
     Page<Voucher> getAllVouchers(@Param("name") String name, @Param("status") int status, @Param("applyFrom") LocalDateTime applyFrom, @Param("applyTo") LocalDateTime applyTo, Pageable pageable);
 
@@ -29,4 +29,8 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long>{
             "AND (:applyTo IS NULL OR v.applyTo <= :applyTo) " +
             "ORDER BY v.id DESC")
     List<Voucher> getVouchers(@Param("applyFrom") LocalDateTime applyFrom, @Param("applyTo") LocalDateTime applyTo);
+
+    Voucher findByCode(String code);
+
+    List<Voucher> findByVoucherTypeID(long voucherTypeID);
 }

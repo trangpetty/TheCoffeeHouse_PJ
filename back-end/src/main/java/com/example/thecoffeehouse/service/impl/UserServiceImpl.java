@@ -7,6 +7,7 @@ import com.example.thecoffeehouse.entity.mapper.UserMapper;
 import com.example.thecoffeehouse.repository.UserRepository;
 import com.example.thecoffeehouse.repository.UserRoleRepository;
 import com.example.thecoffeehouse.service.UserService;
+import com.example.thecoffeehouse.service.VoucherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -21,10 +22,12 @@ public class UserServiceImpl implements UserService {
     private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
+    private final VoucherService voucherService;
 
-    public UserServiceImpl(UserRepository userRepository, UserRoleRepository userRoleRepository) {
+    public UserServiceImpl(UserRepository userRepository, UserRoleRepository userRoleRepository, VoucherService voucherService) {
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
+        this.voucherService = voucherService;
     }
 
     @Override
@@ -108,6 +111,14 @@ public class UserServiceImpl implements UserService {
         int points = user.getPoint();
         MembershipLevel newLevel = MembershipLevel.getLevel(points);
         user.setMembershipLevel(newLevel.getName());
+
+        if (points == newLevel.getMinPoints()) {
+            log.info("Condition met, assigning vouchers. Points: {}", points);
+            voucherService.assignVouchersToUser(user.getId());
+        } else {
+            log.info("Condition not met. Points: {}", newLevel.getMinPoints());
+        }
+
         userRepository.save(user);
     }
 

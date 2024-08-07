@@ -40,14 +40,19 @@ public class VoucherController {
     @GetMapping("/all")
     public ResponseEntity<List<VoucherDto>> getVouchers(@RequestParam(required = false) Long userId) {
         List<VoucherDto> vouchers;
-
         if (userId != null) {
-            vouchers = voucherService.getVouchers(userId);
+            vouchers = voucherService.getVouchersByUserId(userId);
         } else {
             vouchers = voucherService.getVouchers();
         }
 
         return ResponseEntity.ok(vouchers);
+    }
+
+    @GetMapping("/find-by-code")
+    public ResponseEntity<VoucherDto> getVoucherByCode(@RequestParam String code) {
+        VoucherDto voucherDto = voucherService.getVoucherByCode(code);
+        return ResponseEntity.ok(voucherDto);
     }
 
     @PostMapping
