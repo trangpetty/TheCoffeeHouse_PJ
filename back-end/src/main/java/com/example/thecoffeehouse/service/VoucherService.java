@@ -29,5 +29,7 @@ public interface VoucherService {
 
     VoucherDto getVoucherByCode(String code);
 
+    Boolean getVoucherByPhoneNumber(Long voucherID, String phoneNumber);
+
     void assignVouchersToUser(Long userId);
 }

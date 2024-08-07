@@ -55,6 +55,14 @@ public class VoucherController {
         return ResponseEntity.ok(voucherDto);
     }
 
+    @GetMapping("/find-by-phone-number")
+    public ResponseEntity<String> getVoucherByPhoneNumber(@RequestParam Long voucherID, @RequestParam String phoneNumber) {
+        if(voucherService.getVoucherByPhoneNumber(voucherID, phoneNumber)){
+            return ResponseEntity.ok("fail");
+        }
+        return ResponseEntity.ok("success");
+    }
+
     @PostMapping
     public ResponseEntity<VoucherDto> addVoucher(@RequestBody VoucherDto voucherDto) {
         return new ResponseEntity<>(voucherService.createVoucher(voucherDto), HttpStatus.CREATED);

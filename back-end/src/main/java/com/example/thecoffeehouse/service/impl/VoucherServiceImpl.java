@@ -2,6 +2,8 @@ package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.Utils.DateTimeConverter;
 import com.example.thecoffeehouse.dto.VoucherDto;
+import com.example.thecoffeehouse.entity.user.ContactDetails;
+import com.example.thecoffeehouse.entity.user.OwnerType;
 import com.example.thecoffeehouse.entity.user.User;
 import com.example.thecoffeehouse.entity.user.UserVoucher;
 import com.example.thecoffeehouse.entity.voucher.Voucher;
@@ -34,8 +36,9 @@ public class VoucherServiceImpl implements VoucherService {
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
     private final UserVoucherRepository userVoucherRepository;
+    private final ContactDetailRepository contactDetailRepository;
 
-    public VoucherServiceImpl(VoucherRepository voucherRepository, VoucherTypeRepository voucherTypeRepository, DateTimeConverter dateTimeConverter, BillRepository billRepository, UserRepository userRepository, CustomerRepository customerRepository, UserVoucherRepository userVoucherRepository) {
+    public VoucherServiceImpl(VoucherRepository voucherRepository, VoucherTypeRepository voucherTypeRepository, DateTimeConverter dateTimeConverter, BillRepository billRepository, UserRepository userRepository, CustomerRepository customerRepository, UserVoucherRepository userVoucherRepository, ContactDetailRepository contactDetailRepository) {
         this.voucherRepository = voucherRepository;
         this.voucherTypeRepository = voucherTypeRepository;
         this.dateTimeConverter = dateTimeConverter;
@@ -43,6 +46,7 @@ public class VoucherServiceImpl implements VoucherService {
         this.userRepository = userRepository;
         this.customerRepository = customerRepository;
         this.userVoucherRepository = userVoucherRepository;
+        this.contactDetailRepository = contactDetailRepository;
     }
 
     @Override
@@ -149,7 +153,7 @@ public class VoucherServiceImpl implements VoucherService {
         // Loại bỏ các voucher trùng lặp (nếu có)
         List<Voucher> uniqueVouchers = allVouchers.stream()
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
 
         return uniqueVouchers.stream().filter(voucher -> {
             // Kiểm tra nếu người dùng đã sử dụng voucher này
@@ -201,6 +205,20 @@ public class VoucherServiceImpl implements VoucherService {
         log.info("voucher: {}", voucher);
 
         return VoucherMapper.mapToVoucherDto(voucher, voucherType);
+    }
+
+    @Override
+    public Boolean getVoucherByPhoneNumber(Long voucherID, String phoneNumber) {
+        ContactDetails contactDetails = contactDetailRepository.findFirstByPhoneNumber(phoneNumber);
+        if(contactDetails != null) {
+            if(contactDetails.getOwnerType() == OwnerType.USER) {
+                return billRepository.existsByUserIDAndVoucherID(contactDetails.getOwnerID(), voucherID);
+            }
+            else {
+                return billRepository.existsByCustomerIDAndVoucherID(contactDetails.getOwnerID(), voucherID);
+            }
+        }
+        return false;
     }
 
     @Override

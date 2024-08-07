@@ -69,19 +69,27 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public int getPoint(String phoneNumber) {
         ContactDetails contactDetails = contactDetailRepository.findFirstByPhoneNumber(phoneNumber);
-        if(contactDetails != null) {
-            if(contactDetails.getOwnerType() == OwnerType.USER) {
-                User user =  userRepository.findById(contactDetails.getOwnerID())
-                        .orElseThrow(() -> new RuntimeException("User does not exists"));
+        if (contactDetails != null) {
+            if (contactDetails.getOwnerType() == OwnerType.USER) {
+                User user = userRepository.findById(contactDetails.getOwnerID())
+                        .orElseThrow(() -> new RuntimeException("User does not exist with phone number: " + phoneNumber));
                 return user.getPoint();
-            }
-            else {
+            } else if (contactDetails.getOwnerType() == OwnerType.CUSTOMER) {
                 Customer customer = customerRepository.findByPhoneNumber(phoneNumber);
-                return customer.getPoint();
+                if (customer != null) {
+                    return customer.getPoint();
+                } else {
+                    throw new RuntimeException("Customer does not exist with phone number: " + phoneNumber);
+                }
+            } else {
+                throw new RuntimeException("Unknown owner type for phone number: " + phoneNumber);
             }
+        } else {
+            throw new RuntimeException("ContactDetails does not exist with phone number: " + phoneNumber);
         }
-        return 0;
     }
+
+
 
     @Override
     public void updateMemberLevel(Customer customer) {
