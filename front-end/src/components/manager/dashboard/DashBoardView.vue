@@ -77,7 +77,7 @@
         <Highcharts :options="topProductsChartOptions"></Highcharts>
       </div>
     </div>
-    <div >
+    <div class="d-flex flex-wrap mb-4">
       <div class="box-shadow box chart">
         <div class="d-flex">
           <el-form-item label="Month" class="me-4">
@@ -93,40 +93,45 @@
         </div>
         <Highcharts :options="dailyChartOptions"></Highcharts>
       </div>
-    </div>
-    <div class="box-shadow box chart">
-      <h3>Order Status Statistics</h3>
-      <div class="d-flex justify-content-between align-items-center">
-        <el-form-item label="Report Type">
-          <el-select v-model="selectedReportTypeOrders" style="width: 120px" @change="handleReportTypeOrdersChange">
-            <el-option label="Monthly" value="monthly"></el-option>
-            <el-option label="Yearly" value="yearly"></el-option>
-            <el-option label="Daily" value="daily"></el-option>
-          </el-select>
-        </el-form-item>
+      <div class="box-shadow box chart">
+        <h3>Order Status Statistics</h3>
+        <div class="d-flex justify-content-between align-items-center">
+          <el-form-item label="Report Type">
+            <el-select v-model="selectedReportTypeOrders" style="width: 120px" @change="handleReportTypeOrdersChange">
+              <el-option label="Monthly" value="monthly"></el-option>
+              <el-option label="Yearly" value="yearly"></el-option>
+              <el-option label="Daily" value="daily"></el-option>
+            </el-select>
+          </el-form-item>
 
-        <div>
-          <div class="d-flex justify-content-between">
-            <el-form-item v-if="selectedReportTypeOrders === 'monthly'" label="Month" class="me-4">
-              <el-select v-model="selectedMonthOrders" style="width: 120px" @change="fetchOrderStatusData">
-                <el-option v-for="month in months" :key="month.value" :label="month.label" :value="month.value"></el-option>
-              </el-select>
-            </el-form-item>
+          <div>
+            <div class="d-flex justify-content-between">
+              <el-form-item v-if="selectedReportTypeOrders === 'monthly'" label="Month" class="me-4">
+                <el-select v-model="selectedMonthOrders" style="width: 120px" @change="fetchOrderStatusData">
+                  <el-option v-for="month in months" :key="month.value" :label="month.label" :value="month.value"></el-option>
+                </el-select>
+              </el-form-item>
 
-            <el-form-item v-if="selectedReportTypeOrders === 'monthly'" label="Week">
-              <el-select v-model="selectedWeekOrders" style="width: 120px" @change="fetchOrderStatusData">
-                <el-option v-for="week in weeks" :key="week" :label="'Week ' + week" :value="week"></el-option>
-              </el-select>
+              <el-form-item v-if="selectedReportTypeOrders === 'monthly'" label="Week">
+                <el-select v-model="selectedWeekOrders" style="width: 120px" @change="fetchOrderStatusData">
+                  <el-option v-for="week in weeks" :key="week" :label="'Week ' + week" :value="week"></el-option>
+                </el-select>
+              </el-form-item>
+            </div>
+
+            <el-form-item v-if="selectedReportTypeOrders === 'daily'" label="Date">
+              <el-date-picker v-model="selectedDateOrders" type="date" placeholder="Select Date" @change="fetchOrderStatusData"></el-date-picker>
             </el-form-item>
           </div>
-
-          <el-form-item v-if="selectedReportTypeOrders === 'daily'" label="Date">
-            <el-date-picker v-model="selectedDateOrders" type="date" placeholder="Select Date" @change="fetchOrderStatusData"></el-date-picker>
-          </el-form-item>
         </div>
+        <Highcharts :options="orderStatusChartOptions"></Highcharts>
       </div>
-      <Highcharts :options="orderStatusChartOptions"></Highcharts>
     </div>
+    <div class="box-shadow box chart">
+      <h3>Phân loại nhóm tuổi người dùng</h3>
+      <Highcharts :options="ageGroupChartOptions"></Highcharts>
+    </div>
+
   </div>
 </template>
 
@@ -134,7 +139,6 @@
 import { ref, watch, onMounted } from 'vue';
 import Highcharts from 'vue3-highcharts';
 import axiosClient from '@/utils/axiosConfig';
-import * as Utils from '@/utils/index';
 import moment from 'moment';
 
 // Hàm để lấy tháng hiện tại và tuần hiện tại trong tháng
@@ -224,6 +228,33 @@ const statistics = ref({
   newCustomers: 0,
 });
 
+const ageGroupData = ref({});
+
+const ageGroupChartOptions = ref({
+  chart: {
+    type: 'pie'
+  },
+  title: {
+    text: 'Phân loại nhóm tuổi người dùng'
+  },
+  series: [{
+    name: 'Số lượng người dùng',
+    data: Object.entries(ageGroupData.value).map(([ageGroup, count]) => ({
+      name: ageGroup,
+      y: count
+    }))
+  }],
+  plotOptions: {
+    pie: {
+      allowPointSelect: true,
+      cursor: 'pointer',
+      dataLabels: {
+        enabled: true,
+        format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+      }
+    }
+  }
+});
 
 const orderStatusChartOptions = ref({
   chart: {
@@ -367,6 +398,24 @@ const fetchDailyRevenueData = async () => {
   }
 };
 
+const fetchAgeGroupData = async () => {
+  try {
+    const response = await axiosClient.get('/users/age-groups');
+    const data = response.data;
+
+    // Cập nhật dữ liệu phân loại nhóm tuổi
+    ageGroupData.value = data;
+
+    // Cập nhật tùy chọn biểu đồ
+    ageGroupChartOptions.value.series[0].data = Object.entries(ageGroupData.value).map(([ageGroup, count]) => ({
+      name: ageGroup,
+      y: count
+    }));
+  } catch (error) {
+    console.error('Error fetching age group data:', error);
+  }
+};
+
 const formatValueKMB = (value: number) => {
   if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
   if (value >= 1000) return (value / 1000).toFixed(1) + 'K';
@@ -382,6 +431,7 @@ onMounted(() => {
   fetchTopProducts();
   fetchTodayStatistics();
   fetchOrderStatusData();
+  fetchAgeGroupData();
 });
 </script>
 
