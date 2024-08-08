@@ -7,15 +7,17 @@
           <img :src="banner" alt="">
         </a>
       </div>
-      <div v-for="(item, index) in newestProducts" :key="index" class="menu_item">
-        <div class="menu_item_image">
-          <router-link :to="`/product/${item.id}`">
-            <img :src="item.images.length > 0 ? item.images[0].url : ''" alt="">
-          </router-link>
-        </div>
-        <div class="menu_item_info">
-          <h3>{{item.name}}</h3>
-          <div class="price_product_item">{{Utils.formatPrice(item.price)}}</div>
+      <ProductCard v-for="(item, index) in newestProducts" :key="index" :product="item"/>
+    </div>
+    <div v-if="discountProduct" class="mb-3">
+      <h3 class="title">
+        Sản phẩm khuyến mãi
+      </h3>
+      <div class="card-slider-container">
+        <div class="card-slider">
+          <div class="cards-wrapper">
+            <ProductCard v-for="(item, index) in discountProduct" :key="index" :product="item"/>
+          </div>
         </div>
       </div>
     </div>
@@ -25,17 +27,7 @@
     <div class="card-slider-container pt-4">
       <div class="card-slider">
         <div class="cards-wrapper">
-          <div v-for="(item, index) in products" :key="index" class="menu_item">
-            <div class="menu_item_image">
-              <router-link :to="`/product/${item.id}`">
-                <img :src="item.images.length > 0 ? item.images[0].url : ''" alt="">
-              </router-link>
-            </div>
-            <div class="menu_item_info">
-              <h3>{{item.name}}</h3>
-              <div class="price_product_item">{{Utils.formatPrice(item.price)}}</div>
-            </div>
-          </div>
+          <ProductCard v-for="(item, index) in products" :key="index" :product="item"/>
         </div>
       </div>
     </div>
@@ -43,10 +35,10 @@
 </template>
 <script setup lang="ts">
 import banner from "@/assets/images/banner-newest.jpg";
-import * as Utils from "@/utils";
 import Carousel from "@/components/Carousel.vue";
-import {ref, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 import axiosClient from '@/utils/axiosConfig';
+import ProductCard from '@/components/user/main/ProductCard.vue';
 
 const tabs = ref([
   { name: 'most-like', label: 'Yêu thích' },
@@ -58,6 +50,7 @@ const activeName = ref(tabs.value[0].name);
 const type = ref(activeName.value);
 const products = ref([]);
 const newestProducts = ref([]);
+const discountProduct = ref([]);
 
 const setActiveTab = (tabName) => {
   activeName.value = tabName;
@@ -79,8 +72,16 @@ const getNewestProducts = async () => {
   newestProducts.value = response.data;
 }
 
-watch(type, fetchData, { immediate: true });
-getNewestProducts();
+const getDiscountProducts = async () => {
+  const response = await axiosClient.get(`/products/has-discount`);
+  discountProduct.value = response.data;
+}
+
+onMounted(() => {
+  getNewestProducts();
+  fetchData();
+  getDiscountProducts();
+})
 
 </script>
 
@@ -164,50 +165,11 @@ getNewestProducts();
   transition: transform 0.3s ease-in-out;
 }
 
-.menu_item {
-  flex: 0 0 25%;
-  box-sizing: border-box;
-  padding: 10px;
-}
-
-.menu_item .menu_item_image > a {
-  border-radius: 10px;
-  overflow: hidden;
-  display: block;
-  width: 100%;
-  padding-top: 100%;
-  position: relative;
-  box-shadow: 0px 0px 13px 0px #00000040;
-}
-
-.menu_item .menu_item_image > a > img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-}
-
-.menu_item .menu_item_info {
-  padding: var(--space-20) 0 0;
-}
-
-.menu_item .menu_item_info h3 {
-  margin-top: 0;
-  margin-bottom: 4px;
-  font-weight: 600;
-  color: #191919;
-  font-size: 16px;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-}
-
-.menu_item .price_product_item {
-  font-size: 14px;
-  color: #00000099;
-  margin-bottom: 10px;
+.title {
+  font-size: 24px;
+  margin: 24px 0;
+  padding-left: 12px;
+  border-left: 4px solid var(--orange-5);
 }
 
 @media (min-width: 992px) {

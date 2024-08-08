@@ -42,7 +42,7 @@
         <el-icon class="card-product-note-icon fs-5"><Tickets /></el-icon>
         <input class="card-product-text" placeholder="Ghi chú thêm cho món này" />
       </section>
-      <section class="card-product_size" v-if="props.selectedProduct.productSizes.length">
+      <section class="card-product_size" v-if="props.selectedProduct.productSizes && props.selectedProduct.productSizes.length">
         <div class="card-product-option">
           <span class="card-product-option-text">CHỌN SIZE (BẮT BUỘC)</span>
         </div>
@@ -55,12 +55,12 @@
           </el-radio>
         </el-radio-group>
       </section>
-      <section class="card-product_size" v-if="selectedProduct.toppings.length > 0">
+      <section class="card-product_size" v-if="selectedProduct.toppings && selectedProduct.toppings.length > 0">
         <div class="card-product-option">
           <span class="card-product-option-text">CHỌN TOPPING (TÙY CHỌN)</span>
         </div>
       </section>
-      <div v-if="props.selectedProduct.toppings.length">
+      <div v-if="selectedProduct.toppings && props.selectedProduct.toppings.length">
         <div v-for="(topping, index) in props.selectedProduct.toppings" :key="index" class="card-product-option-topping">
           <div class="d-flex flex-column">
             <span class="card-product-option-topping-name">{{ topping.name }}</span>

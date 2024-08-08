@@ -97,7 +97,7 @@
                 <el-input v-model="formData.code" />
               </el-form-item>
               <el-form-item label="Type">
-                <el-select v-model="formData.voucherTypeID">
+                <el-select v-model="formData.voucherTypeID" @change="handleVoucherTypeChange">
                   <el-option v-for="(item, index) in types" :key="index" :label="item.type" :value="item.id"></el-option>
                 </el-select>
               </el-form-item>
@@ -105,7 +105,7 @@
                 <el-input-number v-model="formData.discountValue" :min="0" />
               </el-form-item>
               <el-form-item label="Minimum Order Value">
-                <el-input-number v-model="formData.minimumOrderValue" :min="0" />
+                <el-input v-model="formData.minimumOrderValue" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </el-form-item>
               <el-form-item label="Minimum Items">
                 <el-input-number v-model="formData.minimumItems" :min="0" />
@@ -121,6 +121,41 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
+              <el-form-item v-if="visibleItems.includes('comboPrice')" label="Combo Price">
+                <el-input v-model="formData.comboPrice" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+              </el-form-item>
+              <el-form-item v-if="visibleItems.includes('fixedPrice')" label="Fixed Price">
+                <el-input v-model="formData.fixedPrice" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+              </el-form-item>
+              <el-form-item v-if="visibleItems.includes('fixedPrice')" label="Product Type">
+                <el-select v-model="formData.productType" @change="getProducts">
+                  <el-option v-for="item in productTypes" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="Enable Freeship">
+                <el-switch
+                    v-model="formData.freeShip"
+                    class="ml-2"
+                    style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+                />
+              </el-form-item>
+              <el-form-item v-if="visibleItems.includes('buy1get1')" label="Enable Buy 1 Get 1">
+                <el-switch
+                    v-model="formData.buy1Get1"
+                    class="ml-2"
+                    style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+                />
+              </el-form-item>
+              <el-form-item v-if="visibleItems.includes('buy1get1')" label="Type">
+                <el-select v-model="selectedProductType" @change="getProducts">
+                  <el-option v-for="item in productTypes" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item v-if="visibleItems.includes('buy1get1')" label="Products">
+                <el-select v-model="selectedProducts" multiple>
+                  <el-option v-for="item in products" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                </el-select>
+              </el-form-item>
               <el-form-item label="Apply">
                 <el-date-picker
                     v-model="dateRange"
@@ -190,7 +225,7 @@
 </template>
 
 <script lang="ts" setup>
-import {  ref } from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import axiosClient from '@/utils/axiosConfig';
 import { Edit, Plus, ZoomIn } from "@element-plus/icons-vue";
 import {uploadFileToFirebaseAndGetURL} from "@/utils";
@@ -229,6 +264,11 @@ const formData = ref({
   currentUses: 0,
   status: 0,
   errorMessage: '',
+  comboPrice: 0,
+  fixedPrice: 0,
+  productType: '',
+  freeShip: false,
+  buy1Get1: false,
   applyFrom: null,
   applyTo: null
 })
@@ -238,12 +278,18 @@ const formType = ref({
   description: ''
 })
 
+const selectedProducts = ref([]);
+
 const types = ref([]);
 
 const currentPage = ref(1);
 const total = ref(0);
 const tableData = ref([]);
 const voucher_id = ref(0);
+const products = ref([]);
+const productTypes = ref([]);
+const selectedProductType = ref(1);
+const visibleItems = ref<string[]>([]);
 
 const fetchData = async () => {
   try {
@@ -272,6 +318,56 @@ const getTypes = async () => {
     types.value = result.data;
   }
 }
+
+const updateVisibleItems = () => {
+  const voucherType = types.value.find(type => type.id === formData.value.voucherTypeID);
+  if (voucherType) {
+    switch (voucherType.type) {
+      case 'comboPrice':
+        visibleItems.value = ['comboPrice'];
+        break;
+      case 'fixedPrice':
+        visibleItems.value = ['fixedPrice'];
+        break;
+      case 'buy1get1':
+        visibleItems.value = ['buy1get1'];
+        break;
+      default:
+        visibleItems.value = [];
+        break;
+    }
+  } else {
+    visibleItems.value = [];
+  }
+  console.log('Visible Items:', visibleItems.value); // Debugging line
+};
+
+const handleVoucherTypeChange = (newValue) => {
+  updateVisibleItems(); // Call this function to update visible items based on the new value
+  if (types.value.find(type => type.id === newValue)?.type === 'buy1get1' || types.value.find(type => type.id === newValue)?.type === 'fixedPrice') {
+    getProductTypes();
+  }
+};
+
+
+const getProductTypes = async () => {
+  const response = await axiosClient.get('/product-type');
+  productTypes.value = response.data;
+};
+
+const getProducts = async () => {
+  try {
+    if (selectedProductType.value) {
+      const result = await axiosClient.get(`/products/name/${selectedProductType.value}`);
+      if (result.status === 200) {
+        products.value = result.data;
+        console.log('Products fetched:', products.value);  // Debugging line
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch products:', error);
+  }
+};
 
 const handleUploadChange = (file, newFileList) => {
   fileList.value = newFileList.map(f => ({
@@ -307,7 +403,11 @@ const handleConfirm = async () => {
       }
     }
     console.log(typeof(formData.value.applyFrom))
-    await axiosClient.post('/vouchers', formData.value);
+    await axiosClient.post('/vouchers', {
+      voucherDto: formData.value,
+      voucherProducts: selectedProducts.value
+    });
+
   } else {
     await axiosClient.put(`/vouchers/${voucher_id.value}`, formData.value);
   }
@@ -318,6 +418,7 @@ const handleConfirm = async () => {
 const handleConfirmType = async () => {
   ui.value.typeDialog = false;
   await axiosClient.post('/vouchers/type', formType.value);
+  getTypes();
 }
 
 const resetForm = () => {
@@ -342,7 +443,6 @@ const handleAdd = () => {
   formData.value.image = '';
   formData.value.code = '';
   formData.value.description = '';
-  formData.value.value = 0;
   formData.value.status = 0;
   formData.value.applyFrom = null;
   formData.value.applyTo = null;
@@ -411,11 +511,13 @@ const handleFileInputChange = async (event, fileToEdit) => {
   }
 };
 
-fetchData()
-getTypes()
+onMounted(() => {
+  fetchData();
+  getTypes();
+})
+
+watch(() => formData.value.voucherTypeID, updateVisibleItems);
+watch(() => selectedProductType.value, getProducts);
 
 </script>
 
-<style scoped>
-/* Component-specific styles */
-</style>

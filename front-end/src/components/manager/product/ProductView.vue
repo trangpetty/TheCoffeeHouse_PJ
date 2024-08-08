@@ -149,7 +149,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import axiosClient from '@/utils/axiosConfig';
 import { uploadFileToFirebaseAndGetURL } from "@/utils";
 import { Delete, Edit, Plus, ZoomIn } from '@element-plus/icons-vue';
@@ -257,7 +257,8 @@ const handleEditRow = async (row: object) => {
     formData.value.productSizes = result.data.productSizes;
     formData.value.images = result.data.images;
     formData.value.toppings = result.data.toppings;
-    console.log("edit", formData.value.toppings)
+    formData.value.discountPrice = result.data.discountPrice;
+    formData.value.hasDiscount = result.data.hasDiscount;
     sizeData.value.forEach(size => {
       size.checked = formData.value.productSizes.some(ps => ps.size === size.size);
       if (size.checked) {
@@ -425,6 +426,8 @@ const handleFileInputChange = async (event, fileToEdit) => {
   }
 };
 
-fetchData();
-getTypes();
+onMounted(() => {
+  fetchData();
+  getTypes();
+})
 </script>

@@ -9,17 +9,7 @@
         <div class="col-lg-9 col-md-9 col-sm-12 border_right_before">
           <h3>{{ currentTabLabel }}</h3>
           <div class="menu_lists d-flex flex-wrap">
-            <div v-for="(item, index) in products" :key="index" class="menu_item">
-              <div class="menu_item_image">
-                <router-link :to="`/product/${item.id}`">
-                  <img :src="item.images.length > 0 ? item.images[0].url : ''" alt="">
-                </router-link>
-              </div>
-              <div class="menu_item_info">
-                <h3>{{item.name}}</h3>
-                <div class="price_product_item">{{Utils.formatPrice(item.price)}}</div>
-              </div>
-            </div>
+            <ProductCard v-for="(item, index) in products" :key="index" :product="item"/>
           </div>
         </div>
       </div>
@@ -31,8 +21,8 @@
 import { ref, watch } from 'vue';
 import Sidebar from '@/components/user/menu/Sidebar.vue';
 import axiosClient from "@/utils/axiosConfig";
-import * as Utils from "@/utils";
 import { useRoute } from 'vue-router';
+import ProductCard from '@/components/user/main/ProductCard.vue';
 
 const route = useRoute();
 
@@ -73,52 +63,6 @@ const updateCurrentTabLabel = async (item) => {
   margin-right: -15px;
 }
 
-.menu_item {
-  flex: 0 0 25%;
-  box-sizing: border-box;
-  margin: 0 15px 40px;
-}
-
-.menu_item .menu_item_image > a {
-  border-radius: 10px;
-  overflow: hidden;
-  display: block;
-  width: 100%;
-  padding-top: 100%;
-  position: relative;
-  box-shadow: 0px 0px 13px 0px #00000040;
-}
-
-.menu_item .menu_item_image > a > img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-}
-
-.menu_item .menu_item_info {
-  padding: var(--space-20) 0 0;
-}
-
-.menu_item .menu_item_info h3 {
-  margin-top: 0;
-  margin-bottom: 4px;
-  font-weight: 600;
-  color: #191919;
-  font-size: 16px;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-}
-
-.menu_item .price_product_item {
-  font-size: 14px;
-  color: #00000099;
-  margin-bottom: 10px;
-}
-
 @media (min-width: 992px) {
   .stikySidebar + .border_right_before {
     width: 80.5%;
@@ -131,10 +75,6 @@ const updateCurrentTabLabel = async (item) => {
 
   .border_right_before {
     border-left: 2px solid var(--orange-2);
-  }
-
-  .menu_item {
-    flex: 0 0 calc(33.333% - 30px);
   }
 }
 </style>

@@ -86,19 +86,7 @@
         <div id="product-related">
           <h4 class="fs-4 fw-bold mb-3">Sản phẩm liên quan</h4>
           <div class="list_product_related buy_combo">
-            <div class="menu_item" v-for="(item, index) in filteredProductRelated" :key="index">
-              <div class="menu_item_image">
-                <router-link :to="{ name: 'product', params: { id: item.id } }">
-                  <img :src="item.images[0].url" alt="" class="w-100">
-                </router-link>
-              </div>
-              <div class="menu_item_info">
-                <h3>
-                  <router-link :to="{ name: 'product', params: { id: item.id } }">{{item.name}}</router-link>
-                  <div class="price_product_item mt-2">{{Utils.formatPrice(item.price)}}</div>
-                </h3>
-              </div>
-            </div>
+            <ProductCard v-for="(item, index) in filteredProductRelated" :key="index" :product="item"/>
           </div>
         </div>
       </div>
@@ -113,6 +101,7 @@ import * as Utils from '@/utils';
 import {Coffee} from "@element-plus/icons-vue";
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import ProductCard from '@/components/user/main/ProductCard.vue';
 
 const store = useStore();
 const router = useRouter();
@@ -344,90 +333,6 @@ hr {
 #product-related .buy_combo, #product-buy-combo .buy_combo {
   display: flex;
   flex-wrap: wrap;
-}
-
-#product-related .buy_combo .menu_item {
-  flex: 0 0 calc(16.667% - 30px);
-  margin: 0 15px 40px;
-}
-
-.menu_item {
-  background: #fff;
-  -ms-flex: 0 0 calc(33.333% - 30px);
-  -webkit-flex: 0 0 calc(33.333% - 30px);
-  flex: 0 0 calc(33.333% - 30px);
-  margin: 0 15px 40px;
-  min-height: 145px;
-}
-
-.menu_item_image {
-  position: relative;
-}
-
-.menu_item .menu_item_image > a {
-  border-radius: 10px;
-  overflow: hidden;
-  display: block;
-  width: 100%;
-  padding-top: 100%;
-  position: relative;
-  box-shadow: 0px 0px 13px 0px #00000040;
-}
-
-.menu_item .menu_item_image > a > img {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-.menu_item .menu_item_info {
-  padding: 12px 0 0;
-}
-
-.menu_item .menu_item_info h3 {
-  margin-top: 0;
-  margin-bottom: 4px;
-  font-weight: 600;
-  color: #191919;
-  font-size: 16px;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-}
-
-.menu_item .price_product_item {
-  font-size: 14px;
-  color: #00000099;
-  margin-bottom: 10px;
-}
-
-@media (max-width: 767px) {
-  #product-related .buy_combo .menu_item {
-    flex: 0 0 calc(50% - 30px);
-    margin-left: 15px;
-    margin-right: 15px;
-  }
-
-  .menu_item {
-    -ms-flex: 0 0 calc(50% - 16px);
-    -webkit-flex: 0 0 calc(50% - 16px);
-    flex: 0 0 calc(50% - 16px);
-    margin: 0 8px 16px;
-  }
-}
-
-@media (max-width: 991px) {
-  #product-related .buy_combo .menu_item {
-    flex: 0 0 calc(25% - 30px);
-  }
-
-  .menu_item {
-    -ms-flex: 0 0 calc(50% - 30px);
-    -webkit-flex: 0 0 calc(50% - 30px);
-    flex: 0 0 calc(50% - 30px);
-  }
 }
 
 </style>
