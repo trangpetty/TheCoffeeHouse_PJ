@@ -1,5 +1,6 @@
 package com.example.thecoffeehouse.dto;
 
+import jakarta.persistence.Column;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,11 @@ public class VoucherDto {
     private int currentUses;
     private int status;
     private String errorMessage;
+    private double comboPrice;
+    private double fixedPrice;
+    private String productType;
+    private Boolean freeShip;
+    private Boolean buy1Get1;
     private LocalDateTime applyFrom;
     private LocalDateTime applyTo;
     private LocalDateTime createTime;

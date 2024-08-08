@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ProductRepository extends JpaRepository<Product, Long>{
     @Query("SELECT p FROM Product p WHERE " +
@@ -54,5 +55,10 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
             "FROM Product p " +
             "ORDER BY p.createTime DESC LIMIT 2")
     List<Product> getNewestProducts();
+
+    List<Product> findByHasDiscount(boolean hasDiscount);
+
+    @Query("SELECT p.id AS id, p.name AS name FROM Product p WHERE p.TypeID = :typeId")
+    List<Map<String, Object>> findProductMapsByTypeId(@Param("typeId") Long typeId);
 
 }

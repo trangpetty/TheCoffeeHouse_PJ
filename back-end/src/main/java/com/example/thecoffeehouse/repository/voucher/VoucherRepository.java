@@ -1,4 +1,4 @@
-package com.example.thecoffeehouse.repository;
+package com.example.thecoffeehouse.repository.voucher;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

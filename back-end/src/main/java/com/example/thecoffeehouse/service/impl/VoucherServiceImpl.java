@@ -2,15 +2,20 @@ package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.Utils.DateTimeConverter;
 import com.example.thecoffeehouse.dto.VoucherDto;
+import com.example.thecoffeehouse.dto.user.VoucherRequest;
 import com.example.thecoffeehouse.entity.user.ContactDetails;
 import com.example.thecoffeehouse.entity.user.OwnerType;
 import com.example.thecoffeehouse.entity.user.User;
 import com.example.thecoffeehouse.entity.user.UserVoucher;
 import com.example.thecoffeehouse.entity.voucher.Voucher;
 import com.example.thecoffeehouse.entity.mapper.VoucherMapper;
+import com.example.thecoffeehouse.entity.voucher.VoucherProduct;
 import com.example.thecoffeehouse.entity.voucher.VoucherType;
 import com.example.thecoffeehouse.repository.*;
 import com.example.thecoffeehouse.repository.bill.BillRepository;
+import com.example.thecoffeehouse.repository.voucher.VoucherProductRepository;
+import com.example.thecoffeehouse.repository.voucher.VoucherRepository;
+import com.example.thecoffeehouse.repository.voucher.VoucherTypeRepository;
 import com.example.thecoffeehouse.service.VoucherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +42,9 @@ public class VoucherServiceImpl implements VoucherService {
     private final CustomerRepository customerRepository;
     private final UserVoucherRepository userVoucherRepository;
     private final ContactDetailRepository contactDetailRepository;
+    private final VoucherProductRepository voucherProductRepository;
 
-    public VoucherServiceImpl(VoucherRepository voucherRepository, VoucherTypeRepository voucherTypeRepository, DateTimeConverter dateTimeConverter, BillRepository billRepository, UserRepository userRepository, CustomerRepository customerRepository, UserVoucherRepository userVoucherRepository, ContactDetailRepository contactDetailRepository) {
+    public VoucherServiceImpl(VoucherRepository voucherRepository, VoucherTypeRepository voucherTypeRepository, DateTimeConverter dateTimeConverter, BillRepository billRepository, UserRepository userRepository, CustomerRepository customerRepository, UserVoucherRepository userVoucherRepository, ContactDetailRepository contactDetailRepository, VoucherProductRepository voucherProductRepository) {
         this.voucherRepository = voucherRepository;
         this.voucherTypeRepository = voucherTypeRepository;
         this.dateTimeConverter = dateTimeConverter;
@@ -47,14 +53,25 @@ public class VoucherServiceImpl implements VoucherService {
         this.customerRepository = customerRepository;
         this.userVoucherRepository = userVoucherRepository;
         this.contactDetailRepository = contactDetailRepository;
+        this.voucherProductRepository = voucherProductRepository;
     }
 
     @Override
-    public VoucherDto createVoucher(VoucherDto voucherDto) {
+    public VoucherDto createVoucher(VoucherRequest voucherRequest) {
+        VoucherDto voucherDto = voucherRequest.getVoucherDto();
         VoucherType voucherType = voucherTypeRepository.findById(voucherDto.getVoucherTypeID())
                                                         .orElseThrow(() -> new RuntimeException("VoucherType not found"));
         Voucher voucher = VoucherMapper.mapToVoucher(voucherDto);
         Voucher savedVoucher = voucherRepository.save(voucher);
+        List<Long> voucherProducts = voucherRequest.getVoucherProducts();
+        if(!voucherProducts.isEmpty()) {
+            voucherProducts.forEach(product -> {
+                VoucherProduct voucherProduct = new VoucherProduct();
+                voucherProduct.setVoucherID(savedVoucher.getId());
+                voucherProduct.setProductID(product);
+                voucherProductRepository.save(voucherProduct);
+            });
+        }
         return VoucherMapper.mapToVoucherDto(savedVoucher, voucherType);
     }
 

@@ -1,15 +1,18 @@
 package com.example.thecoffeehouse.controller;
 
 import com.example.thecoffeehouse.dto.VoucherDto;
+import com.example.thecoffeehouse.dto.user.VoucherRequest;
 import com.example.thecoffeehouse.entity.voucher.VoucherType;
 import com.example.thecoffeehouse.service.VoucherService;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -64,8 +67,23 @@ public class VoucherController {
     }
 
     @PostMapping
-    public ResponseEntity<VoucherDto> addVoucher(@RequestBody VoucherDto voucherDto) {
-        return new ResponseEntity<>(voucherService.createVoucher(voucherDto), HttpStatus.CREATED);
+    public ResponseEntity<VoucherDto> addVoucher(@RequestBody VoucherRequest voucherRequest) {
+        if (voucherRequest == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        VoucherDto voucherDto = voucherRequest.getVoucherDto();
+        List<Long> voucherProducts = voucherRequest.getVoucherProducts();
+
+        if (voucherDto == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        // Log the request for debugging
+        System.out.println("Received voucherDto: " + voucherDto);
+        System.out.println("Received voucherProducts: " + voucherProducts);
+
+        return new ResponseEntity<>(voucherService.createVoucher(voucherRequest), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

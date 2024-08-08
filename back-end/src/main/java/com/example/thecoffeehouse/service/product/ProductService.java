@@ -12,6 +12,7 @@ import com.example.thecoffeehouse.dto.product.ProductDto;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface ProductService {
     ProductDto createProduct(ProductDto productDto);
@@ -45,5 +46,9 @@ public interface ProductService {
     List<ProductSalesDto> getTopProductsByMonthAndWeek(int month, int week);
 
     List<ProductSalesDto> getTopProductsByDate(LocalDate date);
+
+    List<ProductDto> getDiscountProducts();
+
+    List<Map<String, Object>> getProductNamesByTypeId(Long typeId);
 
 }

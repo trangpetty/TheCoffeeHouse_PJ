@@ -18,6 +18,7 @@ import com.example.thecoffeehouse.service.product.ProductService;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -121,5 +122,15 @@ public class ProductController {
         } else {
             return productService.getTopProducts(reportType, year, month); // Adjust this method to handle `week` as well
         }
+    }
+
+    @GetMapping("/has-discount")
+    public ResponseEntity<List<ProductDto>> getDiscountProducts() {
+        return ResponseEntity.ok(productService.getDiscountProducts());
+    }
+
+    @GetMapping("/name/{typeId}")
+    public ResponseEntity<List<Map<String, Object>>> getProductNamesByTypeId(@PathVariable Long typeId) {
+        return ResponseEntity.ok(productService.getProductNamesByTypeId(typeId));
     }
 }

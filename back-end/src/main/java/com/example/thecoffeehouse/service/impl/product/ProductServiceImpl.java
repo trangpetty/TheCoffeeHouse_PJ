@@ -3,6 +3,7 @@ package com.example.thecoffeehouse.service.impl.product;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.example.thecoffeehouse.Utils.WeekInMonth;
@@ -280,6 +281,24 @@ public class ProductServiceImpl implements ProductService {
         LocalDateTime endDate = startDate.plusDays(1).minusNanos(1);
 
         return billProductRepository.findTopProductsByPeriod(startDate, endDate, PageRequest.of(0, 5));
+    }
+
+    @Override
+    public List<ProductDto> getDiscountProducts() {
+        List<Product> products = productRepository.findByHasDiscount(true);
+        List<Topping> toppings = toppingRepository.findAll();
+        return products.stream().map(product -> {
+            List<ProductDetailDto> productDetailDtos = ProductMapper.mapToProductDetailDtoList(productDetailRepository.findAllByProductID(product.getId()));
+            List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImageRepository.findAllByProductID(product.getId()));
+            List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppingRepository.findByProductID(product.getId()), toppings);
+
+            return ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Map<String, Object>> getProductNamesByTypeId(Long typeId) {
+        return productRepository.findProductMapsByTypeId(typeId);
     }
 
     private void saveOrUpdateProductDetails(List<ProductDetailDto> productDetailDtos, Product product) {
