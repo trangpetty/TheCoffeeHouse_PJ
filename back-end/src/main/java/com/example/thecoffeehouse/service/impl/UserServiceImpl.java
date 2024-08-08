@@ -17,6 +17,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class UserServiceImpl implements UserService {
     private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
@@ -120,6 +124,41 @@ public class UserServiceImpl implements UserService {
         }
 
         userRepository.save(user);
+    }
+
+    @Override
+    public Map<String, Long> getUserCountByAgeGroups() {
+        LocalDate now = LocalDate.now();
+
+        // Tạo các khoảng độ tuổi
+        LocalDate startDateUnder18 = now.minusYears(18);
+        LocalDate endDateUnder18 = now;
+
+        LocalDate startDate18_24 = now.minusYears(24);
+        LocalDate endDate18_24 = now.minusYears(18).minusDays(1);
+
+        LocalDate startDate25_34 = now.minusYears(34);
+        LocalDate endDate25_34 = now.minusYears(25).minusDays(1);
+
+        LocalDate startDate35_44 = now.minusYears(44);
+        LocalDate endDate35_44 = now.minusYears(35).minusDays(1);
+
+        LocalDate startDate45_54 = now.minusYears(54);
+        LocalDate endDate45_54 = now.minusYears(45).minusDays(1);
+
+        LocalDate startDate55Plus = now.minusYears(120); // Chọn một năm xa để bao phủ toàn bộ tuổi 55+
+        LocalDate endDate55Plus = now.minusYears(55).minusDays(1);
+
+        Map<String, Long> ageGroupCounts = new HashMap<>();
+
+        ageGroupCounts.put("Under 18", (long) userRepository.findUsersByAgeRange(startDateUnder18, endDateUnder18).size());
+        ageGroupCounts.put("18-24", (long) userRepository.findUsersByAgeRange(startDate18_24, endDate18_24).size());
+        ageGroupCounts.put("25-34", (long) userRepository.findUsersByAgeRange(startDate25_34, endDate25_34).size());
+        ageGroupCounts.put("35-44", (long) userRepository.findUsersByAgeRange(startDate35_44, endDate35_44).size());
+        ageGroupCounts.put("45-54", (long) userRepository.findUsersByAgeRange(startDate45_54, endDate45_54).size());
+        ageGroupCounts.put("55+", (long) userRepository.findUsersByAgeRange(startDate55Plus, endDate55Plus).size());
+
+        return ageGroupCounts;
     }
 
 }

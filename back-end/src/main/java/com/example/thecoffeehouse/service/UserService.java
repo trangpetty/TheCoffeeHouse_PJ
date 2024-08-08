@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.util.Map;
+
 public interface UserService {
     UserDetailsService userDetailsService();
 
@@ -20,4 +22,6 @@ public interface UserService {
     UserDto getUser(Long id);
 
     void updateMemberLevel(User user);
+
+    Map<String, Long> getUserCountByAgeGroups();
 }

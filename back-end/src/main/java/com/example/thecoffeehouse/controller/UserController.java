@@ -5,7 +5,6 @@ import com.example.thecoffeehouse.dto.user.*;
 import com.example.thecoffeehouse.entity.user.ContactDetails;
 import com.example.thecoffeehouse.entity.user.User;
 import com.example.thecoffeehouse.repository.ContactDetailRepository;
-import com.example.thecoffeehouse.repository.UserAddressRepository;
 import com.example.thecoffeehouse.service.UserService;
 import com.example.thecoffeehouse.service.bill.BillService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -120,5 +120,10 @@ public class UserController {
     @GetMapping("/bill-total/{id}")
     public ResponseEntity<Double> getTotalBill(@PathVariable Long id) {
         return ResponseEntity.ok(billService.totalValueByUserIDForCurrentYear(id));
+    }
+
+    @GetMapping("/age-groups")
+    public Map<String, Long> getUserCountByAgeGroups() {
+        return userService.getUserCountByAgeGroups();
     }
 }
