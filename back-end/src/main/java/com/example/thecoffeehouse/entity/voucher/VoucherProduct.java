@@ -19,6 +19,11 @@ public class VoucherProduct {
 
     @Column(name = "voucher_id")
     private Long voucherID;
+
     @Column(name = "product_id")
     private Long productID;
+
+    @Column(name = "product_detail_id")
+    private Long productDetailID;
+
 }

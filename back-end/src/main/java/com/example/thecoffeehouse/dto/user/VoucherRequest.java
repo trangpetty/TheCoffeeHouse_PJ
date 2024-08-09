@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 public class VoucherRequest {
     private VoucherDto voucherDto;
-    private List<Long> voucherProducts;
-
+    private List<Long> productIDs;
+    private String size;
 }
 

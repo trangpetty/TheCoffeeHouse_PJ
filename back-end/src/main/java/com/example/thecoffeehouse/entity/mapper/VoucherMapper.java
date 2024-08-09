@@ -21,6 +21,7 @@ public class VoucherMapper {
         voucher.setCurrentUses(voucherDto.getCurrentUses());
         voucher.setStatus(voucherDto.getStatus());
         voucher.setErrorMessage(voucherDto.getErrorMessage());
+        voucher.setProductType(voucherDto.getProductType());
         voucher.setComboPrice(voucherDto.getComboPrice());
         voucher.setFixedPrice(voucherDto.getFixedPrice());
         voucher.setFreeShip(voucherDto.getFreeShip());
@@ -49,6 +50,7 @@ public class VoucherMapper {
         voucherDto.setCurrentUses(voucher.getCurrentUses());
         voucherDto.setStatus(voucher.getStatus());
         voucherDto.setErrorMessage(voucher.getErrorMessage());
+        voucherDto.setProductType(voucher.getProductType());
         voucherDto.setComboPrice(voucher.getComboPrice());
         voucherDto.setFixedPrice(voucher.getFixedPrice());
         voucherDto.setFreeShip(voucher.getFreeShip());

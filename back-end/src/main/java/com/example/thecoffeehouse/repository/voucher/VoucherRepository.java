@@ -24,12 +24,14 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long>{
     Page<Voucher> getAllVouchers(@Param("name") String name, @Param("status") int status, @Param("applyFrom") LocalDateTime applyFrom, @Param("applyTo") LocalDateTime applyTo, Pageable pageable);
 
     @Query("SELECT v FROM Voucher v " +
-            "WHERE "+
-            "(:applyFrom IS NULL OR v.applyFrom >= :applyFrom) " +
+            "WHERE " +
+            "v.status = 0"+
+            "AND (:applyFrom IS NULL OR v.applyFrom >= :applyFrom) " +
             "AND (:applyTo IS NULL OR v.applyTo <= :applyTo) " +
             "ORDER BY v.id DESC")
     List<Voucher> getVouchers(@Param("applyFrom") LocalDateTime applyFrom, @Param("applyTo") LocalDateTime applyTo);
 
+    @Query("SELECT v FROM Voucher v WHERE v.status = 0 AND v.code = :code")
     Voucher findByCode(String code);
 
     List<Voucher> findByVoucherTypeID(long voucherTypeID);

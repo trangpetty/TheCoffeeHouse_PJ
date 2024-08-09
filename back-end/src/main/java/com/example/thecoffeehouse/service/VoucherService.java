@@ -16,7 +16,7 @@ public interface VoucherService {
 
     Page<VoucherDto> getAllVouchers(String name, int status, Date from, Date to, Pageable pageable);
 
-    VoucherDto updateVoucher(Long id, VoucherDto voucherDto);
+    VoucherDto updateVoucher(Long id, VoucherRequest voucherRequest);
 
     List<VoucherDto> getVouchers();
 

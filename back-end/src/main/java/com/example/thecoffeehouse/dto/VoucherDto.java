@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -30,6 +31,8 @@ public class VoucherDto {
     private String productType;
     private Boolean freeShip;
     private Boolean buy1Get1;
+    private List<Long> productIDs;
+    private String size;
     private LocalDateTime applyFrom;
     private LocalDateTime applyTo;
     private LocalDateTime createTime;

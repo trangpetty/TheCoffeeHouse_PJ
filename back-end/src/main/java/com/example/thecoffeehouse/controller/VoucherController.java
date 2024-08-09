@@ -68,27 +68,12 @@ public class VoucherController {
 
     @PostMapping
     public ResponseEntity<VoucherDto> addVoucher(@RequestBody VoucherRequest voucherRequest) {
-        if (voucherRequest == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        VoucherDto voucherDto = voucherRequest.getVoucherDto();
-        List<Long> voucherProducts = voucherRequest.getVoucherProducts();
-
-        if (voucherDto == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        // Log the request for debugging
-        System.out.println("Received voucherDto: " + voucherDto);
-        System.out.println("Received voucherProducts: " + voucherProducts);
-
         return new ResponseEntity<>(voucherService.createVoucher(voucherRequest), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VoucherDto> updateVoucher(@PathVariable("id") Long id, @RequestBody VoucherDto updateVoucherDto) {
-        VoucherDto voucherDto = voucherService.updateVoucher(id, updateVoucherDto);
+    public ResponseEntity<VoucherDto> updateVoucher(@PathVariable("id") Long id, @RequestBody VoucherRequest voucherRequest) {
+        VoucherDto voucherDto = voucherService.updateVoucher(id, voucherRequest);
         return ResponseEntity.ok(voucherDto);
     }
 

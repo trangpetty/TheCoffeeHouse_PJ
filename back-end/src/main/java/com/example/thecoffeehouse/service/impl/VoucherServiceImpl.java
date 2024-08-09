@@ -13,6 +13,7 @@ import com.example.thecoffeehouse.entity.voucher.VoucherProduct;
 import com.example.thecoffeehouse.entity.voucher.VoucherType;
 import com.example.thecoffeehouse.repository.*;
 import com.example.thecoffeehouse.repository.bill.BillRepository;
+import com.example.thecoffeehouse.repository.product.ProductDetailRepository;
 import com.example.thecoffeehouse.repository.voucher.VoucherProductRepository;
 import com.example.thecoffeehouse.repository.voucher.VoucherRepository;
 import com.example.thecoffeehouse.repository.voucher.VoucherTypeRepository;
@@ -43,8 +44,9 @@ public class VoucherServiceImpl implements VoucherService {
     private final UserVoucherRepository userVoucherRepository;
     private final ContactDetailRepository contactDetailRepository;
     private final VoucherProductRepository voucherProductRepository;
+    private final ProductDetailRepository productDetailRepository;
 
-    public VoucherServiceImpl(VoucherRepository voucherRepository, VoucherTypeRepository voucherTypeRepository, DateTimeConverter dateTimeConverter, BillRepository billRepository, UserRepository userRepository, CustomerRepository customerRepository, UserVoucherRepository userVoucherRepository, ContactDetailRepository contactDetailRepository, VoucherProductRepository voucherProductRepository) {
+    public VoucherServiceImpl(VoucherRepository voucherRepository, VoucherTypeRepository voucherTypeRepository, DateTimeConverter dateTimeConverter, BillRepository billRepository, UserRepository userRepository, CustomerRepository customerRepository, UserVoucherRepository userVoucherRepository, ContactDetailRepository contactDetailRepository, VoucherProductRepository voucherProductRepository, ProductDetailRepository productDetailRepository) {
         this.voucherRepository = voucherRepository;
         this.voucherTypeRepository = voucherTypeRepository;
         this.dateTimeConverter = dateTimeConverter;
@@ -54,6 +56,7 @@ public class VoucherServiceImpl implements VoucherService {
         this.userVoucherRepository = userVoucherRepository;
         this.contactDetailRepository = contactDetailRepository;
         this.voucherProductRepository = voucherProductRepository;
+        this.productDetailRepository = productDetailRepository;
     }
 
     @Override
@@ -63,12 +66,15 @@ public class VoucherServiceImpl implements VoucherService {
                                                         .orElseThrow(() -> new RuntimeException("VoucherType not found"));
         Voucher voucher = VoucherMapper.mapToVoucher(voucherDto);
         Voucher savedVoucher = voucherRepository.save(voucher);
-        List<Long> voucherProducts = voucherRequest.getVoucherProducts();
-        if(!voucherProducts.isEmpty()) {
-            voucherProducts.forEach(product -> {
+        List<Long> productIDs = voucherRequest.getProductIDs();
+        if(!productIDs.isEmpty()) {
+            productIDs.forEach(productID -> {
+                String productDetailSize = voucherRequest.getSize();
+                Long productDetailID = productDetailRepository.getProductDetailIdByProductIDAndSize(productID, productDetailSize);
                 VoucherProduct voucherProduct = new VoucherProduct();
                 voucherProduct.setVoucherID(savedVoucher.getId());
-                voucherProduct.setProductID(product);
+                voucherProduct.setProductDetailID(productDetailID);
+                voucherProduct.setProductID(productID);
                 voucherProductRepository.save(voucherProduct);
             });
         }
@@ -81,6 +87,10 @@ public class VoucherServiceImpl implements VoucherService {
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Voucher not found"));
         voucherRepository.deleteById(id);
+
+        List<VoucherProduct> voucherProducts = voucherProductRepository.findByVoucherID(id);
+        voucherProductRepository.deleteAll(voucherProducts);
+
     }
 
     @Override
@@ -95,29 +105,47 @@ public class VoucherServiceImpl implements VoucherService {
         LocalDateTime applyToConverted = applyTo != null ?
                 dateTimeConverter.convertToDateViaInstant(applyTo) : lastDayOfMonth;
 
-        log.info("from: {}", applyFromConverted);
-        log.info("to: {}", applyToConverted);
-
         Page<Voucher> vouchers = voucherRepository.getAllVouchers(name, status, applyFromConverted, applyToConverted, pageable);
+
 
         return vouchers.map(voucher -> {
             VoucherType voucherType = voucherTypeRepository
                     .findById(voucher.getVoucherTypeID())
                     .orElseThrow(() -> new RuntimeException("VoucherType not found"));
-            return VoucherMapper.mapToVoucherDto(voucher, voucherType);
+            VoucherDto voucherDto = VoucherMapper.mapToVoucherDto(voucher, voucherType);
+            List<VoucherProduct> voucherProducts = voucherProductRepository.findByVoucherID(voucher.getId());
+            if (!voucherProducts.isEmpty()) {
+                List<Long> productIDs = new ArrayList<>(); // Initialize the list
+                String size = null;
+
+                for (VoucherProduct voucherProduct : voucherProducts) {
+                    Long productDetailID = voucherProduct.getProductDetailID();
+                    // Retrieve size for the first product detail
+                    if (size == null) {
+                        size = productDetailRepository.getSizeByProductDetailID(productDetailID);
+                    }
+                    // Retrieve product ID
+                    productIDs.add(voucherProduct.getProductID());
+                }
+                voucherDto.setProductIDs(productIDs);
+                voucherDto.setSize(size);
+            }
+            return voucherDto;
         });
     }
 
 
     @Override
-    public VoucherDto updateVoucher(Long id, VoucherDto voucherDto) {
-        Voucher voucher = voucherRepository
-                .findById(id)
+    public VoucherDto updateVoucher(Long id, VoucherRequest voucherRequest) {
+        Voucher voucher = voucherRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Voucher not found"));
+
+        VoucherDto voucherDto = voucherRequest.getVoucherDto();
 
         VoucherType voucherType = voucherTypeRepository.findById(voucherDto.getVoucherTypeID())
                 .orElseThrow(() -> new RuntimeException("VoucherType not found"));
 
+        // Cập nhật thông tin voucher
         voucher.setName(voucherDto.getName());
         voucher.setCode(voucherDto.getCode());
         voucher.setVoucherTypeID(voucherDto.getVoucherTypeID());
@@ -130,12 +158,39 @@ public class VoucherServiceImpl implements VoucherService {
         voucher.setCurrentUses(voucherDto.getCurrentUses());
         voucher.setStatus(voucherDto.getStatus());
         voucher.setErrorMessage(voucherDto.getErrorMessage());
+        voucher.setComboPrice(voucherDto.getComboPrice());
+        voucher.setFixedPrice(voucherDto.getFixedPrice());
+        voucher.setBuy1Get1(voucherDto.getBuy1Get1());
+        voucher.setFreeShip(voucherDto.getFreeShip());
+        voucher.setProductType(voucherDto.getProductType());
         voucher.setApplyFrom(voucherDto.getApplyFrom());
         voucher.setApplyTo(voucherDto.getApplyTo());
 
         Voucher updatedVoucher = voucherRepository.save(voucher);
-        return VoucherMapper.mapToVoucherDto(updatedVoucher, voucherType);
+
+        // Xóa các VoucherProduct cũ
+        voucherProductRepository.deleteByVoucherID(updatedVoucher.getId());
+
+        // Tạo mới các VoucherProduct
+        List<VoucherProduct> newVoucherProducts = new ArrayList<>();
+        for (Long productID : voucherRequest.getProductIDs()) {
+            VoucherProduct voucherProduct = new VoucherProduct();
+            voucherProduct.setVoucherID(updatedVoucher.getId());
+            voucherProduct.setProductID(productID);
+            voucherProduct.setProductDetailID(productDetailRepository.getProductDetailIdByProductIDAndSize(productID, voucherRequest.getSize()));
+            newVoucherProducts.add(voucherProduct);
+        }
+
+        voucherProductRepository.saveAll(newVoucherProducts);
+
+        // Tạo lại VoucherDto
+        VoucherDto newVoucherDto = VoucherMapper.mapToVoucherDto(updatedVoucher, voucherType);
+        newVoucherDto.setProductIDs(voucherRequest.getProductIDs());
+        newVoucherDto.setSize(voucherRequest.getSize());
+
+        return newVoucherDto;
     }
+
 
     @Override
     public List<VoucherDto> getVouchers() {
@@ -147,9 +202,27 @@ public class VoucherServiceImpl implements VoucherService {
 
         return vouchers.stream().map(voucher -> {
             Optional<VoucherType> optionalVoucherType = voucherTypeRepository.findById(voucher.getVoucherTypeID());
-            VoucherType voucherType = optionalVoucherType.orElse(null); // Return null if VoucherType is not found
+            VoucherType voucherType = optionalVoucherType.orElse(null);
             assert voucherType != null;
-            return VoucherMapper.mapToVoucherDto(voucher, voucherType);
+            VoucherDto voucherDto = VoucherMapper.mapToVoucherDto(voucher, voucherType);
+            List<VoucherProduct> voucherProducts = voucherProductRepository.findByVoucherID(voucher.getId());
+            if (!voucherProducts.isEmpty()) {
+                List<Long> productIDs = new ArrayList<>();
+                String size = null;
+
+                for (VoucherProduct voucherProduct : voucherProducts) {
+                    Long productDetailID = voucherProduct.getProductDetailID();
+                    // Retrieve size for the first product detail
+                    if (size == null) {
+                        size = productDetailRepository.getSizeByProductDetailID(productDetailID);
+                    }
+                    // Retrieve product ID from the productDetailRepository
+                    productIDs.add(voucherProduct.getProductID());
+                }
+                voucherDto.setProductIDs(productIDs);
+                voucherDto.setSize(size);
+            }
+            return voucherDto;
         }).collect(Collectors.toList());
     }
 
@@ -175,7 +248,6 @@ public class VoucherServiceImpl implements VoucherService {
         return uniqueVouchers.stream().filter(voucher -> {
             // Kiểm tra nếu người dùng đã sử dụng voucher này
             boolean alreadyUsed = billRepository.existsByUserIDAndVoucherID(userId, voucher.getId());
-            log.info("voucher used: {}", alreadyUsed);
 
             // Kiểm tra các điều kiện khác như hiệu lực của voucher
             boolean valid = now.isBefore(voucher.getApplyTo()) && now.isAfter(voucher.getApplyFrom());
@@ -188,7 +260,25 @@ public class VoucherServiceImpl implements VoucherService {
                     .findById(voucher.getVoucherTypeID())
                     .orElseThrow(() -> new RuntimeException("VoucherType not found"));
             assert voucherType != null;
-            return VoucherMapper.mapToVoucherDto(voucher, voucherType);
+            VoucherDto voucherDto = VoucherMapper.mapToVoucherDto(voucher, voucherType);
+            List<VoucherProduct> voucherProducts = voucherProductRepository.findByVoucherID(voucher.getId());
+            if (!voucherProducts.isEmpty()) {
+                List<Long> productIDs = new ArrayList<>();
+                String size = null;
+
+                for (VoucherProduct voucherProduct : voucherProducts) {
+                    Long productDetailID = voucherProduct.getProductDetailID();
+                    // Retrieve size for the first product detail
+                    if (size == null) {
+                        size = productDetailRepository.getSizeByProductDetailID(productDetailID);
+                    }
+                    // Retrieve product ID from the productDetailRepository
+                    productIDs.add(voucherProduct.getProductID());
+                }
+                voucherDto.setProductIDs(productIDs);
+                voucherDto.setSize(size);
+            }
+            return voucherDto;
         }).collect(Collectors.toList());
     }
 
@@ -210,7 +300,25 @@ public class VoucherServiceImpl implements VoucherService {
         VoucherType voucherType = voucherTypeRepository
                 .findById(voucher.getVoucherTypeID())
                 .orElseThrow(() -> new RuntimeException("VoucherType not found"));
-        return VoucherMapper.mapToVoucherDto(voucher, voucherType);
+        VoucherDto voucherDto = VoucherMapper.mapToVoucherDto(voucher, voucherType);
+        List<VoucherProduct> voucherProducts = voucherProductRepository.findByVoucherID(voucher.getId());
+        if (!voucherProducts.isEmpty()) {
+            List<Long> productIDs = new ArrayList<>(); // Initialize the list
+            String size = null;
+
+            for (VoucherProduct voucherProduct : voucherProducts) {
+                Long productDetailID = voucherProduct.getProductDetailID();
+                // Retrieve size for the first product detail
+                if (size == null) {
+                    size = productDetailRepository.getSizeByProductDetailID(productDetailID);
+                }
+                // Retrieve product ID
+                productIDs.add(voucherProduct.getProductID());
+            }
+            voucherDto.setProductIDs(productIDs);
+            voucherDto.setSize(size);
+        }
+        return voucherDto;
     }
 
     @Override

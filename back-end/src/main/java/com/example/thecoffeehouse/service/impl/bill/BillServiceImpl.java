@@ -17,6 +17,7 @@ import com.example.thecoffeehouse.entity.user.ContactDetails;
 import com.example.thecoffeehouse.entity.user.Customer;
 import com.example.thecoffeehouse.entity.user.OwnerType;
 import com.example.thecoffeehouse.entity.user.User;
+import com.example.thecoffeehouse.entity.voucher.Voucher;
 import com.example.thecoffeehouse.repository.ContactDetailRepository;
 import com.example.thecoffeehouse.repository.CustomerRepository;
 import com.example.thecoffeehouse.repository.UserRepository;
@@ -25,6 +26,7 @@ import com.example.thecoffeehouse.repository.bill.BillRepository;
 import com.example.thecoffeehouse.repository.product.ProductDetailRepository;
 import com.example.thecoffeehouse.repository.product.ProductRepository;
 import com.example.thecoffeehouse.repository.product.ToppingRepository;
+import com.example.thecoffeehouse.repository.voucher.VoucherRepository;
 import com.example.thecoffeehouse.service.CustomerService;
 import com.example.thecoffeehouse.service.UserService;
 import com.example.thecoffeehouse.service.bill.BillService;
@@ -55,8 +57,9 @@ public class BillServiceImpl implements BillService {
     private final CustomerRepository customerRepository;
     private final UserService userService;
     private final CustomerService customerService;
+    private final VoucherRepository voucherRepository;
 
-    public BillServiceImpl(BillRepository billRepository, BillProductRepository billProductRepository, DateTimeConverter dateTimeConverter, ProductRepository productRepository, ToppingRepository toppingRepository, ProductDetailRepository productDetailRepository, ContactDetailRepository contactDetailRepository, UserRepository userRepository, CustomerRepository customerRepository, UserService userService, CustomerService customerService) {
+    public BillServiceImpl(BillRepository billRepository, BillProductRepository billProductRepository, DateTimeConverter dateTimeConverter, ProductRepository productRepository, ToppingRepository toppingRepository, ProductDetailRepository productDetailRepository, ContactDetailRepository contactDetailRepository, UserRepository userRepository, CustomerRepository customerRepository, UserService userService, CustomerService customerService, VoucherRepository voucherRepository) {
         this.billRepository = billRepository;
         this.billProductRepository = billProductRepository;
         this.dateTimeConverter = dateTimeConverter;
@@ -68,6 +71,7 @@ public class BillServiceImpl implements BillService {
         this.customerRepository = customerRepository;
         this.userService = userService;
         this.customerService = customerService;
+        this.voucherRepository = voucherRepository;
     }
 
     @Override
@@ -289,6 +293,17 @@ public class BillServiceImpl implements BillService {
             bill.setDeliveryStatus(deliveryStatus);
             if(Objects.equals(deliveryStatus, "Delivered")) {
                 bill.setStatus("success");
+                if(bill.getVoucherID() != null) {
+                    Voucher voucher = voucherRepository.findById(bill.getVoucherID()).orElse(null);
+                    if(voucher != null) {
+                        int currentUses = voucher.getCurrentUses();
+                        voucher.setCurrentUses(currentUses + 1);
+                        if(voucher.getMaxUses() != 0 && voucher.getCurrentUses() == voucher.getMaxUses()) {
+                            voucher.setStatus(1);
+                        }
+                        voucherRepository.save(voucher);
+                    }
+                }
                 if (bill.getUserID() != null) {
                     User user = userRepository.findById(bill.getUserID())
                             .orElseThrow(() -> new RuntimeException("User not found"));
