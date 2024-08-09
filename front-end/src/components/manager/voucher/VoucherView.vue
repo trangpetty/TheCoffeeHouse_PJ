@@ -57,7 +57,7 @@
       </el-form>
     </div>
     <div class="box box-shadow">
-      <el-table :data="tableData" stripe v-loading="ui.loading" @row-click="handleEditRow" highlight-current-row>
+      <el-table :data="tableData" stripe v-loading="ui.loading" highlight-current-row>
         <el-table-column type="index" label="#"/>.
         <el-table-column prop="name" label="Name" />
         <el-table-column label="status">
@@ -127,11 +127,6 @@
               <el-form-item v-if="visibleItems.includes('fixedPrice')" label="Fixed Price">
                 <el-input v-model="formData.fixedPrice" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </el-form-item>
-              <el-form-item v-if="visibleItems.includes('fixedPrice')" label="Product Type">
-                <el-select v-model="formData.productType" @change="getProducts">
-                  <el-option v-for="item in productTypes" :key="item.id" :label="item.name" :value="item.id"></el-option>
-                </el-select>
-              </el-form-item>
               <el-form-item label="Enable Freeship">
                 <el-switch
                     v-model="formData.freeShip"
@@ -146,15 +141,22 @@
                     style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
                 />
               </el-form-item>
-              <el-form-item v-if="visibleItems.includes('buy1get1')" label="Type">
+              <el-form-item v-if="visibleItems.includes('buy1get1') || visibleItems.includes('fixedPrice') || visibleItems.includes('comboPrice')" label="Type">
                 <el-select v-model="selectedProductType" @change="getProducts">
                   <el-option v-for="item in productTypes" :key="item.id" :label="item.name" :value="item.id"></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item v-if="visibleItems.includes('buy1get1')" label="Products">
+              <el-form-item v-if="visibleItems.includes('buy1get1') || visibleItems.includes('fixedPrice') || visibleItems.includes('comboPrice')" label="Products">
                 <el-select v-model="selectedProducts" multiple>
                   <el-option v-for="item in products" :key="item.id" :label="item.name" :value="item.id"></el-option>
                 </el-select>
+              </el-form-item>
+              <el-form-item v-if="visibleItems.includes('buy1get1') || visibleItems.includes('fixedPrice') || visibleItems.includes('comboPrice')" label="Size">
+                <el-radio-group v-model="selectedSize">
+                  <el-radio label="S">S</el-radio>
+                  <el-radio label="M">M</el-radio>
+                  <el-radio label="L">L</el-radio>
+                </el-radio-group>
               </el-form-item>
               <el-form-item label="Apply">
                 <el-date-picker
@@ -279,6 +281,7 @@ const formType = ref({
 })
 
 const selectedProducts = ref([]);
+const selectedSize = ref('M');
 
 const types = ref([]);
 
@@ -394,6 +397,8 @@ const handleDateChange = (value) => {
 const handleConfirm = async () => {
   ui.value.dialogVisible = false;
   ui.value.loading = true;
+
+  formData.value.productType = selectedProductType;
   if (ui.value.addRecord) {
     for (const file of fileList.value) {
       try {
@@ -405,11 +410,16 @@ const handleConfirm = async () => {
     console.log(typeof(formData.value.applyFrom))
     await axiosClient.post('/vouchers', {
       voucherDto: formData.value,
-      voucherProducts: selectedProducts.value
+      productIDs: selectedProducts.value,
+      size: selectedSize.value
     });
 
   } else {
-    await axiosClient.put(`/vouchers/${voucher_id.value}`, formData.value);
+    await axiosClient.put(`/vouchers/${voucher_id.value}`, {
+      voucherDto: formData.value,
+      productIDs: selectedProducts.value,
+      size: selectedSize.value
+    });
   }
   ui.value.loading = false;
   await fetchData();
@@ -470,6 +480,13 @@ const handleEditRow = (row: object) => {
   formData.value.maxUses = row.maxUses;
   formData.value.currentUses = row.currentUses;
   formData.value.errorMessage = row.errorMessage;
+  formData.value.buy1Get1 = row.buy1Get1;
+  formData.value.fixedPrice = row.fixedPrice;
+  formData.value.freeShip = row.freeShip;
+  formData.value.productType = row.productType;
+  products.value = row.productIDs;
+  selectedSize.value = row.size;
+  selectedProducts.value = row.productIDs;
   fileList.value = [{
     url: formData.value.image
   }]

@@ -22,6 +22,7 @@ interface Product {
     images: any[];
     hasDiscount: boolean;
     discountPrice: number;
+    typeID: number;
 }
 
 interface Size {
