@@ -67,6 +67,12 @@ public class Voucher {
     @Column(name = "buy_1_get_1", columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean buy1Get1; // mua 1 tặng 1
 
+    @Column(name = "combo_quantity")
+    private Integer comboQuantity; // Số lượng tối thiểu để áp dụng combo
+
+    @Column(name = "discount_max")
+    private Double discountMax;
+
     @Column(name = "status", columnDefinition = "INT DEFAULT 0")
     private int status;
 

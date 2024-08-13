@@ -24,4 +24,6 @@ public interface UserService {
     void updateMemberLevel(User user);
 
     Map<String, Long> getUserCountByAgeGroups();
+
+    void updatePassword(String email, String password);
 }

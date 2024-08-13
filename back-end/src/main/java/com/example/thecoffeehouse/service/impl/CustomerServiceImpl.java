@@ -84,9 +84,8 @@ public class CustomerServiceImpl implements CustomerService {
             } else {
                 throw new RuntimeException("Unknown owner type for phone number: " + phoneNumber);
             }
-        } else {
-            throw new RuntimeException("ContactDetails does not exist with phone number: " + phoneNumber);
         }
+        return 0;
     }
 
 

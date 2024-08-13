@@ -195,4 +195,27 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
+//    @Override
+//    public JwtAuthenticationResponse changePassword(ChangePasswordRequest changePasswordRequest) {
+//        try {
+//            // Xác thực mật khẩu cũ
+//            Authentication authentication = authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(
+//                            SecurityContextHolder.getContext().getAuthentication().getName(),
+//                            changePasswordRequest.getOldPassword()
+//                    )
+//            );
+//
+//            // Thực hiện đổi mật khẩu và nhận phản hồi từ service
+//            userService.updatePassword(authentication.getName(), changePasswordRequest.getNewPassword());
+//
+//            // Trả về phản hồi thành công
+//            return ResponseEntity.ok(new JwtAuthenticationResponse("Mật khẩu đã được cập nhật thành công"));
+//        } catch (BadCredentialsException e) {
+//            // Mật khẩu cũ không chính xác
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Mật khẩu cũ không chính xác");
+//        }
+//    }
+
+
 }

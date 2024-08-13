@@ -8,4 +8,6 @@ public interface AuthenticationService {
     UserDto signin(LoginDto loginDto);
 
     JwtAuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest);
+
+//    JwtAuthenticationResponse changePassword(ChangePasswordRequest changePasswordRequest);
 }

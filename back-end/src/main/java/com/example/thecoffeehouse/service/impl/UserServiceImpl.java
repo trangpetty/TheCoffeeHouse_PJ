@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -27,11 +28,13 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
     private final VoucherService voucherService;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, UserRoleRepository userRoleRepository, VoucherService voucherService) {
+    public UserServiceImpl(UserRepository userRepository, UserRoleRepository userRoleRepository, VoucherService voucherService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
         this.voucherService = voucherService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -159,6 +162,16 @@ public class UserServiceImpl implements UserService {
         ageGroupCounts.put("55+", (long) userRepository.findUsersByAgeRange(startDate55Plus, endDate55Plus).size());
 
         return ageGroupCounts;
+    }
+
+    @Override
+    public void updatePassword(String email, String password) {
+        User user = userRepository.findByEmail(email);
+        if(user != null) {
+            String encodedPassword = passwordEncoder.encode(password);
+            user.setPassword(encodedPassword);
+            userRepository.save(user);
+        }
     }
 
 }

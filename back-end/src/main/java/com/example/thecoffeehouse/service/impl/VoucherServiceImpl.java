@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -67,7 +68,7 @@ public class VoucherServiceImpl implements VoucherService {
         Voucher voucher = VoucherMapper.mapToVoucher(voucherDto);
         Voucher savedVoucher = voucherRepository.save(voucher);
         List<Long> productIDs = voucherRequest.getProductIDs();
-        if(!productIDs.isEmpty()) {
+        if(productIDs != null || !productIDs.isEmpty()) {
             productIDs.forEach(productID -> {
                 String productDetailSize = voucherRequest.getSize();
                 Long productDetailID = productDetailRepository.getProductDetailIdByProductIDAndSize(productID, productDetailSize);
@@ -136,6 +137,7 @@ public class VoucherServiceImpl implements VoucherService {
 
 
     @Override
+    @Transactional
     public VoucherDto updateVoucher(Long id, VoucherRequest voucherRequest) {
         Voucher voucher = voucherRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Voucher not found"));
@@ -163,6 +165,8 @@ public class VoucherServiceImpl implements VoucherService {
         voucher.setBuy1Get1(voucherDto.getBuy1Get1());
         voucher.setFreeShip(voucherDto.getFreeShip());
         voucher.setProductType(voucherDto.getProductType());
+        voucher.setDiscountMax(voucherDto.getDiscountMax());
+        voucher.setComboQuantity(voucherDto.getComboQuantity());
         voucher.setApplyFrom(voucherDto.getApplyFrom());
         voucher.setApplyTo(voucherDto.getApplyTo());
 
@@ -172,16 +176,18 @@ public class VoucherServiceImpl implements VoucherService {
         voucherProductRepository.deleteByVoucherID(updatedVoucher.getId());
 
         // Tạo mới các VoucherProduct
-        List<VoucherProduct> newVoucherProducts = new ArrayList<>();
-        for (Long productID : voucherRequest.getProductIDs()) {
-            VoucherProduct voucherProduct = new VoucherProduct();
-            voucherProduct.setVoucherID(updatedVoucher.getId());
-            voucherProduct.setProductID(productID);
-            voucherProduct.setProductDetailID(productDetailRepository.getProductDetailIdByProductIDAndSize(productID, voucherRequest.getSize()));
-            newVoucherProducts.add(voucherProduct);
-        }
+        if (voucherRequest.getProductIDs() != null && !voucherRequest.getProductIDs().isEmpty()) {
+            List<VoucherProduct> newVoucherProducts = new ArrayList<>();
+            for (Long productID : voucherRequest.getProductIDs()) {
+                VoucherProduct voucherProduct = new VoucherProduct();
+                voucherProduct.setVoucherID(updatedVoucher.getId());
+                voucherProduct.setProductID(productID);
+                voucherProduct.setProductDetailID(productDetailRepository.getProductDetailIdByProductIDAndSize(productID, voucherRequest.getSize()));
+                newVoucherProducts.add(voucherProduct);
+            }
 
-        voucherProductRepository.saveAll(newVoucherProducts);
+            voucherProductRepository.saveAll(newVoucherProducts);
+        }
 
         // Tạo lại VoucherDto
         VoucherDto newVoucherDto = VoucherMapper.mapToVoucherDto(updatedVoucher, voucherType);
@@ -190,7 +196,6 @@ public class VoucherServiceImpl implements VoucherService {
 
         return newVoucherDto;
     }
-
 
     @Override
     public List<VoucherDto> getVouchers() {
