@@ -75,7 +75,7 @@ const menu = ref([
       },
     ]
   },
-  { label: "Blog", path: "/blog" }
+  { label: "Blog", path: "" }
 ]);
 </script>
 <style scoped>

@@ -30,13 +30,18 @@
       </el-form>
     </div>
     <div class="box box-shadow">
-      <el-table :data="tableData" stripe v-loading="ui.loading" @row-click="handleEditRow" highlight-current-row>
+      <el-table :data="tableData" stripe v-loading="ui.loading" highlight-current-row>
         <el-table-column type="index" label="#"/>.
         <el-table-column prop="name" label="Name" />
         <el-table-column prop="phoneNumber" label="Phone Number" />
         <el-table-column prop="point" label="Point" />
         <el-table-column prop="createTime" label="Create Time" />
         <el-table-column prop="modifyTime" label="Modify Time" />
+        <el-table-column label="Detail">
+          <template #default={row}>
+            <el-button type="primary" circle @click="showDetail(row.id)">i</el-button>
+          </template>
+        </el-table-column>
         <el-table-column>
           <template #default={row}>
             <el-button type="success" size="small" @click.stop="handleEditRow(row)">Update</el-button>
@@ -44,6 +49,8 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <!-- Dialog Update Or Add -->
       <el-dialog v-model="ui.dialogVisible" width="40%" class="dialog" v-loading="ui.loading" :title="ui.addRecord?'Add customer':'Update customer'">
         <el-form :model="formData" label-width="auto">
           <el-input v-model="customer_id" class="d-none" />
@@ -65,6 +72,17 @@
           <el-button type="primary" @click="handleConfirm">Confirm</el-button>
         </div>
       </el-dialog>
+
+      <!-- Dialog Detail -->
+      <el-dialog v-model="ui.dialogDetail" width="40%" class="dialog" title="Detail">
+        <el-table :data="contactDetails" stripe>
+          <el-table-column prop="id" label="ID" width="40"/>
+          <el-table-column prop="name" label="Name"/>
+          <el-table-column prop="phoneNumber" label="Phone Number"/>
+          <el-table-column prop="address" label="Address"/>
+        </el-table>
+      </el-dialog>
+
       <!-- Pagination -->
       <el-pagination class="pagination" v-model:current-page="currentPage" layout="total, prev, pager, next" :total="total" @current-change="fetchData" />
     </div>
@@ -80,9 +98,7 @@ const ui = ref({
   dialogVisible: false,
   loading: false,
   addRecord: false,
-  userRole: false,
-  adminRole: false,
-  nameDisable: false,
+  dialogDetail: false
 });
 
 const queryForm = ref({
@@ -101,6 +117,7 @@ const currentPage = ref(1);
 const total = ref(0);
 const tableData = ref([]);
 const customer_id = ref(0);
+const contactDetails = ref([]);
 
 const fetchData = async () => {
   try {
@@ -166,6 +183,12 @@ const handleDeleteRow = async (id: number) => {
   }
   await axiosClient.delete(`/customers/${id}`);
   await fetchData();
+}
+
+const showDetail = async (id: number) => {
+  ui.value.dialogDetail = true;
+  const response = await axiosClient.get(`/customers/detail/${id}`);
+  contactDetails.value = response.data;
 }
 
 fetchData()

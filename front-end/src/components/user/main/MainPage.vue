@@ -1,7 +1,7 @@
 <template>
   <Carousel />
-  <div class="container py-5">
-    <div class="d-flex">
+  <div class="py-5">
+    <div class="d-flex container">
       <div class="menu_banner">
         <a href="#">
           <img :src="banner" alt="">
@@ -9,7 +9,7 @@
       </div>
       <ProductCard v-for="(item, index) in newestProducts" :key="index" :product="item"/>
     </div>
-    <div v-if="discountProduct" class="mb-3">
+    <div v-if="discountProduct" class="mb-3 container">
       <h3 class="title">
         Sản phẩm khuyến mãi
       </h3>
@@ -21,16 +21,67 @@
         </div>
       </div>
     </div>
-    <div class="news-tab">
-      <a v-for="(item, index) in tabs" :key="index" class="news-tab-text nav-link" :class="{ active: activeName === item.name }" @click="setActiveTab(item.name)">{{item.label}}</a>
-    </div>
-    <div class="card-slider-container pt-4">
-      <div class="card-slider">
-        <div class="cards-wrapper">
-          <ProductCard v-for="(item, index) in products" :key="index" :product="item"/>
+    <div class="container">
+      <div class="news-tab">
+        <a v-for="(item, index) in tabs" :key="index" class="news-tab-text nav-link" :class="{ active: activeName === item.name }" @click="setActiveTab(item.name)">{{item.label}}</a>
+      </div>
+      <div class="card-slider-container pt-4">
+        <div class="card-slider">
+          <div class="cards-wrapper">
+            <ProductCard v-for="(item, index) in products" :key="index" :product="item"/>
+          </div>
         </div>
       </div>
     </div>
+    <section class="cloudtea index">
+      <div class="cloudtea-block right">
+        <div class="container">
+          <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div class="info-block">
+              <div class="img-title">
+                <img :src="tagline" alt="">
+              </div>
+              <div class="cloudtea-desc">
+                Được trồng trọt và chăm chút kỹ lưỡng, nuôi dưỡng từ thổ nhưỡng phì nhiêu, nguồn nước mát lành, bao bọc bởi mây và sương cùng nền nhiệt độ mát mẻ quanh năm, những búp trà ở Tây Bắc mập mạp và xanh mướt, hội tụ đầy đủ dưỡng chất, sinh khí, và tinh hoa đất trời.Chính khí hậu đặc trưng cùng phương pháp canh tác của đồng bào dân tộc nơi đây đã tạo ra Trà Xanh vị mộc dễ uống, dễ yêu, không thể trộn lẫn với bất kỳ vùng miền nào khác.
+              </div>
+              <div class="cloudtea-btn3">
+                Thử ngay
+              </div>
+            </div>
+            <div class="img-block">
+              <img src="" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="blog_home py-3">
+      <h2 class="blog_home_title">
+        <img :src="cup" alt="">
+        Chuyện Nhà
+      </h2>
+      <div class="container">
+        <h3 class="blog_home_blogtitle">
+          Blog
+        </h3>
+        <div class="d-flex flex-wrap">
+          <div class="blog_item d-flex flex-column" v-for="item in news.slice(0, 3)" :key="item.id">
+            <router-link :to="{ name: 'blog-detail', params: { id: item.id } }" class="article_item_image">
+              <div class="article_img" :style="{ backgroundImage: `url(${item.image})` }"></div>
+            </router-link>
+            <div class="article_item_info">
+              <div class="article_published_at">
+                <span>{{ item.createTime }}</span>
+              </div>
+              <h3>
+                <span>{{ item.title }}</span>
+              </h3>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 <script setup lang="ts">
@@ -39,6 +90,8 @@ import Carousel from "@/components/Carousel.vue";
 import {onMounted, ref, watch} from "vue";
 import axiosClient from '@/utils/axiosConfig';
 import ProductCard from '@/components/user/main/ProductCard.vue';
+import tagline from '@/assets/images/tagline1.webp';
+import cup from '@/assets/images/cup.png';
 
 const tabs = ref([
   { name: 'most-like', label: 'Yêu thích' },
@@ -51,6 +104,7 @@ const type = ref(activeName.value);
 const products = ref([]);
 const newestProducts = ref([]);
 const discountProduct = ref([]);
+const news = ref([]);
 
 const setActiveTab = (tabName) => {
   activeName.value = tabName;
@@ -77,10 +131,13 @@ const getDiscountProducts = async () => {
   discountProduct.value = response.data;
 }
 
-onMounted(() => {
+onMounted(async () => {
   getNewestProducts();
   fetchData();
   getDiscountProducts();
+
+  const response = await axiosClient.get(`/news/newest`);
+  news.value = response.data;
 })
 
 </script>
@@ -170,6 +227,146 @@ onMounted(() => {
   margin: 24px 0;
   padding-left: 12px;
   border-left: 4px solid var(--orange-5);
+}
+
+.cloudtea.index {
+  padding: 48px 0 45px;
+  background: url('@/assets/images/news1.webp') top center / contain no-repeat;
+}
+
+.cloudtea .cloudtea-block {
+  margin-bottom: 8px;
+}
+
+.cloudtea .cloudtea-block.right .info-block {
+  order: 1;
+  flex: 0 0 49%;
+  width: 49%;
+}
+
+.cloudtea.index .cloudtea-block .info-block .img-title {
+  margin-bottom: 12px;
+}
+
+.cloudtea.index .top-desc, .cloudtea.index .cloudtea-desc {
+  padding: 15px 0;
+  font-size: 16px;
+  line-height: 25px;
+  color: rgba(0, 0, 0, 0.6);
+  text-align: justify;
+}
+
+.cloudtea .cloudtea-desc {
+  font-size: 14px;
+  line-height: 20px;
+  margin-bottom: 16px;
+}
+
+.cloudtea.index .cloudtea-btn3 {
+  display: block;
+  max-width: 587px;
+  background: #778B37;
+  text-align: center;
+  font-size: 16px;
+  line-height: 40px;
+  padding: 0 15px;
+  font-weight: 600;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.cloudtea .cloudtea-block .img-block {
+  flex: 0 0 49%;
+  width: 49%;
+}
+
+.blog_home {
+  background: #FFF7E6;
+}
+
+.blog_home .blog_home_title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'SF Pro Display', sans-serif;
+  font-size: 28px;
+  margin-top: 40px;
+}
+
+.blog_home .blog_home_title > img {
+  margin-right: 8px;
+  max-width: 28px;
+}
+
+.blog_home .blog_home_blogtitle {
+  font-size: 24px;
+  margin: 24px 0;
+  padding-left: 12px;
+  border-left: 4px solid #E57905;
+}
+
+.blog_item {
+  margin-bottom: 30px;
+  -ms-flex: 0 0 calc(33.333% - 30px);
+  -webkit-flex: 0 0 calc(33.333% - 30px);
+  flex: 0 0 calc(33.333% - 30px);
+  overflow: hidden;
+  margin: 0 15px 0;
+  min-height: 342px;
+}
+
+.blog_item .article_item_image {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.blog_item .article_item_image:before {
+  content: '';
+  position: relative;
+  display: block;
+  padding-top: 48%;
+}
+
+.blog_item .article_item_image .article_img {
+  transition: all .4s;
+  border-radius: 10px;
+  background-size: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-position: center center;
+  background-repeat: no-repeat
+}
+
+.blog_item .article_item_image:hover > .article_img {
+  transform: scale(1.1);
+}
+
+.blog_item .article_item_info {
+  -webkit-flex-grow: 1;
+  -ms-flex-grow: 1;
+  flex-grow: 1;
+  background: #FFF7E6 50%;
+  padding: 16px 0;
+}
+
+.blog_item .article_published_at {
+  color: #00000099;
+}
+
+.blog_item .article_item_info h3 {
+  font-size: 18px;
+  margin: 8px 0;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  display: -webkit-box;
+  height: 25px;
 }
 
 @media (min-width: 992px) {
