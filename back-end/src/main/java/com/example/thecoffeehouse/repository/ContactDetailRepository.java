@@ -22,4 +22,6 @@ public interface ContactDetailRepository extends JpaRepository<ContactDetails, L
     boolean existsByPhoneNumberAndAddressAndName(String phoneNumber, String address, String name);
 
     ContactDetails findFirstByPhoneNumber(String phoneNumber);
+
+    List<ContactDetails> findByOwnerIDAndOwnerType(Long ownerID, OwnerType ownerType);
 }

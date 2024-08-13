@@ -1,6 +1,7 @@
 package com.example.thecoffeehouse.controller;
 
 import com.example.thecoffeehouse.dto.CustomerDto;
+import com.example.thecoffeehouse.dto.user.ContactDetailDto;
 import com.example.thecoffeehouse.service.CustomerService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -8,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -53,5 +56,10 @@ public class CustomerController {
     @GetMapping("/get-point")
     public ResponseEntity<Integer> getPoint(@RequestParam("phoneNumber") String phoneNumber) {
         return ResponseEntity.ok(customerService.getPoint(phoneNumber));
+    }
+
+    @GetMapping("/detail/{id}")
+    public List<ContactDetailDto> getDetailsUserById(@PathVariable Long id) {
+        return customerService.getContactDetailsCustomerById(id);
     }
 }

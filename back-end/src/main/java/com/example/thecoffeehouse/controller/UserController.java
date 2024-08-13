@@ -126,4 +126,9 @@ public class UserController {
     public Map<String, Long> getUserCountByAgeGroups() {
         return userService.getUserCountByAgeGroups();
     }
+
+    @GetMapping("/detail/{id}")
+    public List<ContactDetailDto> getDetailsUserById(@PathVariable Long id) {
+        return userService.getContactDetailsUserById(id);
+    }
 }

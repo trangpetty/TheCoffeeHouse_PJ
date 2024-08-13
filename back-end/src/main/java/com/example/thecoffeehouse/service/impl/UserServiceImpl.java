@@ -1,9 +1,13 @@
 package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.dto.user.*;
+import com.example.thecoffeehouse.entity.mapper.ContactDetailMapper;
+import com.example.thecoffeehouse.entity.user.ContactDetails;
 import com.example.thecoffeehouse.entity.user.MembershipLevel;
+import com.example.thecoffeehouse.entity.user.OwnerType;
 import com.example.thecoffeehouse.entity.user.User;
 import com.example.thecoffeehouse.entity.mapper.UserMapper;
+import com.example.thecoffeehouse.repository.ContactDetailRepository;
 import com.example.thecoffeehouse.repository.UserRepository;
 import com.example.thecoffeehouse.repository.UserRoleRepository;
 import com.example.thecoffeehouse.service.UserService;
@@ -20,7 +24,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -29,12 +35,14 @@ public class UserServiceImpl implements UserService {
     private final UserRoleRepository userRoleRepository;
     private final VoucherService voucherService;
     private final PasswordEncoder passwordEncoder;
+    private final ContactDetailRepository contactDetailRepository;
 
-    public UserServiceImpl(UserRepository userRepository, UserRoleRepository userRoleRepository, VoucherService voucherService, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, UserRoleRepository userRoleRepository, VoucherService voucherService, PasswordEncoder passwordEncoder, ContactDetailRepository contactDetailRepository) {
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
         this.voucherService = voucherService;
         this.passwordEncoder = passwordEncoder;
+        this.contactDetailRepository = contactDetailRepository;
     }
 
     @Override
@@ -172,6 +180,12 @@ public class UserServiceImpl implements UserService {
             user.setPassword(encodedPassword);
             userRepository.save(user);
         }
+    }
+
+    @Override
+    public List<ContactDetailDto> getContactDetailsUserById(Long id) {
+        List<ContactDetails> contactDetails = contactDetailRepository.findByOwnerIDAndOwnerType(id, OwnerType.USER);
+        return contactDetails.stream().map(ContactDetailMapper::mapToContactDetailDto).collect(Collectors.toList());
     }
 
 }

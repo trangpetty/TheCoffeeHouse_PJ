@@ -1,9 +1,12 @@
 package com.example.thecoffeehouse.service;
 
 import com.example.thecoffeehouse.dto.CustomerDto;
+import com.example.thecoffeehouse.dto.user.ContactDetailDto;
 import com.example.thecoffeehouse.entity.user.Customer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface CustomerService {
     CustomerDto createCustomer(CustomerDto customerDto);
@@ -19,4 +22,6 @@ public interface CustomerService {
     int getPoint(String phoneNumber);
 
     void updateMemberLevel(Customer customer);
+
+    List<ContactDetailDto> getContactDetailsCustomerById(Long id);
 }

@@ -1,6 +1,8 @@
 package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.dto.CustomerDto;
+import com.example.thecoffeehouse.dto.user.ContactDetailDto;
+import com.example.thecoffeehouse.entity.mapper.ContactDetailMapper;
 import com.example.thecoffeehouse.entity.user.*;
 import com.example.thecoffeehouse.entity.mapper.CustomerMapper;
 import com.example.thecoffeehouse.repository.ContactDetailRepository;
@@ -10,6 +12,9 @@ import com.example.thecoffeehouse.service.CustomerService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -96,6 +101,12 @@ public class CustomerServiceImpl implements CustomerService {
         MembershipLevel newLevel = MembershipLevel.getLevel(points);
         customer.setMembershipLevel(newLevel.getName());
         customerRepository.save(customer);
+    }
+
+    @Override
+    public List<ContactDetailDto> getContactDetailsCustomerById(Long id) {
+        List<ContactDetails> contactDetails = contactDetailRepository.findByOwnerIDAndOwnerType(id, OwnerType.CUSTOMER);
+        return contactDetails.stream().map(ContactDetailMapper::mapToContactDetailDto).collect(Collectors.toList());
     }
 
 }

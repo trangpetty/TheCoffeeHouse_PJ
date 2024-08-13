@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.util.List;
 import java.util.Map;
 
 public interface UserService {
@@ -26,4 +27,6 @@ public interface UserService {
     Map<String, Long> getUserCountByAgeGroups();
 
     void updatePassword(String email, String password);
+
+    List<ContactDetailDto> getContactDetailsUserById(Long id);
 }
