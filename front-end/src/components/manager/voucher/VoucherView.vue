@@ -104,6 +104,9 @@
               <el-form-item label="Discount Value">
                 <el-input-number v-model="formData.discountValue" :min="0" />
               </el-form-item>
+              <el-form-item label="Max Discount">
+                <el-input v-model="formData.discountMax" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+              </el-form-item>
               <el-form-item label="Minimum Order Value">
                 <el-input v-model="formData.minimumOrderValue" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </el-form-item>
@@ -116,6 +119,13 @@
               <el-form-item label="Current Uses">
                 <el-input-number v-model="formData.currentUses" :min="0" :step="1" />
               </el-form-item>
+              <el-form-item label="Status" v-if="!ui.addRecord">
+                <el-switch
+                    v-model="formData.status"
+                    class="ml-2"
+                    style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+                />
+              </el-form-item>
               <el-form-item label="Error Message">
                 <el-input v-model="formData.errorMessage" />
               </el-form-item>
@@ -123,6 +133,9 @@
             <el-col :span="12">
               <el-form-item v-if="visibleItems.includes('comboPrice')" label="Combo Price">
                 <el-input v-model="formData.comboPrice" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+              </el-form-item>
+              <el-form-item v-if="visibleItems.includes('comboPrice')" label="Combo Quantity">
+                <el-input-number v-model="formData.comboQuantity" :min="0" :step="1" />
               </el-form-item>
               <el-form-item v-if="visibleItems.includes('fixedPrice')" label="Fixed Price">
                 <el-input v-model="formData.fixedPrice" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
@@ -271,6 +284,8 @@ const formData = ref({
   productType: '',
   freeShip: false,
   buy1Get1: false,
+  discountMax: 0,
+  comboQuantity: 0,
   applyFrom: null,
   applyTo: null
 })
@@ -411,14 +426,15 @@ const handleConfirm = async () => {
     await axiosClient.post('/vouchers', {
       voucherDto: formData.value,
       productIDs: selectedProducts.value,
-      size: selectedSize.value
+      size: selectedSize.value,
     });
 
   } else {
+    formData.value.status = formData.value.status ? 0 : 1;
     await axiosClient.put(`/vouchers/${voucher_id.value}`, {
       voucherDto: formData.value,
       productIDs: selectedProducts.value,
-      size: selectedSize.value
+      size: selectedSize.value,
     });
   }
   ui.value.loading = false;
@@ -469,7 +485,7 @@ const handleEditRow = (row: object) => {
   formData.value.code = row.code;
   formData.value.discountValue = row.discountValue;
   formData.value.image = row.image;
-  formData.value.status = row.status;
+  formData.value.status = !row.status;
   formData.value.applyFrom = row.applyFrom;
   formData.value.applyTo = row.applyTo;
   dateRange.value[0] = row.applyFrom;
@@ -484,6 +500,8 @@ const handleEditRow = (row: object) => {
   formData.value.fixedPrice = row.fixedPrice;
   formData.value.freeShip = row.freeShip;
   formData.value.productType = row.productType;
+  formData.value.comboQuantity = row.comboQuantity;
+  formData.value.comboPrice = row.comboPrice;
   products.value = row.productIDs;
   selectedSize.value = row.size;
   selectedProducts.value = row.productIDs;

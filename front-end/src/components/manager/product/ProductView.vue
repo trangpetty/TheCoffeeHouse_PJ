@@ -383,7 +383,8 @@ const handleConfirm = async () => {
       ...formData.value,
       removedImages: removedImages.value,
       removedProductSizes: removedProductSizes.value,
-      removedToppings: removedToppings.value
+      removedToppings: removedToppings.value,
+      id: product_id.value
     });
   }
   ui.value.loading = false;

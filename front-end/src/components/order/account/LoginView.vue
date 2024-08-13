@@ -10,7 +10,18 @@
         </el-form-item>
         <el-form-item prop="password" class="border-orange">
           <font-awesome-icon icon="fa-solid fa-lock" class="icon"/>
-          <el-input v-model="formLogin.password" type="password" placeholder="Password" class="input-login" />
+          <el-input
+              v-model="formLogin.password"
+              :type="passwordType"
+              placeholder="Password"
+              class="input-login">
+            <template #append>
+              <font-awesome-icon
+                  :icon="passwordType !== 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'"
+                  class="password-toggle"
+                  @click="togglePasswordVisibility"/>
+            </template>
+          </el-input>
         </el-form-item>
         <p>Đã có tài khoản? <a class="text-orange cursor-pointer" @click="switchTab('register')">Đăng ký</a></p>
         <el-form-item>
@@ -127,6 +138,14 @@ const gender = ref([
   {label: "Nam", value: 1}
 ]);
 
+// State for password visibility
+const passwordType = ref('password');
+
+// Toggle password visibility
+const togglePasswordVisibility = () => {
+  passwordType.value = passwordType.value === 'password' ? 'text' : 'password';
+};
+
 const switchTab = (tab: string) => {
   activeTab.value = tab;
 };
@@ -161,11 +180,7 @@ const login = async () => {
       }, 2000);
     }
   } catch (error) {
-    if (error.response && error.response.status === 401) {
-      ElMessage.error('Invalid email or password.');
-    } else {
-      ElMessage.error('An error occurred during login.');
-    }
+    ElMessage.error('Invalid email or password.');
   }
 };
 
@@ -187,11 +202,12 @@ const register = async () => {
     }
   } catch (error) {
     if (error.response) {
-      loginError.value = error.response.data;
+      // loginError.value = error.response.data;
+      ElMessage.error(error.response.data)
     } else {
       loginError.value = error.message;
+      ElMessage.error(error.message);
     }
-    console.error('Error during account registration:', loginError.value);
   }
 };
 
@@ -224,9 +240,31 @@ const registerRules = {
     { required: true, message: 'Password is required', trigger: 'blur' },
   ],
   dob: [
-    { required: true, message: 'Date of birth is required', trigger: 'change' }
+    { required: true, message: 'Date of birth is required', trigger: 'change' },
+    { validator: validateDob, trigger: 'change' }
   ]
 };
+
+function validateDob(rule, value, callback) {
+  if (!value) {
+    return callback(new Error('Date of birth is required'));
+  }
+
+  const selectedDate = new Date(value);
+  const today = new Date();
+  const age = today.getFullYear() - selectedDate.getFullYear();
+  const monthDiff = today.getMonth() - selectedDate.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < selectedDate.getDate())) {
+    age--;
+  }
+
+  if (age < 12) {
+    return callback(new Error('You must be older than 12 years old'));
+  }
+
+  callback(); // Validation passed
+}
 </script>
 
 <style scoped>
@@ -287,7 +325,16 @@ const registerRules = {
 
 .btn-light {
   padding: 0.5rem 1.5rem 0.5rem 0.75rem;
-;
   background-color: #f5f5f5;
+}
+
+.password-toggle {
+  cursor: pointer;
+}
+
+::v-deep .el-input-group__append {
+  background-color: transparent!important;
+  color: var(--orange-1)!important;
+  box-shadow: none!important;
 }
 </style>

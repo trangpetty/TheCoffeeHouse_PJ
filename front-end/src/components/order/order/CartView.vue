@@ -91,7 +91,7 @@
                     </div>
                     <div>
                       <p class="mb-0">
-                        <span v-if="voucher.voucherType === 'fixedPrice' && voucher.productIDs?.includes(item.id)">
+                        <span v-if="voucher.voucherType === 'fixedPrice' && voucher.productIDs?.includes(item.id) && (voucher.size === item.selectedSize.size)">
                           <span class="price-crossed me-2">{{ formatPrice(item.cost) }}</span>
                           <span> {{ formatPrice(voucher.fixedPrice) }}</span>
                         </span>
@@ -262,29 +262,64 @@ const totalCost = computed(() => {
   let total = 0;
 
   cartItems.value.forEach(item => {
-    if (voucher.value && voucher.value.voucherType === 'fixedPrice' && voucher.value.productIDs.includes(item.id) && (voucher.value.size === item.selectedSize.size)) {
-      // Áp dụng giá cố định cho sản phẩm đủ điều kiện
-      const fixedPrice = voucher.value.fixedPrice; // Giá cố định từ voucher
-      const itemPrice = item.selectedSize?.surcharge ? fixedPrice + item.selectedSize.surcharge : fixedPrice;
+    if (voucher.value && voucher.value.voucherType === 'fixedPrice') {
+      const fixedItems = cartItems.value.filter(item => (voucher.value.productIDs.includes(item.id) && (voucher.value.size === item.selectedSize.size)));
+      // Apply fixed price for eligible products
+      const fixedPrice = voucher.value.fixedPrice;
+      const itemPrice = item.selectedSize?.surcharge
+          ? fixedPrice + item.selectedSize.surcharge
+          : fixedPrice;
       total += itemPrice * item.quantity;
-    }
-    else {
-      // Giá bình thường cho các sản phẩm không áp dụng voucher
+    } else {
       total += item.cost;
     }
   });
 
+  // Handle comboPrice voucher
   if (voucher.value && voucher.value.voucherType === 'comboPrice') {
-    const applicableItems = cartItems.value.filter(item => voucher.value.productIDs.includes(item.id));
-    if (applicableItems.length > 0) {
-      // Tính toán chi phí các sản phẩm không nằm trong combo
-      const otherItemsCost = cartItems.value
-          .filter(item => !voucher.value.productIDs.includes(item.id))
-          .reduce((acc, item) => acc + item.cost, 0);
+    // Lọc các sản phẩm đủ điều kiện cho combo
+    const comboItems = cartItems.value.filter(item =>
+        voucher.value.productIDs.includes(item.id) && voucher.value.size === item.selectedSize.size
+    );
 
-      // Cộng thêm chi phí combo vào tổng giá
-      total = voucher.value.comboPrice + otherItemsCost;
+    // Tính tổng số lượng sản phẩm đủ điều kiện cho combo
+    const totalComboItems = comboItems.reduce((acc, item) => acc + item.quantity, 0);
+
+    // Tính số lượng combo có thể áp dụng
+    const numberOfCombos = Math.floor(totalComboItems / voucher.value.comboQuantity);
+
+    // Tổng chi phí cho các combo
+    const comboCost = numberOfCombos * voucher.value.comboPrice;
+
+    // Tính số lượng sản phẩm còn lại không đủ để áp dụng combo
+    const remainingComboItemsQuantity = totalComboItems % voucher.value.comboQuantity;
+
+    // Tính chi phí cho số sản phẩm còn lại trong combo
+    const remainingComboItemsCost = comboItems
+        .flatMap(item => {
+          const itemPrice = item.selectedSize.surcharge ? item.price + item.selectedSize.surcharge : item.price;
+          // Tính chi phí cho các sản phẩm còn lại
+          const quantityToCalculate = Math.min(item.quantity, remainingComboItemsQuantity);
+          remainingComboItemsQuantity -= quantityToCalculate; // Giảm số lượng sản phẩm còn lại
+          return Array(quantityToCalculate).fill(itemPrice);
+        })
+        .reduce((acc, price) => acc + price, 0);
+
+    // Tính chi phí cho các sản phẩm không thuộc combo
+    const otherItemsCost = cartItems.value
+        .filter(item => !voucher.value.productIDs.includes(item.id) || (voucher.value.size !== item.selectedSize.size))
+        .reduce((acc, item) => acc + item.cost, 0);
+
+    // Tổng chi phí
+    total = comboCost + otherItemsCost + remainingComboItemsCost;
+
+    if (totalComboItems < voucher.value.comboQuantity) {
+      // Không đủ số lượng để áp dụng combo, đặt thông báo lỗi
+      store.dispatch('setErrorMessage', voucher.value.errorMessage);
     }
+  } else {
+    // Nếu không có voucher combo, tính toán chi phí bình thường
+    total = cartItems.value.reduce((acc, item) => acc + item.cost, 0);
   }
 
   return total;
@@ -293,17 +328,19 @@ const totalCost = computed(() => {
 const computedDiscount = computed(() => {
   let discount = 0;
 
-  if (voucher.value && totalCost.value >= voucher.value.minimumOrderValue && totalQuantity.value >= voucher.value.minimumItems) {
+  if (
+      voucher.value &&
+      totalCost.value >= voucher.value.minimumOrderValue &&
+      totalQuantity.value >= voucher.value.minimumItems
+  ) {
     if (voucher.value.voucherType === 'percentage' || voucher.value.voucherType === 'Silver' || voucher.value.voucherType === 'Gold') {
       discount = (totalCost.value * voucher.value.discountValue) / 100;
-    }
-    else if (voucher.value.voucherType === 'Gold' && voucher.value.description.toLowerCase().includes('freeship')) {
-      discount = feeship.value;
-    }
-    else if (voucher.value.voucherType === 'buy1get1') {
+    } else if (voucher.value.voucherType === 'buy1get1') {
       let totalDiscount = 0;
 
-      const applicableItems = cartItems.value.filter(item => (voucher.value.productIDs.includes(item.id) && (voucher.value.size === item.selectedSize.size)));
+      const applicableItems = cartItems.value.filter(item =>
+          voucher.value.productIDs.includes(item.id) && voucher.value.size === item.selectedSize.size
+      );
 
       let itemQuantity = 0;
       applicableItems.forEach(item => {
@@ -319,43 +356,24 @@ const computedDiscount = computed(() => {
       });
 
       discount = totalDiscount;
-    }
-    else if (voucher.value.voucherType === 'comboPrice') {
-      let totalComboDiscount = 0;
+    } else if (voucher.value.voucherType === 'comboPrice') {
+      // Calculate discount for comboPrice voucher if conditions are met
+      const applicableItems = cartItems.value.filter(item =>
+          voucher.value.productIDs.includes(item.id) && voucher.value.size === item.selectedSize.size
+      );
 
-      // Lọc các sản phẩm phù hợp với voucher combo
-      const applicableItems = cartItems.value.filter(item => voucher.value.productIDs.includes(item.id));
-
-      if (applicableItems.length > 0) {
-        // Lấy số lượng sản phẩm của từng loại trong giỏ hàng
-        let productQuantities = {};
-        applicableItems.forEach(item => {
-          if (!productQuantities[item.id]) {
-            productQuantities[item.id] = 0;
-          }
-          productQuantities[item.id] += item.quantity;
-        });
-
-        // Kiểm tra nếu tất cả sản phẩm trong combo đều có mặt trong giỏ hàng
-        const allProductsInCombo = voucher.value.productIDs.every(productId => productQuantities[productId] > 0);
-
-        if (allProductsInCombo) {
-          // Nếu có tất cả sản phẩm trong combo, tính toán giá trị combo discount
-          totalComboDiscount = voucher.value.comboPrice;
-          // Nếu có free shipping, cộng thêm phí vận chuyển vào tổng chiết khấu
-          if (voucher.value.freeShip) {
-            totalComboDiscount += feeship.value;
-          }
+      if (applicableItems.length === voucher.value.productIDs.length) {
+        discount = totalCost.value - voucher.value.comboPrice;
+        if (voucher.value.freeShip) {
+          discount += feeship.value;
         }
       }
-      discount = totalComboDiscount;
-    }
-    else {
+    } else {
       discount = parseInt(voucher.value.discountValue);
     }
 
-    // Nếu có miễn phí vận chuyển, cộng thêm phí vận chuyển vào tổng chiết khấu
-    if (voucher.value.freeShip) {
+    // Handle free shipping separately
+    if (voucher.value.freeShip && voucher.value.voucherType !== 'comboPrice') {
       discount += feeship.value;
     }
   }
@@ -364,29 +382,18 @@ const computedDiscount = computed(() => {
 });
 
 const totalValue = computed(() => {
-  // Tính toán tổng chi phí giỏ hàng
   let cost = totalCost.value;
   let discount = computedDiscount.value;
 
-  // Nếu có voucher combo và các sản phẩm khác, tổng giá là comboPrice + giá của sản phẩm khác
-  if (voucher.value && voucher.value.voucherType === 'comboPrice') {
-    const applicableItems = cartItems.value.filter(item => voucher.value.productIDs.includes(item.id));
-    if (applicableItems.length > 0) {
-      // Tính toán chi phí các sản phẩm không nằm trong combo
-      const otherItemsCost = cartItems.value
-          .filter(item => !voucher.value.productIDs.includes(item.id))
-          .reduce((acc, item) => acc + item.cost, 0);
+  // Apply the discount correctly to the total cost
+  cost -= discount;
 
-      // Cộng thêm chi phí combo vào tổng giá
-      cost = voucher.value.comboPrice + otherItemsCost;
-    }
-  } else {
-    // Nếu không có voucher combo, chỉ tính chiết khấu và phí vận chuyển
-    cost -= discount;
+  // Add feeship if applicable and not already included in discount
+  if (voucher.value && voucher.value.voucherType !== 'comboPrice') {
     cost += feeship.value;
   }
 
-  // Áp dụng chiết khấu từ điểm thưởng khách hàng
+  // Apply customer's points discount
   const pointsDiscount = cost * (formData.value.usedCustomerPoints / 100);
   cost -= pointsDiscount;
 

@@ -22,6 +22,14 @@ onMounted(() => {
   store.dispatch('loadVoucher');
   store.dispatch('loadErrorMessageVoucher');
   store.dispatch('loadUser');
+  // const token = sessionStorage.getItem('token');
+  // const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+  // const refreshToken = sessionStorage.getItem('refreshToken');
+  //
+  // if (token && user) {
+  //   store.dispatch('login', { token, refreshToken, user });
+  // }
+
 });
 // const fetchUserInformation = async () => {
 //   try {

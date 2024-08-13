@@ -3,6 +3,20 @@
     Thông tin tài khoản
   </h1>
   <form class="mt-4">
+    <div class="avatar-upload-container d-flex flex-column justify-content-center align-items-center py-3 mb-3" v-loading="ui.loading">
+      <!-- Avatar display -->
+      <el-avatar :size="100" :src="formData.avatar" class="avatar mb-2" />
+      <!-- Upload button -->
+      <el-upload
+          class="avatar-upload"
+          action="#"
+          :auto-upload="false"
+          :on-change="handleUploadChange"
+          :show-file-list="false"
+      >
+      <el-button size="small" type="primary">Edit</el-button>
+      </el-upload>
+    </div>
     <div class="form-group row">
       <div class="col-6 d-flex flex-column align-items-start p-0 pe-2">
         <label>Tên khách hàng</label>
@@ -58,8 +72,15 @@
 import {computed, onMounted, ref} from "vue";
 import {useStore} from "vuex";
 import axiosClient from "@/utils/axiosConfig";
+import noAvatar from "@/assets/images/no-avatar.png";
+import {ElMessage} from "element-plus";
+import {uploadFileToFirebaseAndGetURL} from "@/utils";
 
 const store = useStore();
+
+const ui = ref({
+  loading: false
+})
 
 const user = computed(() => store.getters.user);
 
@@ -67,17 +88,19 @@ const formData = ref({
   firstName: '',
   lastName: '',
   dob: null,
+  avatar: ''
 })
 
 onMounted(() => {
   formData.value.firstName = user.value.firstName;
   formData.value.lastName = user.value.lastName;
+  formData.value.avatar = user.value.avatar || noAvatar;
 })
 
-const handleUpdate = async () => {
+const handleUpdate = async (event) => {
+  event.preventDefault(); // Ngăn hành vi gửi form mặc định
   try {
     await axiosClient.put(`/users/${user.value.id}`, formData.value);
-    // Sau khi cập nhật thành công, tải lại dữ liệu người dùng
     await loadUserData();
   } catch (error) {
     console.error('Update failed:', error);
@@ -87,11 +110,18 @@ const handleUpdate = async () => {
 const loadUserData = async () => {
   try {
     const response = await axiosClient.get(`/users/${user.value.id}`);
-    store.commit('updateUser', response.data); // Giả sử bạn có một mutation để cập nhật người dùng trong Vuex
+    store.commit('updateUser', response.data);
   } catch (error) {
     console.error('Failed to load user data:', error);
   }
 };
+
+const handleUploadChange = async (file) => {
+  ui.value.loading = true;
+  formData.value.avatar = await uploadFileToFirebaseAndGetURL(file.raw, 'users');
+  ui.value.loading = false;
+}
+
 </script>
 
 <style scoped>
@@ -155,6 +185,23 @@ const loadUserData = async () => {
   border-radius: var(--space-100);
   color: var(--white);
   text-align: center;
+}
+
+.avatar-upload-container {
+  border-bottom: 1px solid var(--orange-1);
+}
+
+.avatar-upload {
+  display: inline-block;
+}
+
+.avatar {
+  cursor: pointer; /* Makes the avatar look clickable */
+}
+
+::v-deep .el-button--primary {
+  background-color: var(--orange-1)!important;
+  border-color: var(--orange-1)!important;
 }
 
 </style>

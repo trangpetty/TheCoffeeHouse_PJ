@@ -109,8 +109,6 @@ const selectedTopping = ref({
 
 const image = ref([]);
 
-const cart = ref([]);
-
 const voucher = computed(() => store.getters.voucher);
 const cartItems = computed(() => store.getters.cartItems);
 
@@ -188,6 +186,7 @@ const addToCart = async () => {
 
     if (props.addCart) {
       store.dispatch('addProductToCart', productWithDetails);
+
     } else {
       store.dispatch('updateProductInCart', { product: productWithDetails, index: props.index });
     }
@@ -216,6 +215,12 @@ const addToCart = async () => {
       toppingID: null,
       name: '',
       quantity: 0
+    };
+
+    selectedSize.value = {
+      id: null,
+      size: '',
+      surcharge: 0
     };
   }
 };

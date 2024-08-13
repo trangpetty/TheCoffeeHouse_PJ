@@ -1,14 +1,24 @@
-<!-- src/components/order/account/LoginView.vue -->
 <template>
   <div class="container py-5" v-loading="ui.loading">
-    <el-form @submit.prevent="login" class="form-login box-shadow p-4">
-      <el-form-item class="border-orange">
+    <el-form @submit.prevent="login" class="form-login box-shadow p-4" :rules="loginRules" ref="loginForm">
+      <el-form-item class="border-orange" prop="email">
         <font-awesome-icon icon="fa-solid fa-envelope" class="icon"/>
-        <el-input v-model="formLogin.email" type="email" placeholder="Email" class="input-login" required />
+        <el-input v-model="formLogin.email" type="email" placeholder="Email" class="input-login" />
       </el-form-item>
-      <el-form-item class="border-orange">
+      <el-form-item class="border-orange" prop="password">
         <font-awesome-icon icon="fa-solid fa-lock" class="icon"/>
-        <el-input v-model="formLogin.password" type="password" placeholder="Password" class="input-login" required />
+        <el-input
+            v-model="formLogin.password"
+            :type="passwordType"
+            placeholder="Password"
+            class="input-login">
+          <template #append>
+            <font-awesome-icon
+                :icon="passwordType !== 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'"
+                class="password-toggle"
+                @click="togglePasswordVisibility"/>
+          </template>
+        </el-input>
       </el-form-item>
       <el-form-item>
         <button class="btn-add-item fs-6">Login</button>
@@ -22,10 +32,10 @@ import { ref } from 'vue';
 import { useStore } from 'vuex';
 import router from "@/router";
 import axiosClient from "@/utils/axiosConfig";
-import {ElMessage} from "element-plus";
+import { ElMessage } from "element-plus";
 
 const store = useStore();
-const loginError = ref('');
+const loginForm = ref(null)
 
 const formLogin = ref({
   email: '',
@@ -33,13 +43,30 @@ const formLogin = ref({
 });
 
 const ui = ref({
-  loading: false,
-  isPhoneNumberValid: true,
-  isEmailValid: true,
+  loading: false
 });
+
+const loginRules = {
+  email: [
+    { required: true, message: 'Email is required', trigger: 'blur' },
+    { type: 'email', message: 'Invalid email address', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: 'Password is required', trigger: 'blur' },
+  ]
+};
+
+// State for password visibility
+const passwordType = ref('password');
+
+// Toggle password visibility
+const togglePasswordVisibility = () => {
+  passwordType.value = passwordType.value === 'password' ? 'text' : 'password';
+};
 
 const login = async () => {
   try {
+    await loginForm.value.validate();
     const response = await axiosClient.post('/auth/signin', formLogin.value);
     const result = response.data;
 
@@ -53,12 +80,7 @@ const login = async () => {
       }, 2000);
     }
   } catch (error) {
-    if (error.response) {
-      loginError.value = error.response.data;
-    } else {
-      loginError.value = error.message;
-    }
-    console.error('Error during account login:', loginError.value);
+    ElMessage.error("Invalid email or password.");
   }
 };
 </script>
@@ -120,4 +142,13 @@ const login = async () => {
   background-color: #f5f5f5;
 }
 
+.password-toggle {
+  cursor: pointer;
+}
+
+::v-deep .el-input-group__append {
+  background-color: transparent!important;
+  color: var(--orange-1)!important;
+  box-shadow: none!important;
+}
 </style>

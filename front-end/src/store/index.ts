@@ -60,9 +60,9 @@ const store = createStore<State>({
         voucherDialog: false,
         voucher: {},
         errorMessage: '',
-        user: {},
-        token: '',
-        refreshToken: '',
+        user: JSON.parse(sessionStorage.getItem('user') || '{}'),
+        token: sessionStorage.getItem('token') || '',
+        refreshToken: sessionStorage.getItem('refreshToken') || '',
         selectedProduct: {},
         dialogProduct: false
     },
@@ -151,6 +151,9 @@ const store = createStore<State>({
             state.user = user;
             sessionStorage.setItem('user', JSON.stringify(user));
         },
+        updateUser(state, userData) {
+            state.user = userData;
+        },
         clearAuthData(state) {
             console.log('Clearing auth data...');
             state.token = '';
@@ -200,8 +203,8 @@ const store = createStore<State>({
         },
         loadAddress({ commit }) {
             try {
-                // Check for user data in sessionStorage
-                const sessionUserRaw = sessionStorage.getItem('user');
+                // Check for user data in localStorage
+                const sessionUserRaw = localStorage.getItem('user');
                 let sessionUser = null;
 
                 if (sessionUserRaw) {
@@ -212,7 +215,7 @@ const store = createStore<State>({
                 if (sessionUser && sessionUser.address) {
                     commit('setAddress', sessionUser.address);
                 } else {
-                    // If no user data or address in sessionStorage, fallback to localStorage
+                    // If no user data or address in localStorage, fallback to localStorage
                     const localAddressRaw = localStorage.getItem('address');
                     let localAddress = '';
 
@@ -223,7 +226,7 @@ const store = createStore<State>({
                     commit('setAddress', localAddress);
                 }
             } catch (e) {
-                console.error('Lỗi khi parse address từ localStorage hoặc sessionStorage:', e);
+                console.error('Lỗi khi parse address từ localStorage hoặc localStorage:', e);
                 commit('setAddress', '');
             }
         },

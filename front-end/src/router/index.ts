@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import store from '@/store/index';
-import HomeAdminView from '@/views/manager/HomeView.vue';
+import HomeAdminView from '@/views/ManagerView.vue';
 import ProductManagerView from '@/components/manager/product/index.vue';
 import ProductView from '@/components/manager/product/ProductView.vue';
 import ProductTypeView from '@/components/manager/product/ProductTypeView.vue';

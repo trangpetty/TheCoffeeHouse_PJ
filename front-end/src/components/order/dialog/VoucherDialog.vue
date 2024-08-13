@@ -198,13 +198,11 @@ const copyToClipboard = (text) => {
   ElMessage('Copied')
 }
 
-onMounted(() => {
-  getVouchers();
-})
-
-watch(user, (newUser) => {
-  getVouchers();
-})
+watch(isDialogVisible, (newValue) => {
+  if (newValue) {
+    getVouchers();
+  }
+});
 
 </script>
 

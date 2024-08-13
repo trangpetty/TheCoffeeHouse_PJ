@@ -1,19 +1,21 @@
-import axiosClient from '@/utils/axiosConfig';
-import store from '@/store/index';
+// utils/refreshToken.js
+import axios from 'axios';
+import { API_BASE_URL } from '@/config';
 
-const refreshToken = async () => {
+export default async function refreshToken() {
     try {
-        const response = await axiosClient.post('/auth/refresh', {
-            refreshToken: store.state.refreshToken,
-        });
-        const result = response.data;
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) throw new Error('No refresh token available');
 
-        store.dispatch('login', { token: result.token, refreshToken: result.refreshToken, user: store.state.user });
-        return result.token;
+        const response = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
+        const newToken = response.data.token;
+        localStorage.setItem('token', newToken);
+
+        return newToken;
     } catch (error) {
-        store.dispatch('logout');
-        throw new Error('Unable to refresh token');
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        throw error;
     }
-};
+}
 
-export default refreshToken;
