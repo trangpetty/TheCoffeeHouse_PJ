@@ -12,9 +12,11 @@
 import banner1 from '@/assets/images/banner1.webp'
 import banner2 from '@/assets/images/banner2.webp'
 import banner3 from '@/assets/images/banner3.webp'
+import banner4 from '@/assets/images/banner-combo.jpg'
+import banner5 from '@/assets/images/banner-newest.jpg'
 import {ref} from "vue";
 
-const images = ref([banner1, banner2, banner3])
+const images = ref([banner1, banner2, banner3, banner4, banner5])
 </script>
 
 <style scoped>

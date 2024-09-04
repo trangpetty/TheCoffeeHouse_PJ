@@ -52,6 +52,12 @@
                   <span>Lịch sử mua hàng</span>
                 </div>
               </el-dropdown-item>
+              <el-dropdown-item @click="handleItemClick('favorProduct')">
+                <div class="d-flex align-items-center" :class="{ 'active-link': isActive('/order/user-info/favorProduct') }">
+                  <font-awesome-icon style="width: var(--space-24)" class="fs-5 me-2" icon="fa-solid fa-bookmark" />
+                  <span>Sản phẩm yêu thích</span>
+                </div>
+              </el-dropdown-item>
               <el-dropdown-item @click="logout">
                 <div class="d-flex align-items-center">
                   <font-awesome-icon style="width: var(--space-24)" class="fs-5 me-2" icon="fa-solid fa-arrow-right-from-bracket" />

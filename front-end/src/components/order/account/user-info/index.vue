@@ -43,6 +43,7 @@ import { useRoute, useRouter } from 'vue-router';
 import accountUser from '@/components/order/account/user-info/UserInfoComponent.vue';
 import userAddress from '@/components/order/account/user-info/AddressComponent.vue';
 import orderHistory from '@/components/order/account/user-info/OrderHistoryComponent.vue';
+import favorProduct from '@/components/order/account/user-info/FavorProductComponent.vue'
 import { useStore } from "vuex";
 import JsBarcode from 'jsbarcode';
 import leaves from '@/assets/images/Leaves.5c9ad83.svg'
@@ -57,7 +58,8 @@ const user = computed(() => store.getters.user);
 const tabList = ref([
   { icon: "fa-solid fa-user", text: "Thông tin tài khoản", component: accountUser, tabName: 'accountUser' },
   { icon: "fa-solid fa-location-dot", text: "Sổ địa chỉ", component: userAddress, tabName: 'userAddress' },
-  { icon: "fa-solid fa-clock-rotate-left", text: "Lịch sử mua hàng", component: orderHistory, tabName: 'orderHistory' }
+  { icon: "fa-solid fa-clock-rotate-left", text: "Lịch sử mua hàng", component: orderHistory, tabName: 'orderHistory' },
+  { icon: "fa-solid fa-bookmark", text: "Sản phẩm yêu thích", component: favorProduct, tabName: 'favorProduct' },
 ]);
 
 const selectedTab = ref(0);

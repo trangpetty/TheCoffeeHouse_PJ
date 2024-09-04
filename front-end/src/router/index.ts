@@ -5,6 +5,7 @@ import ProductManagerView from '@/components/manager/product/index.vue';
 import ProductView from '@/components/manager/product/ProductView.vue';
 import ProductTypeView from '@/components/manager/product/ProductTypeView.vue';
 import ToppingView from '@/components/manager/product/ToppingView.vue';
+import HashtagView from '@/components/manager/product/HashtagView.vue';
 import VoucherView from '@/components/manager/voucher/VoucherView.vue';
 import CustomerView from '@/components/manager/customer/CustomerView.vue';
 import UserView from '@/components/manager/user/UserView.vue';
@@ -58,6 +59,11 @@ export const routes = [
             path: '/admin/product-type',
             name: 'Product Type',
             component: ProductTypeView
+          },
+          {
+            path: '/admin/hashtag',
+            name: 'Hashtag',
+            component: HashtagView
           },
           {
             path: '/admin/topping',

@@ -24,6 +24,9 @@
     <div class="container">
       <div class="news-tab">
         <a v-for="(item, index) in tabs" :key="index" class="news-tab-text nav-link" :class="{ active: activeName === item.name }" @click="setActiveTab(item.name)">{{item.label}}</a>
+        <div class="card-product-note-item">
+          <input type="text" v-model="queryHashtag" class="card-product-text" placeholder="Tìm hashtag" @change="searchHashtag">
+        </div>
       </div>
       <div class="card-slider-container pt-4">
         <div class="card-slider">
@@ -105,6 +108,7 @@ const products = ref([]);
 const newestProducts = ref([]);
 const discountProduct = ref([]);
 const news = ref([]);
+const queryHashtag = ref('');
 
 const setActiveTab = (tabName) => {
   activeName.value = tabName;
@@ -129,6 +133,11 @@ const getNewestProducts = async () => {
 const getDiscountProducts = async () => {
   const response = await axiosClient.get(`/products/has-discount`);
   discountProduct.value = response.data;
+}
+
+const searchHashtag = async () => {
+  const response = await axiosClient.get(`/hashtags/search?name=${queryHashtag.value}`);
+  products.value = response.data;
 }
 
 onMounted(async () => {
@@ -368,6 +377,34 @@ onMounted(async () => {
   display: -webkit-box;
   height: 25px;
 }
+
+.card-product-note-item {
+  background: var(--white-1);
+  border: 1px solid var(--smoky-gray-4);
+  border-radius: var(--space-4);
+  display: flex;
+  height: var(--space-44);
+}
+
+.card-product-text {
+  border: none;
+  flex: 1;
+  font-size: var(--space-16);
+  height: 100%;
+  outline: none;
+  padding: 0 var(--space-16);
+  width: 80%;
+  width: var(--space-200);
+}
+
+.card-product-note-icon {
+  height: 20px;
+  margin: 12px 11px;
+  width: 18px;
+  color: var(--orange-1);
+  cursor: pointer;
+}
+
 
 @media (min-width: 992px) {
   .news-tab {
