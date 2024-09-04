@@ -131,4 +131,9 @@ public class UserController {
     public List<ContactDetailDto> getDetailsUserById(@PathVariable Long id) {
         return userService.getContactDetailsUserById(id);
     }
+
+    @GetMapping("/top-users-summary")
+    public Map<String, List<Map<String, Object>>> getTopUsersSummary() {
+        return userService.getTopUsersSummary();
+    }
 }

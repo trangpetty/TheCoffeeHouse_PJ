@@ -61,4 +61,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
     @Query("SELECT p.id AS id, p.name AS name FROM Product p WHERE p.TypeID = :typeId")
     List<Map<String, Object>> findProductMapsByTypeId(@Param("typeId") Long typeId);
 
+    @Query("SELECT p FROM Product p JOIN UserProduct up ON p.id = up.productId WHERE up.liked = true AND up.userId = :userID")
+    List<Product> findLikedProducts(@Param("userID") Long userID);
+
 }

@@ -301,6 +301,19 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findProductMapsByTypeId(typeId);
     }
 
+    @Override
+    public List<ProductDto> getFavorProductByUser(Long userID) {
+        List<Product> products = productRepository.findLikedProducts(userID);
+        List<Topping> toppings = toppingRepository.findAll();
+        return products.stream().map(product -> {
+            List<ProductDetailDto> productDetailDtos = ProductMapper.mapToProductDetailDtoList(productDetailRepository.findAllByProductID(product.getId()));
+            List<ProductImageDto> productImageDtos = ProductMapper.mapProductImagesToDto(productImageRepository.findAllByProductID(product.getId()));
+            List<ProductToppingDto> productToppingDtos = ProductMapper.mapProductToppingsDto(productToppingRepository.findByProductID(product.getId()), toppings);
+
+            return ProductMapper.mapToProductDtoWithDetails(product, productDetailDtos, productImageDtos, productToppingDtos);
+        }).collect(Collectors.toList());
+    }
+
     private void saveOrUpdateProductDetails(List<ProductDetailDto> productDetailDtos, Product product) {
         List<ProductDetail> existingDetails = productDetailRepository.findAllByProductID(product.getId());
 

@@ -22,4 +22,9 @@ public class ProductHashtag {
 
     @Column(name = "hashtag_id")
     private Long hashtagId;
+
+    public ProductHashtag(Long productId, Long hashtagId) {
+        this.productId = productId;
+        this.hashtagId = hashtagId;
+    }
 }

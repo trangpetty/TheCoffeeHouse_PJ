@@ -29,4 +29,11 @@ public interface UserService {
     void updatePassword(String email, String password);
 
     List<ContactDetailDto> getContactDetailsUserById(Long id);
+
+    List<Object[]> getTopUsersBuy();
+
+    List<Object[]> getTopUsersCancelOrder();
+
+    Map<String, List<Map<String, Object>>> getTopUsersSummary();
+
 }

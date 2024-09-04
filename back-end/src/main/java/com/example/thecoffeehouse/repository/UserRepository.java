@@ -34,4 +34,22 @@ public interface UserRepository extends JpaRepository<User, Long>{
     @Query("SELECT u FROM User u WHERE u.dob BETWEEN :startDate AND :endDate")
     List<User> findUsersByAgeRange(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
+    @Query("SELECT u, COUNT(b.id) AS totalOrders, " +
+            "SUM(CASE WHEN b.status = 'success' THEN 1 ELSE 0 END) AS successfulOrders, " +
+            "SUM(CASE WHEN b.status = 'cancel' THEN 1 ELSE 0 END) AS canceledOrders, " +
+            "SUM(CASE WHEN b.status = 'fail' THEN 1 ELSE 0 END) AS failedOrders " +
+            "FROM User u JOIN Bill b ON u.id = b.userID " +
+            "GROUP BY u.id " +
+            "ORDER BY successfulOrders DESC")
+    List<Object[]> findTopUsersBuy(Pageable pageable);
+
+    @Query("SELECT u, COUNT(b.id) AS totalOrders, " +
+            "SUM(CASE WHEN b.status = 'success' THEN 1 ELSE 0 END) AS successfulOrders, " +
+            "SUM(CASE WHEN b.status = 'cancel' THEN 1 ELSE 0 END) AS canceledOrders, " +
+            "SUM(CASE WHEN b.status = 'fail' THEN 1 ELSE 0 END) AS failedOrders " +
+            "FROM User u JOIN Bill b ON u.id = b.userID " +
+            "GROUP BY u.id " +
+            "ORDER BY failedOrders DESC, canceledOrders DESC")
+    List<Object[]> findTopUsersCancelOrder(Pageable pageable);
+
 }

@@ -15,6 +15,7 @@ import com.example.thecoffeehouse.service.VoucherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -186,6 +188,52 @@ public class UserServiceImpl implements UserService {
     public List<ContactDetailDto> getContactDetailsUserById(Long id) {
         List<ContactDetails> contactDetails = contactDetailRepository.findByOwnerIDAndOwnerType(id, OwnerType.USER);
         return contactDetails.stream().map(ContactDetailMapper::mapToContactDetailDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Object[]> getTopUsersBuy() {
+        Pageable pageable = PageRequest.of(0, 5); // Limit to top 10 products
+        return userRepository.findTopUsersBuy(pageable);
+    }
+
+    @Override
+    public List<Object[]> getTopUsersCancelOrder() {
+        Pageable pageable = PageRequest.of(0, 5); // Limit to top 10 products
+        return userRepository.findTopUsersCancelOrder(pageable);
+    }
+
+    public Map<String, List<Map<String, Object>>> getTopUsersSummary() {
+        List<Object[]> topBuyers = getTopUsersBuy();
+        List<Object[]> topCancelers = getTopUsersCancelOrder();
+
+        // Xử lý kết quả để trả về một JSON response dễ đọc
+        List<Map<String, Object>> buyersResponse = new ArrayList<>();
+        for (Object[] result : topBuyers) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("user", result[0]);  // Đối tượng User
+            map.put("totalOrders", result[1]);
+            map.put("success", result[2]);
+            map.put("cancel", result[3]);
+            map.put("fail", result[4]);
+            buyersResponse.add(map);
+        }
+
+        List<Map<String, Object>> cancelersResponse = new ArrayList<>();
+        for (Object[] result : topCancelers) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("user", result[0]);  // Đối tượng User
+            map.put("totalOrders", result[1]);
+            map.put("success", result[2]);
+            map.put("cancel", result[3]);
+            map.put("fail", result[4]);
+            cancelersResponse.add(map);
+        }
+
+        Map<String, List<Map<String, Object>>> response = new HashMap<>();
+        response.put("topUsersBuy", buyersResponse);
+        response.put("topUsersCancel", cancelersResponse);
+
+        return response;
     }
 
 }

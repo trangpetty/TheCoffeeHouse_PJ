@@ -51,4 +51,6 @@ public interface ProductService {
 
     List<Map<String, Object>> getProductNamesByTypeId(Long typeId);
 
+    List<ProductDto> getFavorProductByUser(Long userID);
+
 }

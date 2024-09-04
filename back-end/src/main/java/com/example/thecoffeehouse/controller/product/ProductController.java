@@ -133,4 +133,9 @@ public class ProductController {
     public ResponseEntity<List<Map<String, Object>>> getProductNamesByTypeId(@PathVariable Long typeId) {
         return ResponseEntity.ok(productService.getProductNamesByTypeId(typeId));
     }
+
+    @GetMapping("/favor")
+    public ResponseEntity<List<ProductDto>> getFavorProductByUser(@RequestParam Long userID) {
+        return ResponseEntity.ok(productService.getFavorProductByUser(userID));
+    }
 }
