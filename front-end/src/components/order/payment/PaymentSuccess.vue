@@ -119,7 +119,7 @@
                     <div class="d-flex">
                       <div class="ps-3">
                         <h5 class="delivery-card__title mb-0"> {{ item.quantityProduct }} x {{ item.productName }}</h5>
-                        <p class="delivery-card__description mb-0">{{(item.productSize === 'S')? 'Nho' : (item.productSize === 'M')? 'Vua' : (item.productSize === 'L')? 'Lon' : ''}}</p>
+                        <p class="delivery-card__description mb-0">{{(item.productSize === 'S')? 'Nhỏ' : (item.productSize === 'M')? 'Vừa' : (item.productSize === 'L')? 'Lớn' : ''}}</p>
                         <h5 class="delivery-card__description mb-0" v-if="item.toppingName"> {{ item.toppingName }} x {{ item.quantityTopping }}</h5>
                       </div>
                     </div>

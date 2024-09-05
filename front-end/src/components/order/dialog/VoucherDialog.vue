@@ -83,7 +83,7 @@
         <img :src="selectedVoucher.image" alt="" class="detail-sale-box-image">
         <p class="text-user-info mb-0">
           <span class="me-1">{{selectedVoucher.code}}</span>
-          <span class="icon cursor-pointer" @click="copyToClipboard(selectedVoucher.code)"><font-awesome-icon icon="fa-solid fa-clone" /></span>
+          <span class="icon cursor-pointer" @click="copyToClipboard(selectedVoucher.code)"><font-awesome-icon icon="fa-solid fa-cLớne" /></span>
         </p>
         <p class="text-user-info text-black">{{selectedVoucher.description}}</p>
       </div>

@@ -120,7 +120,7 @@
                 <div class="product-details d-flex align-items-center justify-content-between w-100 pb-2">
                   <div>
                     <h6>{{item.productName}}</h6>
-                    <p class="m-0 mb-1">{{(item.productSize === 'S')? 'Nho' : (item.productSize === 'M')? 'Vua' : (item.productSize === 'L')? 'Lon' : ''}}</p>
+                    <p class="m-0 mb-1">{{(item.productSize === 'S')? 'Nhỏ' : (item.productSize === 'M')? 'Vừa' : (item.productSize === 'L')? 'Lớn' : ''}}</p>
                     <p class="m-0" v-if="item.toppingName"> {{ item.toppingName }} x {{ item.quantityTopping }}</p>
                   </div>
                   <h4 class="mb-0">{{ Utils.formatPrice(item.cost) }}</h4>

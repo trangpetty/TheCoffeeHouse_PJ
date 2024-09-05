@@ -84,7 +84,7 @@
                       </span>
                       <div class="ps-3">
                         <h5 class="delivery-card__title mb-0"> {{ item.quantity }} x {{ item.name }}</h5>
-                        <p class="delivery-card__description mb-0">{{(item.selectedSize.size === 'S')? 'Nho' : (item.selectedSize.size === 'M')? 'Vua' : (item.selectedSize.size === 'L')? 'Lon' : ''}}</p>
+                        <p class="delivery-card__description mb-0">{{(item.selectedSize.size === 'S')? 'Nhỏ' : (item.selectedSize.size === 'M')? 'Vừa' : (item.selectedSize.size === 'L')? 'Lớn' : ''}}</p>
                         <h5 class="delivery-card__description mb-0" v-if="item.selectedTopping.name"> {{ item.selectedTopping.name }} x {{ item.selectedTopping.quantity }}</h5>
                         <p class="d-inline" style="cursor: pointer" @click="removeFromCart(index)">Xoa</p>
                       </div>
@@ -228,6 +228,7 @@ import axiosClient from '@/utils/axiosConfig';
 import router from "@/router";
 import ProductDialog from "@/components/order/dialog/ProductDialog.vue";
 import {ElMessage} from "element-plus";
+import { sendMessage } from '@/services/websocketService';
 
 const store = useStore();
 
@@ -575,6 +576,9 @@ const confirmOrder = async () => {
       const endpoint = paymentMethod.value.methodName === 'momo' ? 'momo' : 'vnpay';
       // Example axios request
       const pay = await axiosClient.post(`/payment/${endpoint}`, formData.value);
+      const updateBill = (bill: any) => {
+        sendMessage('/app/updateBill', bill);
+      };
       if (pay.status === 200) {
         setTimeout(() => {
           deleteOrder();

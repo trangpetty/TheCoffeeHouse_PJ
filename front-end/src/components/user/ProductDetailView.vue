@@ -180,7 +180,7 @@ const getIconStyle = (size: string) => {
 };
 
 const getSizeLabel = (size: string) => {
-  const labels: { [key: string]: string } = { S: 'Nho', M: 'Vua', L: 'Lon' };
+  const labels: { [key: string]: string } = { S: 'Nhỏ', M: 'Vừa', L: 'Lớn' };
   return labels[size] || size;
 };
 

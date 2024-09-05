@@ -64,8 +64,8 @@
         </el-table-column>
         <el-table-column label="payment">
           <template #default={row}>
-            <span :style="(row.paymentStatus === 0) ? 'color:#5daf34' : 'color:red'">
-              {{ (row.paymentStatus === 0) ? 'Success' : 'Fail' }}
+            <span :style="(row.paymentStatus === 0) ? 'color:#5daf34' : (row.paymentStatus === 1) ? 'color:red' : 'color:orange'">
+              {{ (row.paymentStatus === 0) ? 'Success' : (row.paymentStatus === 1) ? 'Fail' : 'Pending'}}
             </span>
           </template>
         </el-table-column>
@@ -90,11 +90,11 @@
               <el-form-item :label="bill.userID ? 'User ID:' : 'Customer ID:'" v-if="bill.userID || bill.customerID">
                 <p>{{ bill.userID ? bill.userID : bill.customerID }}</p>
               </el-form-item>
-              <el-form-item label="Name:">
+              <el-form-item label="Name:" v-if="bill.contactDetail">
                 <p>{{ bill.contactDetail.name }}</p>
               </el-form-item>
             </el-col>
-            <el-col :span="12" class="d-flex">
+            <el-col :span="12" class="d-flex" v-if="bill.contactDetail">
               <el-form-item label="Phone Number:">
                 <p>{{ bill.contactDetail.phoneNumber }}</p>
               </el-form-item>
@@ -105,7 +105,7 @@
           </el-row>
           <el-row>
             <el-col>
-              <el-form-item label="Address:">
+              <el-form-item label="Address:" v-if="bill.contactDetail">
                 <p>{{ bill.contactDetail.address }}</p>
               </el-form-item>
             </el-col>
@@ -149,6 +149,8 @@
 <script lang="ts" setup>
 import {  ref } from 'vue';
 import axiosClient from '@/utils/axiosConfig';
+import { connectWebSocket } from '@/services/websocketService';
+import {IMessage} from "@stomp/stompjs";
 
 const ui = ref({
   dialogVisible: false,
@@ -203,6 +205,7 @@ const resetForm = () => {
 }
 
 const handleDetail = async (row: object) => {
+  console.log('Detail button clicked');
   ui.value.dialogVisible = true;
   bill.value = row
   console.log(bill.value)
@@ -214,6 +217,26 @@ const handleDetail = async (row: object) => {
 }
 
 fetchData()
+
+const handleBillMessage = (message: IMessage) => {
+  const updatedBill = JSON.parse(message.body);  // Parse thông tin hóa đơn từ WebSocket
+
+  // Kiểm tra xem hóa đơn đã có trong tableData chưa
+  const existingBillIndex = tableData.value.findIndex(bill => bill.id === updatedBill.id);
+
+  if (existingBillIndex !== -1) {
+    // Nếu hóa đơn đã có, cập nhật trạng thái mới
+    tableData.value[existingBillIndex] = updatedBill;
+  } else {
+    // Nếu hóa đơn mới, thêm vào đầu tableData
+    tableData.value.unshift(updatedBill)
+  }
+  ;
+}
+
+  connectWebSocket({
+    '/topic/bills': handleBillMessage
+  });
 
 </script>
 

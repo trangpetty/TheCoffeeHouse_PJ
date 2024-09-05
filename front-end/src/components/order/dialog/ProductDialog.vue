@@ -49,7 +49,7 @@
         <el-radio-group class="d-flex justify-content-between mt-3" v-model="selectedSize">
           <el-radio v-for="(item, index) in props.selectedProduct.productSizes" :key="index" :value="item">
             <div class="d-flex flex-column fs-6">
-              <span>{{(item.size === 'S')? 'Nho' : (item.size === 'M')? 'Vua' : (item.size === 'L')? 'Lon' : ''}}</span>
+              <span>{{(item.size === 'S')? 'Nhỏ' : (item.size === 'M')? 'Vừa' : (item.size === 'L')? 'Lớn' : ''}}</span>
               <span>+ {{Utils.formatPrice(item.surcharge)}}</span>
             </div>
           </el-radio>
