@@ -2,6 +2,10 @@ package com.example.thecoffeehouse.service.impl;
 
 import com.example.thecoffeehouse.Utils.exception.ApiException;
 import com.example.thecoffeehouse.service.UserService;
+import com.example.thecoffeehouse.service.bill.BillService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import com.example.thecoffeehouse.dto.user.*;
 import com.example.thecoffeehouse.entity.mapper.UserMapper;
@@ -21,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -38,6 +43,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final ContactDetailRepository contactDetailRepository;
 
     private final UserService userService;
+
+    @Autowired
+    @Lazy
+    private BillService billService;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JWTService jwtService, CustomerRepository customerRepository, ContactDetailRepository contactDetailRepository, UserService userService) {
         this.userRepository = userRepository;
@@ -109,6 +121,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userDto.setRole(newUser.getRole().name());
         userDto.setToken(jwt);
         userDto.setRefreshToken(refreshToken);
+
+        Map<String, Object> statistics = billService.getTodayStatistics();
+        messagingTemplate.convertAndSend("/topic/statistics", statistics);
 
         return userDto;
     }

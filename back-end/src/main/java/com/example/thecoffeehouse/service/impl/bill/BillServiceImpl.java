@@ -32,8 +32,10 @@ import com.example.thecoffeehouse.service.UserService;
 import com.example.thecoffeehouse.service.bill.BillService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -58,6 +60,9 @@ public class BillServiceImpl implements BillService {
     private final UserService userService;
     private final CustomerService customerService;
     private final VoucherRepository voucherRepository;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     public BillServiceImpl(BillRepository billRepository, BillProductRepository billProductRepository, DateTimeConverter dateTimeConverter, ProductRepository productRepository, ToppingRepository toppingRepository, ProductDetailRepository productDetailRepository, ContactDetailRepository contactDetailRepository, UserRepository userRepository, CustomerRepository customerRepository, UserService userService, CustomerService customerService, VoucherRepository voucherRepository) {
         this.billRepository = billRepository;
@@ -156,6 +161,8 @@ public class BillServiceImpl implements BillService {
                     customer.setDefaultAddress(billDto.getContactDetail().getAddress());
                     customer.setPoint(billDto.getValueOfCustomerPoint());
                     customerRepository.save(customer);
+                    Map<String, Object> statistics = getTodayStatistics();
+                    messagingTemplate.convertAndSend("/topic/statistics", statistics);
                 }
                 billDto.setCustomerID(customer.getId());
                 billDto.getContactDetail().setOwnerID(customer.getId());
@@ -167,6 +174,8 @@ public class BillServiceImpl implements BillService {
         // Tạo hoặc cập nhật ContactDetails
         ContactDetailDto contactDetailDto = createOrUpdateContactDetails(billDto.getContactDetail());
         billDto.setContactDetail(contactDetailDto);
+        billDto.setStatus("created");
+        billDto.setPaymentStatus(-1);
 
         // Chuyển đổi BillDto sang Bill và thiết lập contactDetailID
         Bill bill = BillMapper.mapToBill(billDto);
@@ -176,6 +185,8 @@ public class BillServiceImpl implements BillService {
         Bill savedBill = billRepository.save(bill);
         saveBillProducts(billDto.getProducts(), savedBill);
         List<BillProductDto> billProductDtos = billDto.getProducts();
+
+        messagingTemplate.convertAndSend("/topic/bills", BillMapper.mapToBillDto(savedBill, billProductDtos, contactDetailDto));
 
         return BillMapper.mapToBillDto(savedBill, billProductDtos, contactDetailDto);
     }
@@ -204,13 +215,13 @@ public class BillServiceImpl implements BillService {
 
         Bill savedBill = billRepository.save(bill);
 
-        List<Product> products = productRepository.findAll();
-        List<Topping> toppings = toppingRepository.findAll();
-        List<ProductDetail> sizes = productDetailRepository.findAll();
-
         List<BillProduct> billProducts = billProductRepository.getBillProductByBillID(bill.getId());
-        List<BillProductDto> billProductDtos = BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
-        return BillMapper.mapToBillDto(savedBill, billProductDtos);
+        List<BillProductDto> billProductDtos = getBillProductDtos(billProducts);
+
+        ContactDetailDto contactDetailDto = getContactDetailDto(bill);
+        messagingTemplate.convertAndSend("/topic/bills", BillMapper.mapToBillDto(bill, billProductDtos, contactDetailDto));
+
+        return BillMapper.mapToBillDto(savedBill, billProductDtos, contactDetailDto);
     }
 
     @Override
@@ -238,33 +249,35 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public List<RevenueDTO> getRevenueByType(String type, Integer month, Integer week) {
+        List<RevenueDTO> revenueList;
         if ("daily".equalsIgnoreCase(type) && month != null && week != null) {
             LocalDateTime[] weekRange = WeekInMonth.getStartAndEndOfWeekInMonth(LocalDate.now().getYear(), month, week);
-            return billRepository.findDailyRevenueForWeekInMonth(weekRange[0], weekRange[1]);
+            revenueList = billRepository.findDailyRevenueForWeekInMonth(weekRange[0], weekRange[1]);
+        } else {
+            revenueList = switch (type) {
+                case "weekly" -> getWeeklyRevenue();
+                case "yearly" -> getYearlyRevenue();
+                default -> getMonthlyRevenue();
+            };
         }
-        // Other types of revenue queries
-        return switch (type) {
-            case "weekly" -> getWeeklyRevenue();
-            case "yearly" -> getYearlyRevenue();
-//            case "productType":
-//                return getRevenueByProductType();
-            default -> getMonthlyRevenue();
-        };
+
+        // Gửi thông báo qua WebSocket
+        messagingTemplate.convertAndSend("/topic/bills", revenueList);
+
+        return revenueList;
     }
 
     @Override
     public BillDto getBillByCode(String code) {
         Bill bill = billRepository.getBillByCode(code);
+        if (bill == null) {
+            throw new RuntimeException("Bill not found");
+        }
+
         List<BillProduct> billProducts = billProductRepository.getBillProductByBillID(bill.getId());
+        List<BillProductDto> billProductDto = getBillProductDtos(billProducts);
 
-        List<Product> products = productRepository.findAll();
-        List<Topping> toppings = toppingRepository.findAll();
-        List<ProductDetail> sizes = productDetailRepository.findAll();
-
-        List<BillProductDto> billProductDto = BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
-
-        ContactDetails contactDetails = contactDetailRepository.findById(bill.getContactDetailID()).orElseThrow(() -> new RuntimeException("ContactDetail does not exist"));
-        ContactDetailDto contactDetailDto = ContactDetailMapper.mapToContactDetailDto(contactDetails);
+        ContactDetailDto contactDetailDto = getContactDetailDto(bill);
 
         return BillMapper.mapToBillDto(bill, billProductDto, contactDetailDto);
     }
@@ -281,7 +294,11 @@ public class BillServiceImpl implements BillService {
                 bill.setStatus("fail");
             }
             billRepository.save(bill);
-            log.info("Bill status after save: {}", bill.getStatus());
+            List<BillProduct> billProducts = billProductRepository.getBillProductByBillID(bill.getId());
+            List<BillProductDto> billProductDtos = getBillProductDtos(billProducts);
+
+            ContactDetailDto contactDetailDto = getContactDetailDto(bill);
+            messagingTemplate.convertAndSend("/topic/bills", BillMapper.mapToBillDto(bill, billProductDtos, contactDetailDto));
         } else {
             log.warn("Bill with code {} not found", code);
         }
@@ -323,8 +340,18 @@ public class BillServiceImpl implements BillService {
                     customerRepository.save(customer);
                     customerService.updateMemberLevel(customer);
                 }
+
             }
             billRepository.save(bill);
+            List<BillProduct> billProducts = billProductRepository.getBillProductByBillID(bill.getId());
+            List<BillProductDto> billProductDtos = getBillProductDtos(billProducts);
+
+            ContactDetailDto contactDetailDto = getContactDetailDto(bill);
+            messagingTemplate.convertAndSend("/topic/bills", BillMapper.mapToBillDto(bill, billProductDtos, contactDetailDto));
+            if(Objects.equals(bill.getStatus(), "success")) {
+                Map<String, Object> statistics = getTodayStatistics();
+                messagingTemplate.convertAndSend("/topic/statistics", statistics);
+            }
         }
     }
 
@@ -536,6 +563,36 @@ public class BillServiceImpl implements BillService {
             return BillMapper.mapToBillDto(bill, billProductDtos);
         }).collect(Collectors.toList());
     }
+
+    private List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
+
+    private List<Topping> getAllToppings() {
+        return toppingRepository.findAll();
+    }
+
+    private List<ProductDetail> getAllProductDetails() {
+        return productDetailRepository.findAll();
+    }
+
+    private List<BillProductDto> getBillProductDtos(List<BillProduct> billProducts) {
+        List<Product> products = getAllProducts();
+        List<Topping> toppings = getAllToppings();
+        List<ProductDetail> sizes = getAllProductDetails();
+        return BillMapper.mapToBillProductsDto(billProducts, products, toppings, sizes);
+    }
+
+    private ContactDetailDto getContactDetailDto(Bill bill) {
+        if (bill.getContactDetailID() != null) {
+            ContactDetails contactDetails = contactDetailRepository.findById(bill.getContactDetailID())
+                    .orElseThrow(() -> new RuntimeException("ContactDetail does not exist"));
+            return ContactDetailMapper.mapToContactDetailDto(contactDetails);
+        }
+        return null;
+    }
+
+
 //    public List<RevenueDTO> getDailyRevenueForWeekInMonth(int month, int week) {
 //        List<RevenueDTO> revenues = billRepository.findDailyRevenueForWeekInMonth(month, week);
 //        Map<String, Double> revenueMap = new HashMap<>();
