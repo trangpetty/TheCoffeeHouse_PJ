@@ -129,7 +129,7 @@ public class UserServiceImpl implements UserService {
         MembershipLevel newLevel = MembershipLevel.getLevel(points);
         user.setMembershipLevel(newLevel.getName());
 
-        if (points == newLevel.getMinPoints()) {
+        if (points >= newLevel.getMinPoints() && points > 0) {
             log.info("Condition met, assigning vouchers. Points: {}", points);
             voucherService.assignVouchersToUser(user.getId());
         } else {

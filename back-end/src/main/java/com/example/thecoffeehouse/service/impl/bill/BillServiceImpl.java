@@ -310,6 +310,9 @@ public class BillServiceImpl implements BillService {
             bill.setDeliveryStatus(deliveryStatus);
             if(Objects.equals(deliveryStatus, "Delivered")) {
                 bill.setStatus("success");
+                if (Objects.equals(bill.getPaymentMethod(), "cash")) {
+                    bill.setPaymentStatus(0);
+                }
                 if(bill.getVoucherID() != null) {
                     Voucher voucher = voucherRepository.findById(bill.getVoucherID()).orElse(null);
                     if(voucher != null) {

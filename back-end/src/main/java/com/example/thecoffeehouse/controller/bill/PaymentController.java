@@ -4,6 +4,7 @@ import com.example.thecoffeehouse.Utils.HmacUtil;
 import com.example.thecoffeehouse.Utils.MomoConfig;
 import com.example.thecoffeehouse.Utils.VnPayConfig;
 import com.example.thecoffeehouse.dto.bill.BillDto;
+import com.example.thecoffeehouse.entity.bill.Bill;
 import com.example.thecoffeehouse.service.bill.BillService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -116,9 +117,17 @@ public class PaymentController {
 
 
     @PostMapping("/cash")
-    public ResponseEntity<BillDto> payWithCash(@RequestParam Long billId, @RequestParam String cashTransactionId) {
-        BillDto updatedBill = billService.payWithCash(billId, cashTransactionId);
-        return ResponseEntity.ok(updatedBill);
+    public ResponseEntity<?> payWithCash(@RequestBody BillDto billDto) {
+        billDto.setPaymentMethod("cash");
+        billDto.setPaymentStatus(-1);
+
+        // Lưu hóa đơn vào cơ sở dữ liệu (cập nhật trạng thái là chưa thanh toán)
+        BillDto savedBill = billService.createBill(billDto);
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("billDto", savedBill);
+        responseData.put("message", "Order placed successfully. Please pay by cash on delivery.");
+
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
     @PostMapping("/vnpay")

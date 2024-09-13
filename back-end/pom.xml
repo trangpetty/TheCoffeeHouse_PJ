@@ -11,6 +11,7 @@
 	<groupId>com.example</groupId>
 	<artifactId>thecoffeehouse</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>thecoffeehouse</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
@@ -99,6 +100,11 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
 			</plugin>
 		</plugins>
 	</build>
