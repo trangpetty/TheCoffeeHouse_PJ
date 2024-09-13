@@ -30,20 +30,20 @@
       </el-form>
 
       <!-- Social login buttons -->
-      <div class="text-center">
-        <p class="mb-2">Đăng nhập với</p>
-        <div class="d-flex justify-content-between align-items-center">
-          <button class="btn btn-light border-0 rounded d-flex align-items-center justify-content-center w-100">
-            <img :src="google" style="width:2rem" class="me-2">
-            <span>Google</span>
-          </button>
-          <span class="mx-3">Or</span>
-          <button class="btn btn-light border-0 rounded d-flex align-items-center justify-content-center w-100">
-            <img :src="facebook" style="width:2rem" class="me-2">
-            <span>Facebook</span>
-          </button>
-        </div>
-      </div>
+<!--      <div class="text-center">-->
+<!--        <p class="mb-2">Đăng nhập với</p>-->
+<!--        <div class="d-flex justify-content-between align-items-center">-->
+<!--          <button class="btn btn-light border-0 rounded d-flex align-items-center justify-content-center w-100">-->
+<!--            <img :src="google" style="width:2rem" class="me-2">-->
+<!--            <span>Google</span>-->
+<!--          </button>-->
+<!--          <span class="mx-3">Or</span>-->
+<!--          <button class="btn btn-light border-0 rounded d-flex align-items-center justify-content-center w-100">-->
+<!--            <img :src="facebook" style="width:2rem" class="me-2">-->
+<!--            <span>Facebook</span>-->
+<!--          </button>-->
+<!--        </div>-->
+<!--      </div>-->
     </div>
 
     <!-- Register form -->
@@ -337,4 +337,13 @@ function validateDob(rule, value, callback) {
   color: var(--orange-1)!important;
   box-shadow: none!important;
 }
+
+
+@media (max-width: 769px) {
+  .form-login-container {
+    width: 100%;
+    padding: 2rem 0;
+  }
+}
+
 </style>

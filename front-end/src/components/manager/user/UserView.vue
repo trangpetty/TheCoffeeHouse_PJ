@@ -23,9 +23,9 @@
         <el-form-item>
           <el-button type="primary" @click="fetchData">Search</el-button>
           <el-button type="primary" @click="resetForm">Reset</el-button>
-          <el-button type="primary" @click="handleAdd">
-            <i class="el-icon-circle-plus-outline"/><span>Add</span>
-          </el-button>
+<!--          <el-button type="primary" @click="handleAdd">-->
+<!--            <i class="el-icon-circle-plus-outline"/><span>Add</span>-->
+<!--          </el-button>-->
         </el-form-item>
       </el-form>
     </div>
@@ -60,7 +60,7 @@
       </el-table>
 
       <!-- Dialog Update Or Add -->
-      <el-dialog v-model="ui.dialogVisible" width="40%" class="dialog" v-loading="ui.loading" :title="ui.addRecord?'Add order':'Update order'">
+      <el-dialog v-model="ui.dialogVisible" width="40%" class="dialog" v-loading="ui.loading" :title="ui.addRecord?'Add user':'Update user'">
         <el-form :model="formData" label-width="auto">
           <el-input v-model="user_id" class="d-none" />
           <el-form-item label="First Name">

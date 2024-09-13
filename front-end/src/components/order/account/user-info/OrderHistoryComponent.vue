@@ -333,4 +333,8 @@ onMounted(() => {
 .star-rating span.filled {
   color: var(--orange-2);
 }
+
+ul {
+  padding: 0;
+}
 </style>

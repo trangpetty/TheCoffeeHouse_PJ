@@ -21,7 +21,21 @@ const images = ref([banner1, banner2, banner3, banner4, banner5])
 
 <style scoped>
 .banner_home {
-  transform: translateY(-60px);
   position: relative;
 }
+
+::v-deep .el-carousel__container {
+  height: 400px!important;
+}
+
+@media (max-width: 992px) {
+  .banner_home {
+    transform: translateY(0);
+  }
+
+  ::v-deep .el-carousel__container {
+    height: 140px!important;
+  }
+}
+
 </style>

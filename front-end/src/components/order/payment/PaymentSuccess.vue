@@ -8,7 +8,7 @@
               <h1 class="text-center h4 mb-0" style="font-weight: 600;">
                 <span class="text text-orange">{{deliveryStatusText}}</span>
               </h1>
-              <el-steps class="custom-steps mt-4" :active="activeStep">
+              <el-steps class="custom-steps mt-4" :active="activeStep" :direction="stepDirection" align-center>
                 <el-step title="Đặt thành công">
                   <template #icon>
                     <font-awesome-icon icon="fa-solid fa-check-to-slot" class="icon"/>
@@ -112,7 +112,7 @@
                 </div>
               </div>
               <!--  Product List -->
-              <div class="ms-5 box-shadow checkout-box-item float-lg-end rounded">
+              <div class="box-shadow checkout-box-item float-lg-end rounded">
                 <div class="py-3 w-100 px-4">
                   <h4 class="checkout-box_title mb-0">Các món đã chọn</h4>
                   <div class="order-card d-flex align-items-center justify-content-between" v-for="(item, index) in bill.products" :key="index">
@@ -220,6 +220,12 @@ import { connectWebSocket } from '@/utils/websocket';
 
 const props = defineProps(['code']);
 
+const stepDirection = ref("horizontal");
+
+const handleResize = () => {
+  stepDirection.value = window.innerWidth < 768 ? "vertical" : "horizontal";
+};
+
 const ui = ref({
   confirmDelivered: false
 });
@@ -306,6 +312,9 @@ const cancelOrder = async () => {
 };
 
 onMounted (async () => {
+  handleResize();
+  window.addEventListener("resize", handleResize);
+
   const response = await axiosClient.get(`/bills/${props.code}`);
   bill.value = response.data;
   if(bill.value.voucherID) {
@@ -331,6 +340,8 @@ onMounted (async () => {
 
 .custom-steps {
   margin-left: var(--space-50);
+  //display: flex;
+  //flex-direction: row;
 }
 
 .custom-steps .icon {
@@ -523,6 +534,27 @@ onMounted (async () => {
 {
   .checkout-header .icon {
     font-size: var(--space-24);
+  }
+}
+
+@media (max-width: 769px) {
+  .checkout-box .checkout-box-item {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  ::v-deep .el-step.is-vertical .el-step__line {
+    left: 120%;
+    transform: translateY(100%);
+  }
+
+  ::v-deep .el-step.is-vertical {
+    margin-bottom: 2.5rem;
+    align-items: center;
+  }
+
+  ::v-deep .el-step.is-vertical .el-step__title {
+    margin-left: 2.5rem;
   }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="props.visible" :show-close="false" width="30%" class="rounded custom-dialog">
+  <el-dialog v-model="props.visible" :show-close="false" :width="dialogWidth" class="rounded custom-dialog">
     <template #header="{close}">
       <div class="d-flex align-items-center w-100 p-2">
         <h4 class="mx-auto my-0 fs-6">Thêm món mới</h4>
@@ -81,12 +81,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineProps, defineEmits, watch } from 'vue';
+import {ref, computed, defineProps, defineEmits, watch, onMounted, onBeforeUnmount} from 'vue';
 import { ElNotification } from 'element-plus';
 import { useStore } from 'vuex';
 import * as Utils from '@/utils/index'
 import {Close} from "@element-plus/icons-vue";
 import axiosClient from '@/utils/axiosConfig';
+
+const dialogWidth = ref('30%');
+
+// Hàm thay đổi width theo kích thước màn hình
+const handleResize = () => {
+  if (window.innerWidth <= 768) {
+    dialogWidth.value = '100%';  // Đặt width 100% cho màn hình nhỏ
+  } else {
+    dialogWidth.value = '30%';   // Đặt width 30% cho màn hình lớn hơn
+  }
+};
+
 
 const props = defineProps(['selectedProduct', 'visible', 'addCart', 'index', 'userId']);
 const emit = defineEmits(['updateProduct']);
@@ -294,6 +306,16 @@ watch(() => props.selectedProduct, () => {
 
   console.log("product", props.selectedProduct)
 }, { immediate: true });
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+  handleResize();  // Kiểm tra ngay từ đầu khi component được mount
+});
+
+// Loại bỏ event khi component bị hủy
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize);
+});
 
 </script>
 

@@ -8,7 +8,7 @@
               <el-select v-model="type" @change="fetchData">
                 <el-option label="All" value=""/>
                 <el-option label="#CoffeeLover" value="#CoffeeLover"/>
-                <el-option label="Cập nhật từ Nhà" value="Cập nhật từ Nhà"/>
+                <el-option label="Cập nhật từ Petty" value="Cập nhật từ Petty"/>
                 <el-option label="Ưu đãi đặc biệt" value="Ưu đãi đặc biệt"></el-option>
               </el-select>
             </el-form-item>

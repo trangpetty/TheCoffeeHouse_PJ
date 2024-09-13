@@ -4,7 +4,7 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-3 col-md-3 col-sm-12 stikySidebar">
-          <Sidebar @tab-change="updateCurrentTabLabel" />
+          <Sidebar @tab-change="updateCurrentTabLabel" class="custom-sidebar"/>
         </div>
         <div class="col-lg-9 col-md-9 col-sm-12 border_right_before">
           <h3>{{ currentTabLabel }}</h3>
@@ -75,6 +75,12 @@ const updateCurrentTabLabel = async (item) => {
 
   .border_right_before {
     border-left: 2px solid var(--orange-2);
+  }
+}
+
+@media (max-width: 769px) {
+  .custom-sidebar {
+    display: none;
   }
 }
 </style>

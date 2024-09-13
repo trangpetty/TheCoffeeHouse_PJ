@@ -93,7 +93,7 @@
                 </div>
               </div>
               <!--  Product List -->
-              <div class="ms-5 box-shadow checkout-box-item float-lg-end rounded">
+              <div class="box-shadow checkout-box-item float-lg-end rounded">
                 <div class="py-3 w-100 px-4">
                   <h4 class="checkout-box_title mb-0">Các món đã chọn</h4>
                   <div class="order-card d-flex align-items-center justify-content-between" v-for="(item, index) in bill.products" :key="index">
@@ -119,12 +119,29 @@
                       <p>{{Utils.formatPrice(bill.totalValue)}}</p>
                     </div>
                   </div>
-                  <div class="d-flex align-items-center justify-content-between pt-3">
+                  <div class="border-bottom d-flex align-items-center justify-content-between pt-3">
                     <div>
                       <p class="order-card__text">Phí giao hàng</p>
                     </div>
                     <div>
                       <p>{{Utils.formatPrice(18000)}}</p>
+                    </div>
+                  </div>
+                  <div class="border-bottom d-flex flex-column mt-4 pb-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <div>
+                        <el-text class="text-orange order-card__text">Khuyến mãi</el-text>
+                        <p class="m-0">{{voucher.name}}</p>
+                      </div>
+                      <h6 class="mb-0">-{{ bill.valueOfVoucher ? Utils.formatPrice(bill.valueOfVoucher) : (voucher.discountValue + '%') }}</h6>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between pt-3" v-if="bill.usedCustomerPoints">
+                      <div>
+                        <p class="order-card__text">Sử dụng điểm: {{ bill.usedCustomerPoints }}</p>
+                      </div>
+                      <div>
+                        <p>- {{Utils.formatPrice(bill.totalValue - bill.value)}}</p>
+                      </div>
                     </div>
                   </div>
                   <div class="d-flex align-items-center justify-content-between border-bottom pt-3" v-if="bill.usedCustomerPoints">
@@ -412,6 +429,13 @@ onMounted (async () => {
 {
   .checkout-header .icon {
     font-size: var(--space-24);
+  }
+}
+
+@media (max-width: 769px) {
+  .checkout-box .checkout-box-item {
+    width: 100%;
+    margin-left: 0;
   }
 }
 </style>

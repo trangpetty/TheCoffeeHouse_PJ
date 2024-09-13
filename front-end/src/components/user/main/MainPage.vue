@@ -1,13 +1,15 @@
 <template>
   <Carousel />
   <div class="py-5">
-    <div class="d-flex container">
+    <div class="d-flex container flex-wrap">
       <div class="menu_banner">
         <a href="#">
           <img :src="banner" alt="">
         </a>
       </div>
-      <ProductCard v-for="(item, index) in newestProducts" :key="index" :product="item"/>
+      <div class="d-flex">
+        <ProductCard v-for="(item, index) in newestProducts" :key="index" :product="item"/>
+      </div>
     </div>
     <div v-if="discountProduct" class="mb-3 container">
       <h3 class="title">
@@ -61,7 +63,7 @@
     <section class="blog_home py-3">
       <h2 class="blog_home_title">
         <img :src="cup" alt="">
-        Chuyện Nhà
+        Chuyện Petty
       </h2>
       <div class="container">
         <h3 class="blog_home_blogtitle">
@@ -410,6 +412,21 @@ onMounted(async () => {
   .news-tab {
     justify-content: center;
     width: 50%;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .cloudtea {
+    display: none;
+  }
+
+  .blog_item {
+    flex: 0 0 100%;
+    margin: 0;
+  }
+
+  .blog_item .article_item_info h3 {
+    height: 3rem;
   }
 }
 </style>

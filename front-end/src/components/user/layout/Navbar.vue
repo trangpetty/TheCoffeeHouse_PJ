@@ -2,6 +2,7 @@
   <header>
     <div class="container">
       <div class="d-flex align-items-center justify-content-center">
+        <button class="menu-toggle" @click="toggleSidebar">☰</button>
         <div class="header_logo">
           <router-link to="/" class="navbar-brand fw-bolder me-5">PETTY COFFEE</router-link>
         </div>
@@ -32,10 +33,37 @@
         </div>
       </div>
     </div>
+    <!-- Sidebar -->
+    <div class="sidebar" :class="{ 'menu-open': sidebarOpen }">
+      <button class="close-btn" @click="toggleSidebar">×</button>
+      <ul class="sidebar-menu">
+        <li v-for="(item, index) in menu" :key="index">
+          <router-link :to="`/menu/${item.path || ''}`">{{ item.label }}</router-link>
+          <ul v-if="item.children && item.children.length > 0">
+            <li v-for="(child, childIndex) in item.children" :key="childIndex">
+              <router-link :to="`/menu/${child.path || ''}`">{{ child.label }}</router-link>
+              <ul v-if="child.children && child.children.length > 0">
+                <li v-for="(grandchild, grandchildIndex) in child.children" :key="grandchildIndex">
+                  <router-link :to="`/menu/${grandchild.path || ''}`">{{ grandchild.label }}</router-link>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <!-- Overlay -->
+    <div class="overlay" v-if="sidebarOpen" @click="toggleSidebar"></div>
   </header>
 </template>
 <script lang="ts" setup>
 import { ref } from "vue";
+
+const sidebarOpen = ref(false);
+
+const toggleSidebar = () => {
+  sidebarOpen.value = !sidebarOpen.value;
+};
 
 const menu = ref([
   { label: "Cà phê", path: "Cà phê" },
@@ -141,7 +169,7 @@ header {
   background: rgba(255, 255, 255, 0.95);
 }
 
-.header_menu .menu_child_lv3 {
+ul {
   list-style-type: none;
 }
 
@@ -154,6 +182,102 @@ header {
 .clearfix:after {
   content: " ";
   display: table;
+}
+
+
+/* Sidebar Styles */
+.menu-toggle {
+  display: none; /* Ẩn theo mặc định */
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 1001; /* Đảm bảo nút nằm trên các phần tử khác */
+}
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: 250px;
+  height: 100%;
+  background-color: #ffffff;
+  z-index: 1000;
+  overflow-y: auto;
+  transition: left 0.3s ease-in-out;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar.menu-open {
+  left: 0;
+}
+
+.sidebar-menu {
+  padding: 20px;
+  list-style: none;
+}
+
+.sidebar-menu li {
+  margin-bottom: 15px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  margin: 15px;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+/* Responsive Styles */
+@media (min-width: 769px) {
+  .header_menu {
+    display: flex;
+  }
+
+  .header_menu ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+  }
+
+  .header_menu li {
+    margin: 0;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: none;
+  }
+}
+
+@media (max-width: 769px) {
+  .header_menu {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .sidebar {
+    display: block;
+  }
 }
 
 @media (min-width: 1200px) {

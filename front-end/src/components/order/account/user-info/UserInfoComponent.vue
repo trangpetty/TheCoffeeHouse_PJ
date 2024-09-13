@@ -14,7 +14,7 @@
           :on-change="handleUploadChange"
           :show-file-list="false"
       >
-      <el-button size="small" type="primary">Edit</el-button>
+        <el-button size="small" type="primary">Edit</el-button>
       </el-upload>
     </div>
     <div class="form-group row">
@@ -62,24 +62,29 @@
         </el-radio>
       </div>
     </div>
-    <div class="row d-flex justify-content-end">
+    <div class="row d-flex justify-content-end mt-3">
+      <button class="btn-update btn btn--orange-1 w-auto px-4 py-2 me-3" @click="handleResetPassword">Đổi mật khẩu</button>
       <button class="btn-update btn btn--orange-1 w-auto px-4 py-2" @click="handleUpdate">Cập nhật</button>
     </div>
   </form>
+
+  <!-- Reset password dialog component -->
+  <ResetPasswordDialog :visible="ui.dialogVisible" @update:visible="ui.dialogVisible = $event" />
 </template>
 
 <script lang="ts" setup>
-import {computed, onMounted, ref} from "vue";
-import {useStore} from "vuex";
-import axiosClient from "@/utils/axiosConfig";
-import noAvatar from "@/assets/images/no-avatar.png";
-import {ElMessage} from "element-plus";
-import {uploadFileToFirebaseAndGetURL} from "@/utils";
+import { computed, onMounted, ref } from 'vue';
+import { useStore } from 'vuex';
+import axiosClient from '@/utils/axiosConfig';
+import noAvatar from '@/assets/images/no-avatar.png';
+import ResetPasswordDialog from '@/components/order/dialog/ResetPasswordDialog.vue';
+import { uploadFileToFirebaseAndGetURL } from '@/utils';
 
 const store = useStore();
 
 const ui = ref({
-  loading: false
+  loading: false,
+  dialogVisible: false
 })
 
 const user = computed(() => store.getters.user);
@@ -89,7 +94,7 @@ const formData = ref({
   lastName: '',
   dob: null,
   avatar: ''
-})
+});
 
 onMounted(() => {
   formData.value.firstName = user.value.firstName;
@@ -117,11 +122,13 @@ const loadUserData = async () => {
 };
 
 const handleUploadChange = async (file) => {
-  ui.value.loading = true;
-  formData.value.avatar = await uploadFileToFirebaseAndGetURL(file.raw, 'users');
-  ui.value.loading = false;
-}
+  const url = await uploadFileToFirebaseAndGetURL(file.file);
+  formData.value.avatar = url;
+};
 
+const handleResetPassword = () => {
+  ui.value.dialogVisible = true;
+};
 </script>
 
 <style scoped>

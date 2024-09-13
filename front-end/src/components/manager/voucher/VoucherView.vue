@@ -533,18 +533,18 @@ const openFileInput = (file) => {
   document.body.removeChild(input);
 };
 
-const handleFileInputChange = async (event, fileToEdit) => {
-  const input = event.target;
-  if (input.files && input.files.length > 0) {
-    const newFile = input.files[0];
-    const downloadURL = await uploadFileToFirebaseAndGetURL(newFile, 'vouchers');
-    formData.value.image = downloadURL;
-    const fileIndex = fileList.value.findIndex(f => f.uid === fileToEdit.uid);
-    if (fileIndex !== -1) {
-      fileList.value[fileIndex] = { ...fileToEdit, raw: newFile, url: downloadURL };
-    }
-  }
-};
+// const handleFileInputChange = async (event, fileToEdit) => {
+//   const input = event.target;
+//   if (input.files && input.files.length > 0) {
+//     const newFile = input.files[0];
+//     const downloadURL = await uploadFileToFirebaseAndGetURL(newFile, 'vouchers');
+//     formData.value.image = downloadURL;
+//     const fileIndex = fileList.value.findIndex(f => f.uid === fileToEdit.uid);
+//     if (fileIndex !== -1) {
+//       fileList.value[fileIndex] = { ...fileToEdit, raw: newFile, url: downloadURL };
+//     }
+//   }
+// };
 
 onMounted(() => {
   fetchData();

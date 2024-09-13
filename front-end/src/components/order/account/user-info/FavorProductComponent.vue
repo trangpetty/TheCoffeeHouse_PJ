@@ -3,28 +3,57 @@
     Sản phẩm yêu thích
   </h1>
 
-  <div class="d-flex flex-wrap">
-    <ProductCard v-for="(item, index) in products" :key="index" :product="item"/>
+  <div class="row mb-4 mb-lg-5">
+    <div class="col-md-12 col-lg-3 mt-lg-3" v-for="(item, index) in products" :key="index">
+      <ProductCard
+          :product="item"
+          @add-to-cart="showProductModal"
+      />
+    </div>
   </div>
+<!--   Product Dialog-->
+  <ProductDialog
+      :selectedProduct="selectedProduct"
+      :visible="ui.dialogVisible"
+      :addCart="true"
+      :userId="user.id"
+      @close="closeDialog"
+  />
 </template>
 
 <script lang="ts" setup>
-import ProductCard from '@/components/user/main/ProductCard.vue';
+import ProductCard from '@/components/order/order/ProductCardComponent.vue';
+import ProductDialog from '@/components/order/dialog/ProductDialog.vue';
 import {computed, onMounted, ref} from "vue";
 import store from "@/store";
-import axiosClient from '@/utils/axiosConfig'
+import axiosClient from '@/utils/axiosConfig';
+
+const ui = ref({
+  dialogVisible: computed(() => store.state.dialogProduct) || false
+})
 
 const user = computed(() => store.getters.user);
+const selectedProduct = ref({});
 
 const products = ref([]);
 
-const getAddresses = async () => {
+const getFavorProducts = async () => {
   const response = await axiosClient.get(`/products/favor?userID=${user.value.id}`);
   products.value = response.data;
 }
+
 onMounted(() => {
-  getAddresses();
+  getFavorProducts();
 })
+
+const showProductModal = async (product) => {
+  selectedProduct.value = product;
+  store.dispatch('setProductDialog', product);
+};
+
+const closeDialog = () => {
+  store.dispatch('closeProductDialog');
+};
 </script>
 
 <style scoped>

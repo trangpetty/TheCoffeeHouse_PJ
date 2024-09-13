@@ -100,7 +100,7 @@
   border-radius: 50px;
   cursor: pointer;
   height: 3.25rem;
-  width: 16rem;
+  width: 15.75rem;
   padding: 0.5rem;
   margin-right: 2rem;
 }

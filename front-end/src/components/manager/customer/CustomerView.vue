@@ -23,9 +23,9 @@
         <el-form-item>
           <el-button type="primary" @click="fetchData">Search</el-button>
           <el-button type="primary" @click="resetForm">Reset</el-button>
-          <el-button type="primary" @click="handleAdd">
-            <i class="el-icon-circle-plus-outline"/><span>Add</span>
-          </el-button>
+<!--          <el-button type="primary" @click="handleAdd">-->
+<!--            <i class="el-icon-circle-plus-outline"/><span>Add</span>-->
+<!--          </el-button>-->
         </el-form-item>
       </el-form>
     </div>

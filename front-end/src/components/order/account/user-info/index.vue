@@ -193,6 +193,7 @@ onMounted(() => {
 
 .user-info {
   display: flex;
+  flex-wrap: wrap;
   margin-top: -70px;
 }
 
@@ -256,5 +257,11 @@ onMounted(() => {
   font-size: 1.25rem;
   color: #c4c4c4;
   width: var(--space-18);
+}
+
+@media (max-width: 769px) {
+  .user-info-left, .user-info-right {
+    max-width: 100%;
+  }
 }
 </style>

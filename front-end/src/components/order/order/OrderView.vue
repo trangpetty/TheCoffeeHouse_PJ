@@ -6,10 +6,10 @@
       <div class="container-fluid container-lg">
         <div class="box-title d-flex justify-content-center align-items-center">
           <span class="icon"><font-awesome-icon icon="fa-solid fa-trophy" /></span>
-          <span class="text">Sản phẩm từ Nhà</span>
+          <span class="text">Sản phẩm từ Petty</span>
         </div>
         <!--   Type of Drink     -->
-        <ul class="category-list d-flex flex-wrap justify-content-center">
+        <ul class="category-list">
           <li v-for="(item, index) in types" :key="index" class="category-item mx-2 mb-2 nav-item" @click="event => handleChangeType(item.id, item.name, event)">
             <a href="#" class="nav-link m-0 border-0 py-2 px-3" :class="{ active: activeId === item.id }">
               <div class="d-flex flex-column">
@@ -28,25 +28,10 @@
         <div>
           <div class="row mb-4 mb-lg-5">
             <div class="col-12 col-md-6 col-xl-2 col-lg-3 mt-lg-3" v-for="(item, index) in products" :key="index">
-              <div class="product-card p-2 m-2 box-shadow d-flex flex-lg-column">
-                <div class="product-card_image h-auto">
-                  <img :src="item.image ? item.image : item.images[0].url" alt="" class="w-100 rounded">
-                </div>
-                <div class="d-flex flex-column pt-3">
-                  <div class="mb-1 mb-lg-3 product-title_name">
-                    <div class="mb-0">{{ item.name }}</div>
-                  </div>
-                  <div class="d-flex align-items-center justify-content-between">
-                    <p class="mb-0 d-flex align-items-center">
-                      <span class="d-block me-2" :class="{ 'price-crossed': item.hasDiscount }" style="font-size: 0.875rem">{{ formatPrice(item.price) }}</span>
-                      <span class="d-block" style="font-size: 0.875rem" v-if="item.hasDiscount">{{ formatPrice(item.discountPrice) }}</span>
-                    </p>
-                    <div class="btn btn--orange-1 add-to-cart d-flex align-items-center justify-content-center rounded-circle text-white" @click="() => showProductModal(item)">
-                      <font-awesome-icon icon="fa-solid fa-plus" />
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ProductCard
+                  :product="item"
+                  @add-to-cart="showProductModal"
+              />
             </div>
           </div>
           <!-- Product Dialog -->
@@ -96,7 +81,8 @@ import ProductDialog from '@/components/order/dialog/ProductDialog.vue';
 import { ref, computed, onMounted } from 'vue'
 import axiosClient from '@/utils/axiosConfig';
 import {useStore} from 'vuex';
-import Carousel from '@/components/Carousel.vue'
+import Carousel from '@/components/Carousel.vue';
+import ProductCard from '@/components/order/order/ProductCardComponent.vue';
 
 const ui = ref({
   dialogVisible: computed(() => store.state.dialogProduct) || false
@@ -133,10 +119,6 @@ const handleChangeType = async (id: number, name: string, event: Event) => {
   }
 }
 
-const formatPrice = (price: number): string => {
-  return price.toLocaleString('vi-VN') + 'đ';
-};
-
 const showProductModal = async (product) => {
   // selectedProduct.value = product;
   store.dispatch('setProductDialog', product);
@@ -158,8 +140,9 @@ onMounted(async () => {
 .dropdown:hover .dropdown-menu {
       display: block;
     }
+
 .box {
-  padding: 3.25rem 0;
+  padding: 2rem 0;
 }
 
 .box-title {
@@ -182,6 +165,12 @@ onMounted(async () => {
 
 .category-list {
   list-style-type: none;
+  flex-wrap: wrap;
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+  padding: 0;
+  margin: 0;
 }
 
 .category-item {
@@ -199,6 +188,8 @@ onMounted(async () => {
   border-radius: 50%;
   height: 120px;
   width: 120px;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .category-image img {
@@ -210,28 +201,6 @@ onMounted(async () => {
   font-size: 12px;
   color: var(--smoky-gray-2);
   font-weight: 600;
-}
-
-.product-card {
-  background-color: var(--white);
-  border-radius: 0.5rem;
-  cursor: pointer;
-}
-
-.product-title_name {
-  color: var(--black);
-  display: -webkit-box;
-  font-size: 0.875rem;
-  height: 3rem;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-height: 1.5rem;
-  overflow: hidden;
-}
-
-.add-to-cart {
-  height: 32px;
-  width: 32px;
 }
 
 .el-dialog__body {
@@ -398,6 +367,13 @@ onMounted(async () => {
   text-decoration: underline;
 }
 
+@media (max-width: 992px) {
+  .box {
+    padding-top: var(--space-16);
+    padding-bottom: var(--space-20);
+  }
+}
+
 @media(min-width:768px)
 {
    .carousel-caption {
@@ -405,13 +381,33 @@ onMounted(async () => {
       top: 55%;
       transform: translate(-50%, -50%);
   }
+
 }
 
-@media(max-width:768px)
+@media(max-width:769px) {
   .carousel {
     height: 240px;
   }
-{
+
+  .category-list {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .category-image {
+    height: var(--space-54);
+    overflow: hidden;
+    width: var(--space-54);
+  }
+
+  .nav-link.active .category-image img{
+    max-width: var(--space-32);
+  }
+
+  .category-image img{
+    max-width: var(--space-30);
+    height: var(--space-30);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

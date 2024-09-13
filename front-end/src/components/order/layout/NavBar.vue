@@ -1,11 +1,13 @@
 <template>
   <header class="bg-header d-flex align-items-center text-white">
-    <div class="container-fluid container-lg d-flex align-items-center px-3 justify-content-center">
-      <router-link to="/order" class="navbar-brand fw-bolder me-5 d-flex align-items-center" href="#">
-        <img :src="cup" style="width: 60px;" class="me-2">
-        PETTY COFFEE
-      </router-link>
-      <div class="header-delivery header-delivery--bg d-flex align-items-center justify-content-between" @click="showAddressDialog">
+    <div class="container-fluid container-lg d-flex align-items-center justify-content-center">
+      <div class="desktop-logo header-delivery--desktop">
+        <router-link to="/order" class="navbar-brand fw-bolder me-5 d-flex align-items-center" href="#">
+          <img :src="cup" style="width: 60px;" class="me-2">
+          PETTY COFFEE
+        </router-link>
+      </div>
+      <div class="header-delivery header-delivery--bg d-flex align-items-center justify-content-between " @click="showAddressDialog">
         <div class="d-flex">
           <img :src="delivery" alt="" class="icon-delivery">
           <div class="delivery-header_text ps-2">
@@ -15,7 +17,7 @@
         </div>
         <font-awesome-icon icon="fa-solid fa-chevron-down" class="icon-vertor"/>
       </div>
-      <div class="me-4">
+      <div class="me-4 desktop-logo header-delivery--desktop">
         <nav class="navbar navbar-expand-lg d-lg-inline">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
@@ -31,6 +33,7 @@
         <el-dropdown trigger="click" v-if="user.phoneNumber" ref="dropdown">
           <div>
             <img :src="user.avatar ? user.avatar : noAvatar" style="width: 40px; height: 40px" alt="" class="rounded-circle object-fit-cover">
+            <span class="name_user">{{user.firstName}} {{user.lastName}}</span>
           </div>
           <template #dropdown>
             <el-dropdown-menu>
@@ -88,7 +91,6 @@
             </el-dropdown-menu>
           </template>
         </el-dropdown>
-        <span class="name_user">{{user.firstName}} {{user.lastName}}</span>
         <div class="ms-3" @click="navigateToCheckout">
           <div class="icon d-flex align-items-center justify-content-center" :class="(totalQuantity > 0) ? 'icon-cart-has-item' : 'icon-cart'">
             <el-icon class="fs-4 fw-bold"><Handbag /></el-icon>
@@ -257,6 +259,13 @@ header {
   color: var(--orange-1);
 }
 
+@media (max-width: 992px) {
+  .desktop-logo, .header-delivery--desktop {
+    display: none;
+  }
+
+}
+
 @media (min-width: 768px)
 {
   header {
@@ -265,5 +274,10 @@ header {
 
 }
 
+@media (max-width: 769px) {
+  .name_user {
+    display: none;
+  }
+}
 
 </style>

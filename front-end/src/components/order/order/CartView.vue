@@ -69,7 +69,7 @@
                 </div>
               </div>
               <!--  Product List -->
-              <div class="ms-5 box-shadow checkout-box-item float-lg-end rounded">
+              <div class="box-shadow checkout-box-item float-lg-end rounded">
                 <div class="py-3 w-100 px-4">
                   <div class="d-flex justify-content-between">
                     <h4 class="checkout-box_title mb-0">Các món đã chọn</h4>
@@ -570,7 +570,15 @@ const confirmOrder = async () => {
   formData.value.valueOfCustomerPoint = Math.floor(totalValue.value / 100000);
 
   if (paymentMethod.value.methodName === 'cash') {
-    // Handle cash payment method
+    const pay = await axiosClient.post(`/payment/cash`, formData.value);
+    const updateBill = (bill: any) => {
+      sendMessage('/app/updateBill', bill);
+    };
+    if (pay.status === 200) {
+      setTimeout(() => {
+        router.push(`/payment-success/${formData.value.code}`)
+      }, 2000);
+    }
   } else {
     try {
       const endpoint = paymentMethod.value.methodName === 'momo' ? 'momo' : 'vnpay';
@@ -581,16 +589,15 @@ const confirmOrder = async () => {
       };
       if (pay.status === 200) {
         setTimeout(() => {
-          deleteOrder();
-          handleClearVoucher();
-          window.location.href = pay.data.paymentUrl;
+          router.push(pay.data.paymentUrl);
         }, 2000);
       }
-      console.log(formData.value)
     } catch (error) {
       console.error('Error processing payment:', error);
     }
   }
+  deleteOrder();
+  handleClearVoucher();
 };
 
 const deleteOrder = () => {
@@ -768,6 +775,14 @@ const openProductDialog = (item, index) => {
 {
   .checkout-header .icon {
     font-size: var(--space-24);
+  }
+}
+
+@media (max-width: 768px)
+{
+  .checkout-box .checkout-box-item {
+    width: 100%;
+    margin-left: 0;
   }
 }
 </style>

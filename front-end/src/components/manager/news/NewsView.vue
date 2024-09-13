@@ -11,7 +11,7 @@
           <el-form-item label="Type">
             <el-select v-model="formData.type">
               <el-option label="#CoffeeLover" value="#CoffeeLover"/>
-              <el-option label="Cập nhật từ Nhà" value="Cập nhật từ Nhà"/>
+              <el-option label="Cập nhật từ Petty" value="Cập nhật từ Petty"/>
               <el-option label="Ưu đãi đặc biệt" value="Ưu đãi đặc biệt"></el-option>
             </el-select>
           </el-form-item>

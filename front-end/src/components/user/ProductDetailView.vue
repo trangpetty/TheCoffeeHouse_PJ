@@ -12,7 +12,7 @@
       <div class="col-lg-6 col-md-6 col-sm-12">
         <el-carousel ref="carouselRef" trigger="click" :autoplay="false" @change="handleChange">
           <el-carousel-item v-for="(image, index) in product.images" :key="index">
-            <img :src="image.url" class="w-100"/>
+            <img :src="image.url"/>
           </el-carousel-item>
         </el-carousel>
         <div class="custom-indicators">
@@ -333,6 +333,18 @@ hr {
 #product-related .buy_combo, #product-buy-combo .buy_combo {
   display: flex;
   flex-wrap: wrap;
+}
+
+@media (max-width: 767px) {
+  ::v-deep .el-carousel__item img {
+    height: 360px !important;
+    object-fit: contain;
+  }
+
+  ::v-deep .el-carousel, .el-carousel__container {
+    height: 360px;
+    width: 100%;
+  }
 }
 
 </style>

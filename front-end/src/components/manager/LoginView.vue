@@ -1,6 +1,7 @@
 <template>
   <div class="container py-5" v-loading="ui.loading">
     <el-form @submit.prevent="login" class="form-login box-shadow p-4" :rules="loginRules" ref="loginForm">
+      <img :src="Logo" alt="" class="w-100">
       <el-form-item class="border-orange" prop="email">
         <font-awesome-icon icon="fa-solid fa-envelope" class="icon"/>
         <el-input v-model="formLogin.email" type="email" placeholder="Email" class="input-login" />
@@ -33,6 +34,7 @@ import { useStore } from 'vuex';
 import router from "@/router";
 import axiosClient from "@/utils/axiosConfig";
 import { ElMessage } from "element-plus";
+import Logo from "@/assets/images/logo.png";
 
 const store = useStore();
 const loginForm = ref(null)

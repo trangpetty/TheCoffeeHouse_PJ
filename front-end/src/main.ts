@@ -12,6 +12,7 @@ import { far } from '@fortawesome/free-regular-svg-icons'
 import store from './store'
 import axios from 'axios';
 import refreshToken from './utils/refreshToken';
+import 'quill/dist/quill.snow.css';
 
 axios.interceptors.response.use(
     response => response,

@@ -188,4 +188,10 @@ const handleChooseCard = (code: string) => {
 .star-rating span.filled {
   color: var(--orange-2);
 }
+
+@media (max-width: 769px) {
+  .history-wrapper {
+    width: 100%;
+  }
+}
 </style>

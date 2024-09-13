@@ -41,23 +41,8 @@
       </el-col>
     </el-row>
 
-    <el-dialog v-model="dialogVisible" width="40%" class="dialog" title="Đổi mật khẩu">
-      <el-form :model="editForm" label-width="160px" label-position="right">
-        <el-form-item label="Mật khẩu cũ" prop="oldPassword">
-          <el-input type="password" v-model="editForm.oldPassword" />
-        </el-form-item>
-        <el-form-item label="Mật khẩu mới" prop="newPassword">
-          <el-input type="password" v-model="editForm.newPassword" />
-        </el-form-item>
-        <el-form-item label="Nhập lại mật khẩu mới" prop="newPasswordAgain">
-          <el-input type="password" v-model="editForm.newPasswordAgain" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="dialogVisible = false">Hủy</el-button>
-        <el-button type="primary" @click="changePassword">Xác nhận</el-button>
-      </template>
-    </el-dialog>
+    <!-- Reset password dialog component -->
+    <ResetPasswordDialog :visible="dialogVisible" @update:visible="dialogVisible = $event" />
   </div>
 </template>
 
@@ -67,6 +52,7 @@ import Logo from '@/assets/images/logo.png';
 import noAvatar from '@/assets/images/user2.png';
 import axiosClient from '@/utils/axiosConfig';
 import { computed, ref } from 'vue';
+import ResetPasswordDialog from '@/components/order/dialog/ResetPasswordDialog.vue';
 import { ElMessage } from 'element-plus';
 import store from "@/store";
 import router from "@/router";
@@ -80,33 +66,34 @@ const editForm = ref({
   newPasswordAgain: ''
 });
 
-const validatePasswordAgain = (rule: any, value: any, callback: any) => {
-  if (value === '') {
-    callback(new Error('Vui lòng nhập lại mật khẩu mới'));
-  } else if (value !== editForm.value.newPassword) {
-    callback(new Error('Mật khẩu mới không khớp'));
-  } else if (value === editForm.value.oldPassword) {
-    callback(new Error('Mật khẩu mới không thể trùng với mật khẩu cũ'));
-  } else {
-    callback();
-  }
-};
-
-const editFormRules = {
-  oldPassword: [
-    { required: true, message: 'Vui lòng nhập mật khẩu cũ', trigger: 'blur' }
-  ],
+const rules = {
+  oldPassword: [{ required: true, message: 'Mật khẩu cũ là bắt buộc', trigger: 'blur' }],
   newPassword: [
-    { required: true, message: 'Vui lòng nhập mật khẩu mới', trigger: 'blur' }
+    { required: true, message: 'Mật khẩu mới là bắt buộc', trigger: 'blur' },
+    { min: 6, message: 'Mật khẩu mới phải có ít nhất 6 ký tự', trigger: 'blur' }
   ],
   newPasswordAgain: [
-    { required: true, message: 'Vui lòng nhập lại mật khẩu mới', trigger: 'blur' },
-    { validator: validatePasswordAgain, trigger: 'blur' }
+    { required: true, message: 'Nhập lại mật khẩu mới là bắt buộc', trigger: 'blur' },
+    { validator: (rule, value, callback) => {
+        if (value !== editForm.value.newPassword) {
+          callback(new Error('Mật khẩu xác nhận không khớp'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur'
+    }
   ]
 };
 
+const formRef = ref(null);
 
 const changePassword = async () => {
+  if (editForm.value.newPassword !== editForm.value.newPasswordAgain) {
+    ElMessage.error('Mật khẩu mới và xác nhận mật khẩu không khớp. Vui lòng kiểm tra lại.');
+    return;
+  }
+
   try {
     const token = sessionStorage.getItem('token');
     const response = await axiosClient.post('/auth/change-password', {
@@ -123,7 +110,10 @@ const changePassword = async () => {
       localStorage.setItem('token', newToken);
     }
     ElMessage.success('Đổi mật khẩu thành công!');
-    dialogVisible.value = false;
+    ui.value.dialogVisible = false;
+    editForm.value.oldPassword = '';
+    editForm.value.newPassword = '';
+    editForm.value.newPasswordAgain = '';
   } catch (error) {
     ElMessage.error('Đổi mật khẩu thất bại. Vui lòng thử lại.');
   }
