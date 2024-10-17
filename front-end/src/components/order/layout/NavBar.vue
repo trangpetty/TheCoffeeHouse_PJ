@@ -31,7 +31,7 @@
       </div>
       <div class="d-flex align-items-center ms-auto header-right">
         <el-dropdown trigger="click" v-if="user.phoneNumber" ref="dropdown">
-          <div>
+          <div class="d-flex align-items-center">
             <img :src="user.avatar ? user.avatar : noAvatar" style="width: 40px; height: 40px" alt="" class="rounded-circle object-fit-cover">
             <span class="name_user">{{user.firstName}} {{user.lastName}}</span>
           </div>

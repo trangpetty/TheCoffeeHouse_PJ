@@ -2,9 +2,9 @@
 import SockJS from 'sockjs-client';
 import { Client, IMessage } from '@stomp/stompjs';
 
-const socket = new SockJS(`http://10.30.100.178:8082/ws`);
+const socket = new SockJS(`https://3caf-2401-d800-21f1-9bde-ddcb-3d6e-76a4-f8e2.ngrok-free.app/ws`);
 const stompClient = new Client({
-    brokerURL: 'ws://10.30.100.178:8082/ws',
+    brokerURL: 'ws://3caf-2401-d800-21f1-9bde-ddcb-3d6e-76a4-f8e2.ngrok-free.app/ws',
     connectHeaders: {},
     webSocketFactory: () => socket,
     debug: (msg) => console.log(new Date(), msg),

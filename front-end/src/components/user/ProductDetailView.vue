@@ -12,7 +12,7 @@
       <div class="col-lg-6 col-md-6 col-sm-12">
         <el-carousel ref="carouselRef" trigger="click" :autoplay="false" @change="handleChange">
           <el-carousel-item v-for="(image, index) in product.images" :key="index">
-            <img :src="image.url"/>
+            <img :src="image.url" class="w-100"/>
           </el-carousel-item>
         </el-carousel>
         <div class="custom-indicators">

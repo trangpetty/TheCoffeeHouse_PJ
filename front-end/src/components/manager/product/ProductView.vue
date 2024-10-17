@@ -116,9 +116,6 @@
                 </div>
               </template>
             </el-upload>
-            <el-dialog v-model="dialogVisible">
-              <img :src="dialogImageUrl" alt="" width="100%" />
-            </el-dialog>
           </el-form-item>
           <el-form-item>
             <h6>Topping</h6>
@@ -142,6 +139,10 @@
           <el-button @click="ui.dialogVisible = false">Cancel</el-button>
           <el-button type="primary" @click="handleConfirm">Confirm</el-button>
         </div>
+      </el-dialog>
+
+      <el-dialog v-model="dialogVisible">
+        <img :src="dialogImageUrl" alt="" width="100%" />
       </el-dialog>
       <!-- Pagination -->
       <el-pagination class="pagination" v-model:current-page="currentPage" layout="total, prev, pager, next" :total="total" @current-change="fetchData" />

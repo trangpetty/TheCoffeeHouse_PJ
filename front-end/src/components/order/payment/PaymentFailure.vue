@@ -133,7 +133,7 @@
                         <el-text class="text-orange order-card__text">Khuyến mãi</el-text>
                         <p class="m-0">{{voucher.name}}</p>
                       </div>
-                      <h6 class="mb-0">-{{ bill.valueOfVoucher ? Utils.formatPrice(bill.valueOfVoucher) : (voucher.discountValue + '%') }}</h6>
+                      <h6 class="mb-0" v-if="bill.valueOfVoucher || voucher.discountValue">-{{ bill.valueOfVoucher ? Utils.formatPrice(bill.valueOfVoucher) : (voucher.discountValue + '%') }}</h6>
                     </div>
                     <div class="d-flex align-items-center justify-content-between pt-3" v-if="bill.usedCustomerPoints">
                       <div>

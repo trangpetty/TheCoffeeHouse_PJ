@@ -480,15 +480,6 @@ watch([user, voucher, totalCost, totalValue], ([newUser, newVoucher, newTotalCos
   formData.value.value = newTotalValue;
 });
 
-watch(cartItems, (newCartItems) => {
-  if (newCartItems.length === 0) {
-    ui.value.loading = true;
-    setTimeout(() => {
-      router.push('/'); // Replace 'home' with your actual home route name
-    }, 2000);
-  }
-});
-
 watch(voucher, async (newVoucher) => {
   if (formData.value.contactDetail.phoneNumber) {
     if (newVoucher && newVoucher.id) {
@@ -568,34 +559,17 @@ const confirmOrder = async () => {
   }
 
   formData.value.valueOfCustomerPoint = Math.floor(totalValue.value / 100000);
+  const pay = await axiosClient.post(`/payment/${paymentMethod.value.methodName}`, formData.value);
 
-  if (paymentMethod.value.methodName === 'cash') {
-    const pay = await axiosClient.post(`/payment/cash`, formData.value);
-    const updateBill = (bill: any) => {
-      sendMessage('/app/updateBill', bill);
-    };
-    if (pay.status === 200) {
-      setTimeout(() => {
-        router.push(`/payment-success/${formData.value.code}`)
-      }, 2000);
-    }
-  } else {
-    try {
-      const endpoint = paymentMethod.value.methodName === 'momo' ? 'momo' : 'vnpay';
-      // Example axios request
-      const pay = await axiosClient.post(`/payment/${endpoint}`, formData.value);
-      const updateBill = (bill: any) => {
-        sendMessage('/app/updateBill', bill);
-      };
-      if (pay.status === 200) {
-        setTimeout(() => {
-          router.push(pay.data.paymentUrl);
-        }, 2000);
-      }
-    } catch (error) {
-      console.error('Error processing payment:', error);
-    }
+  if (pay.status === 200) {
+    setTimeout(() => {
+      const redirectUrl = pay.data.paymentUrl;
+      window.location.href = redirectUrl;
+    }, 2000);
   }
+
+  const updateBill = (bill: any) => sendMessage('/app/updateBill', bill);
+
   deleteOrder();
   handleClearVoucher();
 };

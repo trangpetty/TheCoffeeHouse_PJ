@@ -9,9 +9,17 @@
         <div class="header_menu">
           <ul class="clearfix">
             <li v-for="(item, index) in menu" :key="index" :class="{ 'has-child': item.children && item.children.length > 0 }">
-              <router-link :to="`/menu/${item.path || ''}`" class="d-flex align-items-center">
+              <router-link
+                  :to="getMenuLink(item)"
+                  class="d-flex align-items-center"
+              >
                 {{ item.label }}
-                <font-awesome-icon v-if="item.children && item.children.length > 0" icon="fa-solid fa-sort-down" class="ms-1" style="height: 8px; width: 8px"/>
+                <font-awesome-icon
+                    v-if="item.children && item.children.length > 0"
+                    icon="fa-solid fa-sort-down"
+                    class="ms-1"
+                    style="height: 8px; width: 8px"
+                />
               </router-link>
               <ul v-if="item.children && item.children.length > 0" class="menu_child">
                 <li v-for="(child, childIndex) in item.children" :key="childIndex" class="lv2_title">
@@ -38,7 +46,7 @@
       <button class="close-btn" @click="toggleSidebar">×</button>
       <ul class="sidebar-menu">
         <li v-for="(item, index) in menu" :key="index">
-          <router-link :to="`/menu/${item.path || ''}`">{{ item.label }}</router-link>
+          <router-link :to="getMenuLink(item)">{{ item.label }}</router-link>
           <ul v-if="item.children && item.children.length > 0">
             <li v-for="(child, childIndex) in item.children" :key="childIndex">
               <router-link :to="`/menu/${child.path || ''}`">{{ child.label }}</router-link>
@@ -56,6 +64,7 @@
     <div class="overlay" v-if="sidebarOpen" @click="toggleSidebar"></div>
   </header>
 </template>
+
 <script lang="ts" setup>
 import { ref } from "vue";
 
@@ -81,8 +90,7 @@ const menu = ref([
       {
         label: "Trà trái cây - Hi Tea",
         children: [
-          { label: "Trà trái cây", path: "Trà Trái Cây" },
-          { label: "Hi Tea", path: "" },
+          { label: "Trà trái cây", path: "Trà Trái Cây" }
         ]
       },
       {
@@ -103,9 +111,18 @@ const menu = ref([
       },
     ]
   },
-  { label: "Blog", path: "" }
+  { label: "Blog", path: "blogs" } // Updated path
 ]);
+
+// Function to get the correct link based on the menu item
+const getMenuLink = (item: any) => {
+  if (item.label === "Blog") {
+    return `/blogs`; // Specific route for Blog
+  }
+  return `/menu/${item.path || ''}`;
+};
 </script>
+
 <style scoped>
 a {
   text-decoration: none;

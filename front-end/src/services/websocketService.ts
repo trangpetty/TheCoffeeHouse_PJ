@@ -3,7 +3,7 @@ import SockJS from 'sockjs-client';
 
 // WebSocket connection setup
 const stompClient = new Client({
-    brokerURL: 'ws://10.30.100.178:8082/ws',
+    brokerURL: 'ws://3caf-2401-d800-21f1-9bde-ddcb-3d6e-76a4-f8e2.ngrok-free.app/ws',
     connectHeaders: {},
     reconnectDelay: 5000,  // Auto reconnect after 5 seconds if disconnected
     debug: (msg) => console.log(new Date(), msg),
@@ -14,7 +14,7 @@ const stompClient = new Client({
         console.error('Broker reported error: ' + frame.headers['message']);
         console.error('Additional details: ' + frame.body);
     },
-    webSocketFactory: () => new SockJS('http://10.30.100.178:8082/ws') // Use SockJS as a fallback
+    webSocketFactory: () => new SockJS('https://3caf-2401-d800-21f1-9bde-ddcb-3d6e-76a4-f8e2.ngrok-free.app/ws') // Use SockJS as a fallback
 });
 
 // Function to connect WebSocket and handle incoming messages

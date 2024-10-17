@@ -34,7 +34,6 @@ interface Product {
 }
 
 const props = defineProps<{ product: Product }>();
-console.log('props product: ', props.product);
 
 </script>
 

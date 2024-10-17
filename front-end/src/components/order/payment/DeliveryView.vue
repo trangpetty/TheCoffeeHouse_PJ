@@ -13,6 +13,7 @@
             <p>Tên khách hàng: {{ bill.contactDetail.name }}</p>
             <p>Địa chỉ: {{ bill.contactDetail.address }}</p>
             <p>Số điện thoại: {{ bill.contactDetail.phoneNumber }}</p>
+            <p>Giá trị đơn hàng: {{ bill.paymentStatus ? Utils.formatPrice(bill.value) : Utils.formatPrice(0) }}</p>
             <p>Trạng thái: {{ getStatusText(bill.deliveryStatus) }}</p>
             <div class="btn-group">
               <button v-for="status in deliveryStatusOptions" :key="status.value"
@@ -33,6 +34,7 @@ import { ref, onMounted, defineProps } from 'vue';
 import { ElMessage } from 'element-plus';
 import axiosClient from '@/utils/axiosConfig';
 import {connectWebSocket, sendMessage} from "@/utils/websocket";
+import * as Utils from '@/utils/index'
 
 const props = defineProps(['code']);
 

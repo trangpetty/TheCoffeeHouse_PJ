@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="isDialogVisible" @close="closeDialog" :show-close="false" width="40%" class="rounded-4">
+  <el-dialog v-model="isDialogVisible" @close="closeDialog" :show-close="false" :width="dialogWidth" class="rounded-4">
     <ul class="list-delivery-method d-flex justify-content-center">
       <li>
         <div class="deliery-method-card d-flex active">
@@ -40,9 +40,20 @@
 
 <script setup lang="ts">
 import delivery from "@/assets/images/Delivery2.png";
-import { computed, ref, watch } from "vue";
+import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import { useStore } from 'vuex';
 import axiosClient from '@/utils/axiosConfig'
+
+const dialogWidth = ref('40%');
+
+// Hàm thay đổi width theo kích thước màn hình
+const handleResize = () => {
+  if (window.innerWidth <= 768) {
+    dialogWidth.value = '100%';  // Đặt width 100% cho màn hình nhỏ
+  } else {
+    dialogWidth.value = '40%';   // Đặt width 30% cho màn hình lớn hơn
+  }
+};
 
 const ui = ref({
   changeAddress: false,
@@ -115,6 +126,15 @@ const handleSelect = (item) => {
   ui.value.backAddress = false;
   localStorage.setItem('address', item.value); // Lưu địa chỉ mới vào localStorage
 };
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+  handleResize();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize);
+});
 
 </script>
 

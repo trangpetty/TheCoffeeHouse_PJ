@@ -63,7 +63,7 @@
       </div>
     </div>
     <div class="row d-flex justify-content-end mt-3">
-      <button class="btn-update btn btn--orange-1 w-auto px-4 py-2 me-3" @click="handleResetPassword">Đổi mật khẩu</button>
+      <button class="btn-update btn btn--orange-1 w-auto px-4 py-2 me-3" @click="ui.dialogVisible = true">Đổi mật khẩu</button>
       <button class="btn-update btn btn--orange-1 w-auto px-4 py-2" @click="handleUpdate">Cập nhật</button>
     </div>
   </form>

@@ -15,6 +15,8 @@
             <el-form-item label="Status">
               <el-select v-model="queryForm.status" class="input">
                 <el-option label="All" value=""/>
+                <el-option label="Created" value="created"/>
+                <el-option label="Pending" value="pending"/>
                 <el-option label="Success" value="success"/>
                 <el-option label="Fail" value="fail"/>
               </el-select>

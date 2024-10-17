@@ -5,7 +5,7 @@
         <span class="text-orange">{{ Utils.formatPrice(totalBill) }}</span>
       </h2>
       <el-tabs v-model="status" @tab-click="handleChooseStatus">
-        <el-tab-pane label="Đang thực hiện" name="pending"></el-tab-pane>
+        <el-tab-pane label="Đang thực hiện" name="pendingCreated"></el-tab-pane>
         <el-tab-pane label="Đã hoàn tất" name="success"></el-tab-pane>
         <el-tab-pane label="Đã hủy" name="fail"></el-tab-pane>
       </el-tabs>
@@ -15,7 +15,8 @@
             {{ item.code }}
           </p>
           <div>
-            <el-tag v-if="item.paymentStatus" type="danger" effect="dark">UNPAID</el-tag>
+            <el-tag v-if="item.paymentStatus === 1" type="danger" effect="dark">UNPAID</el-tag>
+            <el-tag v-else-if="item.paymentStatus === -1" type="warning" effect="dark">PENDING</el-tag>
             <el-tag v-else type="success" effect="dark">PAID</el-tag>
           </div>
         </div>
@@ -100,9 +101,10 @@
               <div class="border-bottom mt-4 pb-3">
                 <p class="mb-1">Trạng thái thanh toán</p>
                 <h6 class="m-0">
-                  <el-tag v-if="bill.paymentStatus" type="danger" effect="dark">UNPAID</el-tag>
+                  <el-tag v-if="bill.paymentStatus === 1" type="danger" effect="dark">UNPAID</el-tag>
+                  <el-tag v-else-if="bill.paymentStatus === -1" type="warning" effect="dark">PENDING</el-tag>
                   <el-tag v-else type="success" effect="dark">PAID</el-tag>
-                  <span class="ms-2">{{bill.paymentStatus ? 'Chưa thanh toán' : 'Đã thanh toán'}}</span>
+                  <span class="ms-2">{{(bill.paymentStatus === 1) ? 'Không thanh toán' : (bill.paymentStatus === -1) ? 'Đang chờ thanh toán' : 'Đã thanh toán'}}</span>
                 </h6>
               </div>
               <div class="mt-4 pb-3">
@@ -207,7 +209,7 @@ const bill = ref({});
 const currentPage = ref(1);
 const pageSize = ref(5);
 const totalBill = ref(0);
-const status = ref('pending');
+const status = ref('pendingCreated');
 const voucher = ref({});
 
 const handleChooseStatus = async (tab: TabsPaneContext, event: Event) => {
@@ -233,7 +235,13 @@ const getVoucher = async () => {
 };
 
 const filterBillsByStatus = () => {
-  filteredBills.value = bills.value.filter(bill => bill.status === status.value);
+  if (status.value === 'pendingCreated') {
+    filteredBills.value = bills.value.filter(bill =>
+        bill.status === 'created' || bill.status === 'pending'
+    );
+  } else {
+    filteredBills.value = bills.value.filter(bill => bill.status === status.value);
+  }
 };
 
 const handlePageChange = (page: number) => {
@@ -242,7 +250,7 @@ const handlePageChange = (page: number) => {
 
 const getTotalBill = async () => {
   const response = await axiosClient.get(`/users/bill-total/${user.value.id}`);
-  totalBill.value = response.data;
+  totalBill.value = response.data ? response.data : 0;
 };
 
 const paymentMethods = ref([

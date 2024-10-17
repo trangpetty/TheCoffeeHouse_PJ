@@ -7,8 +7,8 @@
           <img :src="banner" alt="">
         </a>
       </div>
-      <div class="d-flex">
-        <ProductCard v-for="(item, index) in newestProducts" :key="index" :product="item"/>
+      <div class="product_banner">
+        <ProductCard v-for="(item, index) in newestProducts" :key="index" :product="item" style="flex: 0 0 50%"/>
       </div>
     </div>
     <div v-if="discountProduct" class="mb-3 container">
@@ -181,6 +181,11 @@ onMounted(async () => {
   top: 0;
   left: 0;
   position: absolute;
+}
+
+.product_banner {
+  display: flex;
+  width: 50%;
 }
 
 .news-tab {
@@ -416,6 +421,15 @@ onMounted(async () => {
 }
 
 @media screen and (max-width: 767px) {
+  .menu_banner {
+    flex: 0 0 100%;
+    margin: 0;
+  }
+
+  .product_banner {
+    width: calc(100% - 40px);
+  }
+
   .cloudtea {
     display: none;
   }

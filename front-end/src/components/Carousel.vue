@@ -24,10 +24,6 @@ const images = ref([banner1, banner2, banner3, banner4, banner5])
   position: relative;
 }
 
-::v-deep .el-carousel__container {
-  height: 400px!important;
-}
-
 @media (max-width: 992px) {
   .banner_home {
     transform: translateY(0);
