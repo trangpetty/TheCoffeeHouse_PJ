@@ -8,6 +8,29 @@
 
 https://github.com/user-attachments/assets/bc4a72fd-2b13-465d-a728-83f272d03fab
 
+## 
+### 1. Main page
+![image](https://github.com/user-attachments/assets/41d526ef-e042-4a15-a79c-74f0a449ea34)
+
+### 2. Detail product
+![image](https://github.com/user-attachments/assets/85921620-0fa7-46d5-be6f-5243d874a900)
+
+### 3. Order page
+![image](https://github.com/user-attachments/assets/50e5cd34-1bb3-4aa6-9ada-c9404c73d183)
+
+### 4. Cart view
+![image](https://github.com/user-attachments/assets/66ec664b-86e2-4313-8edb-9e957a6fb34d)
+
+### 5. Order success
+![image](https://github.com/user-attachments/assets/3d29b00c-cc53-4d8e-a4c3-b96defc7f8a6)
+
+### 6. Voucher
+![image 1](https://github.com/user-attachments/assets/6025bf57-09d6-41bd-b1cf-632519556783) ![image 2](https://github.com/user-attachments/assets/0c75b549-6037-431c-ad14-f7db8e841e86)
+
+### 7. Admin view
+![image 1](https://github.com/user-attachments/assets/8c2b15d6-32d2-4fca-a5af-83007c122f90) ![image 2](https://github.com/user-attachments/assets/b8473b94-6f7d-4a97-b854-c80d1ed31ff8)
+
+
 ## Features
 
 ### 1. **User Authentication**
